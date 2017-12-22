@@ -21,17 +21,19 @@ neither that much for personal projects. The only way to get better at Haskell
 and purely functional programming is to use purely functional languages, so this
 is a start.
 
-Hakyll uses [[http://pandoc.org/][Pandoc]] to render all kinds of markup formats, including =org-mode=.
-Last Christmas[fn:1], I decided to spend the holiday trying out [[http://spacemacs.org/][Spacemacs]]. Being
-a long-time =vim= user I had never really considered switching to =Emacs=, but
-*The Internet™* persuaded me to try due to =Evil= mode and it's (allegedly)
-awesome =vim= emulation. Well, it's been almost a year now and I have not looked
-back. Why am I telling you this!? Well, being a recent =Emacs= convertite, I've
-naturally also stumble on =org-mode=. Writing =org-mode= in =Emacs= is far
-superior to using e.g. =Markdown=, in my humble opinion.
+Hakyll uses [[http://pandoc.org/][Pandoc]] to render all kinds of markup formats, including [[http://orgmode.org/][Org]]. Last
+Christmas[fn:last-christmas] I decided to spend the holiday trying out
+[[http://spacemacs.org/][Spacemacs]]. Being a long-time =Vim= user I had never really considered switching
+to =Emacs=, but *The Internet™* persuaded me to try due to =Evil= mode and it's
+(allegedly) awesome =Vim= emulation. Well, it's been almost a year now and I
+have not looked back. Why am I telling you this!? Well, being a recent =Emacs=
+convertite, I've naturally also stumbled on =Org=. Writing =Org= in =Emacs= is
+far superior to using e.g. =Markdown=, in my opinion[fn:Org].
 
 I don't have very large expectations of putting out article after article in a
 regular fashion, but hopefully I'll get some sporadic inspirations motivating me
-to write about it.
+to write.
 
-[fn:1] ♬ I gave you my heart... ♬
+[fn:last-christmas] ♬ I gave you my heart... ♬
+[fn:Org] Blog posts can easily start out from a simple capture, or a note
+taken from my cell phone. A perfect topic for an upcoming post!

@@ -127,3 +127,7 @@ pre.sourceCode {
 .footnotes hr {
     display: none;
 }
+
+.footnotes p {
+    line-height: 1em;
+}
