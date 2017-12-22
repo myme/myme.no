@@ -5,7 +5,7 @@ import           Hakyll
 
 --------------------------------------------------------------------------------
 main :: IO ()
-main = hakyll $ do
+main = hakyllWith config $ do
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler
@@ -18,6 +18,7 @@ main = hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
+            >>= saveSnapshot "content"
             >>= loadAndApplyTemplate "templates/default.html" postCtx
             >>= relativizeUrls
 
@@ -37,7 +38,7 @@ main = hakyll $ do
     match "index.html" $ do
         route idRoute
         compile $ do
-            posts <- recentFirst =<< loadAll "posts/*"
+            posts <- (return . take 1) =<< recentFirst =<< loadAllSnapshots "posts/*" "content"
             let indexCtx =
                     listField "posts" postCtx (return posts) `mappend`
                     defaultContext
@@ -48,6 +49,12 @@ main = hakyll $ do
                 >>= relativizeUrls
 
     match "templates/*" $ compile templateBodyCompiler
+
+--------------------------------------------------------------------------------
+config :: Configuration
+config = defaultConfiguration { destinationDirectory = "public"
+                              , deployCommand = "rsync -Pavz --delete ./public deque:/data/myme.no"
+                              }
 
 --------------------------------------------------------------------------------
 postCtx :: Context String
