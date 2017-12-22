@@ -55,9 +55,22 @@ footer {
     text-align: right;
 }
 
+footer .social {
+    float: left;
+    font-size: 20px;
+}
+
 a {
     color: #0ad;
     text-decoration: none;
+}
+
+a .fas, a .fab {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+a:hover .fas, a:hover .fab {
+    color: rgba(0, 0, 0, 1);
 }
 
 h1 {
