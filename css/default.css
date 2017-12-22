@@ -1,8 +1,11 @@
+html {
+    font-size: 18px;
+}
+
 body {
-    color: #778;
+    color: #556;
     font-family: 'Roboto', sans-serif;
     font-weight: lighter;
-    font-size: 16px;
     min-width: 20em;
     margin: auto;
     padding: 0 10px;
@@ -10,7 +13,7 @@ body {
 
 @media (min-width: 60em) {
     body {
-        width: 60em;
+        width: 50em;
     }
 }
 
@@ -22,7 +25,7 @@ header {
 
 .logo {
     float: left;
-    font-size: 18px;
+    font-size: 20px;
     text-decoration: none;
 }
 
@@ -31,7 +34,7 @@ nav {
 }
 
 nav a {
-    color: #778;
+    color: #556;
 }
 
 nav ul {
@@ -61,7 +64,7 @@ footer .social {
 }
 
 a {
-    color: #0ad;
+    color: #07a;
     text-decoration: none;
 }
 
@@ -87,8 +90,20 @@ ul {
     list-style-type: ' — ';
 }
 
+code {
+    font-family: 'Roboto Mono', monospace;
+    background-color: #e0f0ff;
+}
+
 article .header {
     color: #889;
     font-size: 14px;
     font-style: italic;
+}
+
+pre.sourceCode {
+    font-size: 16px;
+    background-color: #e0f0ff;
+    color: #369;
+    padding: 10px;
 }

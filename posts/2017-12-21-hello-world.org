@@ -2,8 +2,32 @@
 title: Hello, World!
 ---
 
-More content...
-
-#+BEGIN_SRC javascript
-console.log('Hello, World!');
+#+BEGIN_SRC haskell
+  main ∷ IO ()
+  main = putStrLn "Hello, World!"
 #+END_SRC
+
+It has been my intention for a long time to setup a static home page where I can
+publish articles and share thoughts. Unfortunately I haven't prioritized this
+high enough and so it has taken me a lot longer than what I would have liked.
+
+I've been shopping around for static site generators, briefly trying out
+=JavaScript= and =NodeJS= based options before finally settling on [[https://jaspervdj.be/hakyll/][Hakyll]]. The
+main motivation for this is that I have a fondness for functional programming
+and always liked Haskell. Alas, I have not been able to use it for work and
+neither that much for personal projects. The only way to get better at Haskell
+and purely functional programming is to use purely functional languages, so this
+is a start.
+
+Last Christmas, (I gave you my heart...) I decided to spend the holiday trying
+out something new. At the time I stumbled onto some =YouTube= videos and blog
+posts about [[http://spacemacs.org/][Spacemacs]], so I decided to give it a try. It's been almost a year
+now, and I have not looked back. Being a long-time =vim= user I did get
+comfortable rather quickly, yet I did not immediately miss anything crucial. Why
+am I telling you this! Well, Hakyll uses [[http://pandoc.org/][Pandoc]] to render all kinds of markup
+formats, and I couldn't be an =Emacs= user without falling for =org-mode=.
+Writing =org-mode= in =Emacs= is far superior to using e.g. =Markdown=.
+
+I don't have very large expectations of putting out article after article in a
+regular fashion, but hopefully I'll get some sporadic inspirations motivating me
+to write about it.
