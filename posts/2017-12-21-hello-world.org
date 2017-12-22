@@ -7,6 +7,8 @@ title: Hello, World!
   main = putStrLn "Hello, World!"
 #+END_SRC
 
+So, a blog you say?
+
 It has been my intention for a long time to setup a static home page where I can
 publish articles and share thoughts. Unfortunately I haven't prioritized this
 high enough and so it has taken me a lot longer than what I would have liked.
@@ -20,7 +22,7 @@ and purely functional programming is to use purely functional languages, so this
 is a start.
 
 Hakyll uses [[http://pandoc.org/][Pandoc]] to render all kinds of markup formats, including =org-mode=.
-Last Christmas[fn:1] I decided to spend the holiday trying out [[http://spacemacs.org/][Spacemacs]]. Being
+Last Christmas[fn:1], I decided to spend the holiday trying out [[http://spacemacs.org/][Spacemacs]]. Being
 a long-time =vim= user I had never really considered switching to =Emacs=, but
 *The Internet™* persuaded me to try due to =Evil= mode and it's (allegedly)
 awesome =vim= emulation. Well, it's been almost a year now and I have not looked
