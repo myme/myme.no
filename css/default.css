@@ -73,11 +73,11 @@ a {
 }
 
 a .fas, a .fab {
-    color: rgba(0, 0, 0, 0.6);
+    color: #556;
 }
 
 a:hover .fas, a:hover .fab {
-    color: rgba(0, 0, 0, 1);
+    color: #334;
 }
 
 h1 {
@@ -103,8 +103,8 @@ ul {
 }
 
 code {
-    background-color: #ffe9f9;
-    color: #c69;
+    background-color: #fff0f9;
+    color: #d05070;
     font-family: 'Roboto Mono', monospace;
     padding: 0 0.2em;
 }
