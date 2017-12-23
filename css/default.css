@@ -1,17 +1,18 @@
 html {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 body {
+    box-sizing: border-box;
     color: #556;
     font-family: 'Roboto', sans-serif;
     font-weight: lighter;
-    min-width: 20em;
     margin: auto;
+    min-width: 20em;
     padding: 0 10px;
 }
 
-@media (min-width: 60em) {
+@media (min-width: 50em) {
     body {
         width: 50em;
     }
@@ -19,13 +20,13 @@ body {
 
 header {
     border-bottom: 1px solid #dde;
-    text-align: right;
     font-weight: bolder;
+    text-align: right;
 }
 
 .logo {
     float: left;
-    font-size: 20px;
+    font-size: 1.1em;
     text-decoration: none;
 }
 
@@ -52,7 +53,7 @@ nav ul li a {
 
 footer {
     border-top: 1px solid #dde;
-    font-size: 14px;
+    font-size: 0.8em;
     margin-top: 30px;
     padding: 12px 0px 12px 0px;
     text-align: right;
@@ -60,7 +61,7 @@ footer {
 
 footer .social {
     float: left;
-    font-size: 20px;
+    font-size: 1.3em;
 }
 
 a {
@@ -77,12 +78,12 @@ a:hover .fas, a:hover .fab {
 }
 
 h1 {
-    font-size: 24px;
+    font-size: 1.4em;
     font-weight: bolder;
 }
 
 h2 {
-    font-size: 20px;
+    font-size: 1.2em;
     font-weight: bolder;
 }
 
@@ -91,7 +92,7 @@ strong {
 }
 
 sup {
-    font-size: 14px;
+    font-size: 0.7em;
 }
 
 ul {
@@ -110,18 +111,18 @@ p {
 
 article .header {
     color: #889;
-    font-size: 14px;
+    font-size: 0.8em;
     font-style: italic;
 }
 
 pre.sourceCode {
     background-color: #e0f0ff;
-    font-size: 16px;
+    font-size: 0.9em;
     padding: 10px;
 }
 
 .footnotes {
-    font-size: 14px;
+    font-size: 0.8em;
 }
 
 .footnotes hr {
