@@ -10,7 +10,7 @@ body {
     box-sizing: border-box;
     color: #556;
     font-family: 'Roboto', sans-serif;
-    font-weight: lighter;
+    font-weight: 400;
     margin: auto;
     min-width: 20em;
     padding: 0 10px;
@@ -24,7 +24,6 @@ body {
 
 header {
     border-bottom: 1px solid #dde;
-    font-weight: bolder;
     text-align: right;
 }
 
@@ -83,16 +82,16 @@ a:hover .fas, a:hover .fab {
 
 h1 {
     font-size: 1.4em;
-    font-weight: bolder;
+    font-weight: 400;
 }
 
 h2 {
     font-size: 1.2em;
-    font-weight: bolder;
+    font-weight: 400;
 }
 
 strong {
-    font-weight: bold;
+    font-weight: 500;
 }
 
 sup {
