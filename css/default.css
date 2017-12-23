@@ -1,3 +1,7 @@
+* {
+    border-radius: 0.2em;
+}
+
 html {
     font-size: 16px;
 }
@@ -88,7 +92,7 @@ h2 {
 }
 
 strong {
-    font-weight: 500;
+    font-weight: bold;
 }
 
 sup {
@@ -100,9 +104,16 @@ ul {
 }
 
 code {
-    background-color: #e0f0ff;
-    color: #369;
+    background-color: #ffe9f9;
+    color: #c69;
     font-family: 'Roboto Mono', monospace;
+    padding: 0 0.2em;
+}
+
+code.sourceCode {
+    background-color: inherit;
+    color: #369;
+    padding: 0;
 }
 
 p {
