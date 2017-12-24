@@ -82,12 +82,12 @@ a:hover .fas, a:hover .fab {
 
 h1 {
     font-size: 1.4em;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 h2 {
     font-size: 1.2em;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 strong {
@@ -128,6 +128,7 @@ article .header {
 pre.sourceCode {
     background-color: #e0f0ff;
     font-size: 0.9em;
+    overflow: auto;
     padding: 10px;
 }
 
