@@ -81,12 +81,17 @@ a:hover .fas, a:hover .fab {
 }
 
 h1 {
-    font-size: 1.4em;
+    font-size: 1.5em;
     font-weight: 500;
 }
 
 h2 {
-    font-size: 1.2em;
+    font-size: 1.3em;
+    font-weight: 500;
+}
+
+h3 {
+    font-size: 1em;
     font-weight: 500;
 }
 
@@ -117,6 +122,11 @@ code.sourceCode {
 
 p {
     line-height: 1.4em;
+}
+
+p img, p iframe {
+    display: block;
+    margin: 0 auto;
 }
 
 article .header {
