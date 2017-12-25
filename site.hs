@@ -27,6 +27,7 @@ main = hakyllWith config $ do
         compile $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let postsCtx =
+                    constField "title" "Posts" `mappend`
                     listField "posts" postCtx (return posts) `mappend`
                     defaultContext
 
@@ -40,6 +41,7 @@ main = hakyllWith config $ do
         compile $ do
             posts <- (return . take 1) =<< recentFirst =<< loadAllSnapshots "posts/*" "content"
             let indexCtx =
+                    constField "title" "Home" `mappend`
                     listField "posts" postCtx (return posts) `mappend`
                     defaultContext
 
