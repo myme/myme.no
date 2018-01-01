@@ -40,7 +40,7 @@ modal philosofy and =normal= mode motions are awesome, and the editing
 efficiency you can achieve when grokking them is quite unique.[fn:on-editors]
 Whatever was supposed to replace my =Vim=-based setup had to rock pretty hard.
 
-** Pimp my =Emacs=
+* Pimp my =Emacs=
 
 =Emacs= is not much different to =Vim= when it comes to their default
 configuration being pretty lame. It does most definitely *not* rock. Having
@@ -56,7 +56,7 @@ work/. After a brief stint with a bootstrapped configuration I soon discovered
 =Spacemacs=. Not having gained much of an "attachment" to my auto-generated
 configuration I scrapped it all and flew off to space...
 
-** Configuration sneak peek
+* Configuration sneak peek
    
 =Spacemacs= is a rather opinionated yet holistic plug and play configuration for
 =Emacs=. There's plenty of material out about what =Spacemacs= is and isn't, so
@@ -117,14 +117,14 @@ a few private layers though:
  2. =Gnus= mail setup
  3. =JavaScript= (with =React= support)[fn:myme-javascript]
 
-*** Killer apps
+** Killer apps
 
 A couple of the killer apps you typically hear about when coming to =Emacs= are
 =Magit= and =Org mode=. I've become a heavy user of both of these amazing
 extensions. I have accumulated a bit of =elisp= and configurations in order to
 make sense of my =Org Agenda=, which is why I've placed it in a separate layer.
 
-*** Fuzzy finding
+** Fuzzy finding
 
 One of my most important =Vim= plugins was =Ctrl-P=, fuzzy-search for files.
 There are two main searching/completion frameworks for =Emacs=: =Helm= and
@@ -136,7 +136,7 @@ switched to =Ivy= from =Helm= as I was experiencing some of the notorious
 performance issues. There are annoying quirks with =Ivy= too though, yet none of
 which are performance related.
 
-*** Batteries included
+** Batteries included
 
 The batteries included in the =Spacemacs= distribution is quite impressive, and
 there's not been much I can say that I miss from =Vim=. There are numerous
@@ -153,7 +153,7 @@ examples of bindings and prefixes are:
  - =SPC s= :: Search commands (there are some amazing tools and integrations here)
  - =SPC w= :: All window related actions, e.g. delete window =SPC w d=
 
-** In conclusion
+* In conclusion
    
 I'm grateful for the excellent editor which is =Vim=. The impact it and its
 predecessors have had on the editor space is enormous. For me though, the time

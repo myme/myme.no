@@ -16,9 +16,19 @@ body {
     padding: 0 10px;
 }
 
+p iframe {
+    height: 155px;
+    width: 280px;
+}
+
 @media (min-width: 50em) {
     body {
         width: 50em;
+    }
+
+    p iframe {
+        height: 315px;
+        width: 560px;
     }
 }
 
