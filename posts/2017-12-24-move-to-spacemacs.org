@@ -17,162 +17,162 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
 #+ATTR_HTML: :width 200px :alt Spacemacs logo
 [[file:../images/spacemacs-logo.svg]]
 
-* Prologue
+** Prologue
 
-It all started when I stumbled on this YouTube video of a talk by
-[[https://www.aaronbieber.com/][Aaron Bieber]] about =Evil Mode= for =Emacs=. I
-bet there are plenty other videos like it out there, but what hit me was the
-fact that somebody with a long =Vim= track record chose to jump ship in favor of
-something else:
+ It all started when I stumbled on this YouTube video of a talk by
+ [[https://www.aaronbieber.com/][Aaron Bieber]] about =Evil Mode= for =Emacs=. I
+ bet there are plenty other videos like it out there, but what hit me was the
+ fact that somebody with a long =Vim= track record chose to jump ship in favor of
+ something else:
 
-#+begin_export html
-<p>
-  <iframe width="560" height="315"
-          src="https://www.youtube.com/embed/JWD1Fpdd4Pc" frameborder="0"
-          gesture="media" allow="encrypted-media" allowfullscreen></iframe>
-</p>
-  #+end_export
+ #+begin_export html
+ <p>
+   <iframe width="560" height="315"
+           src="https://www.youtube.com/embed/JWD1Fpdd4Pc" frameborder="0"
+           gesture="media" allow="encrypted-media" allowfullscreen></iframe>
+ </p>
+   #+end_export
 
-At the time I watched the talk I had been a =Vim= user for more than 10 years. I
-was very comfortable with/and extensively used several =Vim=-defining features,
-and also having a respectable number of additional plugins installed. =Vim='s
-modal philosofy and =normal= mode motions are awesome, and the editing
-efficiency you can achieve when grokking them is quite unique.[fn:on-editors]
-Whatever was supposed to replace my =Vim=-based setup had to rock pretty hard.
+ At the time I watched the talk I had been a =Vim= user for more than 10 years. I
+ was very comfortable with/and extensively used several =Vim=-defining features,
+ and also having a respectable number of additional plugins installed. =Vim='s
+ modal philosofy and =normal= mode motions are awesome, and the editing
+ efficiency you can achieve when grokking them is quite unique.[fn:on-editors]
+ Whatever was supposed to replace my =Vim=-based setup had to rock pretty hard.
 
-* Pimp my =Emacs=
+** Pimp my =Emacs=
 
-=Emacs= is not much different to =Vim= when it comes to their default
-configuration being pretty lame. It does most definitely *not* rock. Having
-spent quite a bit of time installing plugins and changing configurations in
-=Vim= I dreaded having to do the same with =Emacs= just to avoid /the suck/.
-Luckily there are tools[fn:emacs-bootstrap] out there that let you bootstrap a
-configuration based on which languages and other parameters you choose.
+ =Emacs= is not much different to =Vim= when it comes to their default
+ configuration being pretty lame. It does most definitely *not* rock. Having
+ spent quite a bit of time installing plugins and changing configurations in
+ =Vim= I dreaded having to do the same with =Emacs= just to avoid /the suck/.
+ Luckily there are tools[fn:emacs-bootstrap] out there that let you bootstrap a
+ configuration based on which languages and other parameters you choose.
 
-Scaffolding a configuration is a one-time operation though. It leaves all the
-necessary continuous grooming of the configuration up to yourself. This might be
-the dream of some, but I've had my share of tinkering and prefer things to /just
-work/. After a brief stint with a bootstrapped configuration I soon discovered
-=Spacemacs=. Not having gained much of an "attachment" to my auto-generated
-configuration I scrapped it all and flew off to space...
+ Scaffolding a configuration is a one-time operation though. It leaves all the
+ necessary continuous grooming of the configuration up to yourself. This might be
+ the dream of some, but I've had my share of tinkering and prefer things to /just
+ work/. After a brief stint with a bootstrapped configuration I soon discovered
+ =Spacemacs=. Not having gained much of an "attachment" to my auto-generated
+ configuration I scrapped it all and flew off to space...
 
-* Configuration sneak peek
+** Configuration sneak peek
    
-=Spacemacs= is a rather opinionated yet holistic plug and play configuration for
-=Emacs=. There's plenty of material out about what =Spacemacs= is and isn't, so
-I won't dive into that. What I'd though I'd mention is that it comes with a
-pretty awesome extension interface and ecosystem. Plugins are managed by an
-abstraction called =layers=, which basically are domain-specific bundles of
-dependencies, configurations, functions, and keyboard mappings. Popular layers
-are curated by the =Spacemacs= community, while you can easily create your own
-personalized ones.
+ =Spacemacs= is a rather opinionated yet holistic plug and play configuration for
+ =Emacs=. There's plenty of material out about what =Spacemacs= is and isn't, so
+ I won't dive into that. What I'd though I'd mention is that it comes with a
+ pretty awesome extension interface and ecosystem. Plugins are managed by an
+ abstraction called =layers=, which basically are domain-specific bundles of
+ dependencies, configurations, functions, and keyboard mappings. Popular layers
+ are curated by the =Spacemacs= community, while you can easily create your own
+ personalized ones.
 
-I currently don't host my =dotfiles= repository publicly, so here's a snippet
-from the configuration layer list in my =~/.spacemacs.d/init.el= file:
+ I currently don't host my =dotfiles= repository publicly, so here's a snippet
+ from the configuration layer list in my =~/.spacemacs.d/init.el= file:
    
-#+BEGIN_SRC emacs-lisp
-dotspacemacs-configuration-layers
-   '(
-     ;; Languages
-     c-c++
-     emacs-lisp
-     (haskell :variables
-              haskell-completion-backend 'intero)
-     html
-     markdown
-     purescript
-     python
-     vimscript
-     yaml
-     (shell :variables
-            shell-default-height 30
-            shell-default-position 'bottom)
+ #+BEGIN_SRC emacs-lisp
+ dotspacemacs-configuration-layers
+    '(
+      ;; Languages
+      c-c++
+      emacs-lisp
+      (haskell :variables
+               haskell-completion-backend 'intero)
+      html
+      markdown
+      purescript
+      python
+      vimscript
+      yaml
+      (shell :variables
+             shell-default-height 30
+             shell-default-position 'bottom)
 
-     ;; Custom
-     myme-gnus
-     myme-javascript
-     myme-org
+      ;; Custom
+      myme-gnus
+      myme-javascript
+      myme-org
 
-     ;; Div
-     ivy
-     (auto-completion :variables
-                      auto-completion-enable-snippets-in-popup t
-                      ;; auto-completion-return-key-behavior nil
-                      ;; auto-completion-tab-key-behavior 'complete
-                      )
+      ;; Div
+      ivy
+      (auto-completion :variables
+                       auto-completion-enable-snippets-in-popup t
+                       ;; auto-completion-return-key-behavior nil
+                       ;; auto-completion-tab-key-behavior 'complete
+                       )
 
-     ;; Utils
-     git
-     spell-checking
-     syntax-checking
-     themes-megapack
-     version-control
-     )
-#+END_SRC
+      ;; Utils
+      git
+      spell-checking
+      syntax-checking
+      themes-megapack
+      version-control
+      )
+ #+END_SRC
 
-I mostly use stock layers provided with the =Spacemacs= distribution. I do have
-a few private layers though:
+ I mostly use stock layers provided with the =Spacemacs= distribution. I do have
+ a few private layers though:
 
- 1. =Org Mode= customizations
- 2. =Gnus= mail setup
- 3. =JavaScript= (with =React= support)[fn:myme-javascript]
+  1. =Org Mode= customizations
+  2. =Gnus= mail setup
+  3. =JavaScript= (with =React= support)[fn:myme-javascript]
 
-** Killer apps
+*** Killer apps
 
-A couple of the killer apps you typically hear about when coming to =Emacs= are
-=Magit= and =Org mode=. I've become a heavy user of both of these amazing
-extensions. I have accumulated a bit of =elisp= and configurations in order to
-make sense of my =Org Agenda=, which is why I've placed it in a separate layer.
+ A couple of the killer apps you typically hear about when coming to =Emacs= are
+ =Magit= and =Org mode=. I've become a heavy user of both of these amazing
+ extensions. I have accumulated a bit of =elisp= and configurations in order to
+ make sense of my =Org Agenda=, which is why I've placed it in a separate layer.
 
-** Fuzzy finding
+*** Fuzzy finding
 
-One of my most important =Vim= plugins was =Ctrl-P=, fuzzy-search for files.
-There are two main searching/completion frameworks for =Emacs=: =Helm= and
-=Ivy=. As opposed to =Ctrl-P= these frameworks provide means for not only
-searching through files on disk, but all kinds of searching within =Emacs=:
-documentation, contents of a buffer, commands, etc. =Helm= is by far the most
-feature-full of the two, but many seem fed up by its bulkiness. I've recently
-switched to =Ivy= from =Helm= as I was experiencing some of the notorious
-performance issues. There are annoying quirks with =Ivy= too though, yet none of
-which are performance related.
+ One of my most important =Vim= plugins was =Ctrl-P=, fuzzy-search for files.
+ There are two main searching/completion frameworks for =Emacs=: =Helm= and
+ =Ivy=. As opposed to =Ctrl-P= these frameworks provide means for not only
+ searching through files on disk, but all kinds of searching within =Emacs=:
+ documentation, contents of a buffer, commands, etc. =Helm= is by far the most
+ feature-full of the two, but many seem fed up by its bulkiness. I've recently
+ switched to =Ivy= from =Helm= as I was experiencing some of the notorious
+ performance issues. There are annoying quirks with =Ivy= too though, yet none of
+ which are performance related.
 
-** Batteries included
+*** Batteries included
 
-The batteries included in the =Spacemacs= distribution is quite impressive, and
-there's not been much I can say that I miss from =Vim=. There are numerous
-layers for different programming languages, themes, tools and utilities, and
-even games. It's obvious from the get-go that the developers have focused on
-discoverability and intuition. The keyboard bindings are based on mnemonic
-principles, and command searching using =Ivy= as well as tools like =which-key=
-allow discovering the vast number of features a lot simpler. I also realized
-that I remembered the keybindings a lot quicker for every one I learned. A few
-examples of bindings and prefixes are:
+ The batteries included in the =Spacemacs= distribution is quite impressive, and
+ there's not been much I can say that I miss from =Vim=. There are numerous
+ layers for different programming languages, themes, tools and utilities, and
+ even games. It's obvious from the get-go that the developers have focused on
+ discoverability and intuition. The keyboard bindings are based on mnemonic
+ principles, and command searching using =Ivy= as well as tools like =which-key=
+ allow discovering the vast number of features a lot simpler. I also realized
+ that I remembered the keybindings a lot quicker for every one I learned. A few
+ examples of bindings and prefixes are:
 
- - =SPC SPC= :: Open command search using =Ivy=
- - =SPC f= :: File related actions, e.g. =find-file (SPC f f)=
- - =SPC s= :: Search commands (there are some amazing tools and integrations here)
- - =SPC w= :: All window related actions, e.g. delete window =SPC w d=
+  - =SPC SPC= :: Open command search using =Ivy=
+  - =SPC f= :: File related actions, e.g. =find-file (SPC f f)=
+  - =SPC s= :: Search commands (there are some amazing tools and integrations here)
+  - =SPC w= :: All window related actions, e.g. delete window =SPC w d=
 
-* In conclusion
+** In conclusion
    
-I'm grateful for the excellent editor which is =Vim=. The impact it and its
-predecessors have had on the editor space is enormous. For me though, the time
-was right to try out something new and =Emacs= (with batteries) seems to have
-really clicked with me. I don't expect the same to stand true for everybody
-else.
+ I'm grateful for the excellent editor which is =Vim=. The impact it and its
+ predecessors have had on the editor space is enormous. For me though, the time
+ was right to try out something new and =Emacs= (with batteries) seems to have
+ really clicked with me. I don't expect the same to stand true for everybody
+ else.
 
-I do feel a need for stating the obvious though: Of course you don't have to
-abolish =Vim= entirely when choosing another editor. Contrary to [[https://en.wikipedia.org/wiki/Editor_war][popular belief]],
-it's not a matter of either =Vim= or =Emacs=. Use whichever editor is suited for
-the task at hand. I still fire up =Vim= on a regular basis. For instance,
-although I do use [[https://www.emacswiki.org/emacs/TrampMode][Tramp Mode]] occasionally when accessing remote servers, I often
-=ssh= into it and fire up vim. I also periodically install and fire up editors
-like =Atom= and =Visual Studio Code= just to acknowledge what I'm (or they) are
-missing out on. I'm never fully convinced though, for instance due to lack of
-terminal support[fn:terminal-support].
+ I do feel a need for stating the obvious though: Of course you don't have to
+ abolish =Vim= entirely when choosing another editor. Contrary to [[https://en.wikipedia.org/wiki/Editor_war][popular belief]],
+ it's not a matter of either =Vim= or =Emacs=. Use whichever editor is suited for
+ the task at hand. I still fire up =Vim= on a regular basis. For instance,
+ although I do use [[https://www.emacswiki.org/emacs/TrampMode][Tramp Mode]] occasionally when accessing remote servers, I often
+ =ssh= into it and fire up vim. I also periodically install and fire up editors
+ like =Atom= and =Visual Studio Code= just to acknowledge what I'm (or they) are
+ missing out on. I'm never fully convinced though, for instance due to lack of
+ terminal support[fn:terminal-support].
 
-I hope to publish more details of my =Spacemacs= setup in future posts, so stay
-tuned!
+ I hope to publish more details of my =Spacemacs= setup in future posts, so stay
+ tuned!
 
 [fn:on-editors] Whenever I try out other editors or IDEs the *first* thing I
 always do is figure out if it has a =Vim= plugin or keybinding mode. If not,
