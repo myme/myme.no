@@ -1,0 +1,157 @@
+---
+title: Serves you right!
+---
+
+A new post for a new year! I spent my [[file:/posts/2017-12-24-move-to-spacemacs.html][previous post]] advocating =Spacemacs= after
+having been a heavy =Vim= user for many years. I'll definitely get back to my
+editor setup in future posts, but before that I thought I'd do a quick post
+about the server setup I'm currently using for this site. It's not overly
+complex, so the post won't be too long (hopefully).
+
+** Linode
+   
+I've been using [[https://www.linode.com/][Linode]] as a =VPS= provider for quite some time. I won't say I'm
+a power user when it comes to hosting. =Linode= gives me more than enough
+freedom to run the services I want, at a comfortably low price-point ($5/month).
+
+The =Linode= configuration interface makes it easy to setup and manage server
+instances, configure =DNS= and networking, emergency login shells, automated
+backups, and whatnot. Like I said though, I'm not a power user so I can't really
+comment on all of the features they provide.
+
+** Docker
+   
+I have been running servers for many years, although mostly for personal
+(non-)use[fn:neglected-servers]. This time, instead of installing everything
+using standard package managers and global installations, I decided to give
+=Docker= a go.
+
+Due to the simplicity of my current setup, I'm using [[https://docs.docker.com/compose/][Docker
+Compose]][fn:docker-compose] to orchestrate the few services I use. It's using a
+=yaml= configuration file to define and manage the different images used for
+each service. My configuration isn't overly complicated, once you look past the
+fact that most of it is simply specifying mount points for the different
+services. The images I currently use are vanilla images fetched from the [[https://hub.docker.com/][Docker
+Hub]].
+
+*** nginx
+
+The =nginx= image provides a vanilla =Nginx= server packaged for =Docker=. There
+are two currently in my setup:
+
+ 1. The internet-facing reverse proxy.
+ 2. The static server serving the contents of this blog.
+
+It's fairly obvious that running muliple instances of =Nginx= may be quite
+overkill, but to me the convenience this setup provides trumps it. Hopefully it
+becomes clear why when talking about the other two services.
+
+#+BEGIN_SRC yaml
+  version: "3.2"
+
+  services:
+    nginx:
+      restart: always
+      image: nginx
+      container_name: nginx
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - "/data/nginx/certs:/etc/nginx/certs:ro"
+        - "/data/nginx/conf.d:/etc/nginx/conf.d:ro" 
+        - "/data/nginx/html:/usr/share/nginx/html:ro"
+        - "/data/nginx/vhost.d:/etc/nginx/vhost.d"
+      
+    myme.no:
+      restart: always
+      image: nginx
+      container_name: myme.no
+      depends_on:
+        - letsencrypt
+      volumes:
+        - "/data/myme.no/nginx:/etc/nginx/conf.d:ro"
+        - "/data/myme.no/public:/usr/share/nginx/html:ro"
+      environment:
+        - VIRTUAL_HOST=myme.no
+        - LETSENCRYPT_HOST=myme.no
+        - LETSENCRYPT_EMAIL=myrseth@gmail.com
+#+END_SRC
+
+*** jwilder/docker-gen
+    
+=docker-gen= is a smart little image which uses the =Docker= APIs to determine
+when containers come and go and dynamically adds a virtual host configuration
+for them in the reverse proxy. This means that it's as simple as firing up a new
+container with the correct =VIRTUAL_HOST= configuration, and suddenly a new
+virtual host is readily configured in the proxy.
+
+Now adding and removing vhosts is not something I do often, to be honest. But
+the simplicity of it all makes adding new services effortless.
+
+#+BEGIN_SRC yaml
+    nginx-gen:
+      restart: always
+      image: jwilder/docker-gen
+      container_name: nginx-gen
+      depends_on:
+        - nginx
+      volumes:
+        - "/data/nginx/certs:/etc/nginx/certs:ro"
+        - "/data/nginx/conf.d:/etc/nginx/conf.d:rw"
+        - "/data/nginx/templates/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro"
+        - "/data/nginx/vhost.d:/etc/nginx/vhost.d:ro"
+        - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      entrypoint: >-
+        /usr/local/bin/docker-gen
+          -notify-sighup nginx
+          -watch
+          -wait 5s:30s
+          /etc/docker-gen/templates/nginx.tmpl 
+          /etc/nginx/conf.d/default.conf
+#+END_SRC
+
+*** jrcs/letsencrypt-nginx-proxy-companion
+
+The final piece of the puzzle is an image which creates and maintains [[https://letsencrypt.org/][Let's
+Encrypt]] certificates for all exposed services. This means you get =HTTPS= for
+free, without lifting a finger. The image also ensures that certificates are
+renewed automatically when they close in on their expiration date.
+
+Now there's no reason not to serve secure pages using =HTTPS=. Here's that part
+of the config:
+
+#+BEGIN_SRC yaml
+    letsencrypt:
+      restart: always
+      image: jrcs/letsencrypt-nginx-proxy-companion
+      container_name: letsencrypt
+      depends_on:
+        - nginx-gen
+      volumes:
+        - "/data/nginx/certs:/etc/nginx/certs:rw"
+        - "/data/nginx/html:/usr/share/nginx/html:rw"
+        - "/data/nginx/vhost.d:/etc/nginx/vhost.d:rw"
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      environment:
+        - NGINX_DOCKER_GEN_CONTAINER=nginx-gen
+        - NGINX_PROXY_CONTAINER=nginx
+#+END_SRC
+
+** That's it folks!
+   
+As I'm getting older I realize that I want more and more of what I use in my
+daily life to /just work/. I'm definitely not as eager as I was before to tinker
+around with things just for fun.[fn:tinkering] So even though I ended up running
+multiple instances of =Nginx= and managing my services using =Docker=, I feel
+like my current setup is simple in the sense that I don't have to do much to
+have it work as I intend it to.
+
+[fn:neglected-servers] The servers I've been running have had a tendency to get
+neglected and not really used for anything purposeful, or just running =IRC=
+clients in =Tmux=.
+[fn:docker-compose] Supposedly =Docker Compose= is not advised to be used in
+production. Besides the fact that my setup hardly qualifies as "production", it
+seems more than stable enough for my needs.
+[fn:tinkering] That's not completely true though, as I do have a tendency to
+start short-lived (or active) coding projects just to try out some stuff.
