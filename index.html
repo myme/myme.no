@@ -2,10 +2,9 @@
 title: ""
 ---
 
-$for(posts)$
+$for(lastPost)$
 $body$
 $endfor$
 
-<p style="text-align: center">
-    <a href="/posts.html">&lt;All posts&gt;</a>
-</p>
+<h1>Earlier posts:</h1>
+$partial("templates/post-list.html")$

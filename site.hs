@@ -10,6 +10,10 @@ main = hakyllWith config $ do
         route   idRoute
         compile copyFileCompiler
 
+    match "js/*" $ do
+        route   idRoute
+        compile copyFileCompiler
+
     match "css/*" $ do
         route   idRoute
         compile compressCssCompiler
@@ -39,10 +43,12 @@ main = hakyllWith config $ do
     match "index.html" $ do
         route idRoute
         compile $ do
-            posts <- (return . take 1) =<< recentFirst =<< loadAllSnapshots "posts/*" "content"
+            lastPost <- (return . take 1) =<< recentFirst =<< loadAllSnapshots "posts/*" "content"
+            earlierPosts <- (return . take 5 . drop 1) =<< recentFirst =<< loadAllSnapshots "posts/*" "content"
             let indexCtx =
                     constField "title" "Home" `mappend`
-                    listField "posts" postCtx (return posts) `mappend`
+                    listField "lastPost" postCtx (return lastPost) `mappend`
+                    listField "posts" postCtx (return earlierPosts) `mappend`
                     defaultContext
 
             getResourceBody
