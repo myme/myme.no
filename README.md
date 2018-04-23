@@ -10,6 +10,10 @@ Main blog on https://myme.no
 
 `stack exec site build`
 
+## Run development server
+
+`stack exec site watch`
+
 ## Publishing
 
 `stack exec site deploy`
