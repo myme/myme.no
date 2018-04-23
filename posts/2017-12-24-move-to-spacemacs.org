@@ -37,8 +37,12 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
  was very comfortable with/and extensively used several =Vim=-defining features,
  and also having a respectable number of additional plugins installed. =Vim='s
  modal philosofy and =normal= mode motions are awesome, and the editing
- efficiency you can achieve when grokking them is quite unique.[fn:on-editors]
+ efficiency you can achieve when grokking them is quite unique.[fn:1]
  Whatever was supposed to replace my =Vim=-based setup had to rock pretty hard.
+
+[fn:1] Whenever I try out other editors or IDEs the *first* thing I
+always do is figure out if it has a =Vim= plugin or keybinding mode. If not,
+then it's most likely an editor I won't be using much...
 
 ** Pimp my =Emacs=
 
@@ -46,7 +50,7 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
  configuration being pretty lame. It does most definitely *not* rock. Having
  spent quite a bit of time installing plugins and changing configurations in
  =Vim= I dreaded having to do the same with =Emacs= just to avoid /the suck/.
- Luckily there are tools[fn:emacs-bootstrap] out there that let you bootstrap a
+ Luckily there are tools[fn:2] out there that let you bootstrap a
  configuration based on which languages and other parameters you choose.
 
  Scaffolding a configuration is a one-time operation though. It leaves all the
@@ -55,6 +59,8 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
  work/. After a brief stint with a bootstrapped configuration I soon discovered
  =Spacemacs=. Not having gained much of an "attachment" to my auto-generated
  configuration I scrapped it all and flew off to space...
+
+[fn:2] [[http://emacs-bootstrap.com/][Emacs bootstrap]]
 
 ** Configuration sneak peek
    
@@ -115,7 +121,10 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
 
   1. =Org Mode= customizations
   2. =Gnus= mail setup
-  3. =JavaScript= (with =React= support)[fn:myme-javascript]
+  3. =JavaScript= (with =React= support)[fn:3]
+
+[fn:3] I don't like the =react= layer being based off =Web mode=
+instead of =js2 mode=.
 
 *** Killer apps
 
@@ -169,17 +178,11 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
  =ssh= into it and fire up vim. I also periodically install and fire up editors
  like =Atom= and =Visual Studio Code= just to acknowledge what I'm (or they) are
  missing out on. I'm never fully convinced though, for instance due to lack of
- terminal support[fn:terminal-support].
+ terminal support[fn:4].
 
  I hope to publish more details of my =Spacemacs= setup in future posts, so stay
  tuned!
 
-[fn:on-editors] Whenever I try out other editors or IDEs the *first* thing I
-always do is figure out if it has a =Vim= plugin or keybinding mode. If not,
-then it's most likely an editor I won't be using much...
-[fn:emacs-bootstrap] [[http://emacs-bootstrap.com/][Emacs bootstrap]]
-[fn:myme-javascript] I don't like the =react= layer being based off =Web mode=
-instead of =js2 mode=.
-[fn:terminal-support] I do a significant bit of work while commuting and access
+[fn:4] I do a significant bit of work while commuting and access
 a desktop computer through =Mosh= and =Tmux=. =Tramp= is not the way to go over
 unstable connections.

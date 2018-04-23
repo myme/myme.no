@@ -22,17 +22,25 @@ comment on all of the features they provide.
 ** Docker
    
 I have been running servers for many years, although mostly for personal
-(non-)use[fn:neglected-servers]. This time, instead of installing everything
+(non-)use[fn:1]. This time, instead of installing everything
 using standard package managers and global installations, I decided to give
 =Docker= a go.
 
 Due to the simplicity of my current setup, I'm using [[https://docs.docker.com/compose/][Docker
-Compose]][fn:docker-compose] to orchestrate the few services I use. It's using a
+Compose]][fn:2] to orchestrate the few services I use. It's using a
 =yaml= configuration file to define and manage the different images used for
 each service. My configuration isn't overly complicated, once you look past the
 fact that most of it is simply specifying mount points for the different
 services. The images I currently use are vanilla images fetched from the [[https://hub.docker.com/][Docker
 Hub]].
+
+[fn:1] The servers I've been running have had a tendency to get
+neglected and not really used for anything purposeful, or just running =IRC=
+clients in =Tmux=.
+
+[fn:2] Supposedly =Docker Compose= is not advised to be used in
+production. Besides the fact that my setup hardly qualifies as "production", it
+seems more than stable enough for my needs.
 
 *** nginx
 
@@ -142,16 +150,10 @@ of the config:
    
 As I'm getting older I realize that I want more and more of what I use in my
 daily life to /just work/. I'm definitely not as eager as I was before to tinker
-around with things just for fun.[fn:tinkering] So even though I ended up running
+around with things just for fun.[fn:3] So even though I ended up running
 multiple instances of =Nginx= and managing my services using =Docker=, I feel
 like my current setup is simple in the sense that I don't have to do much to
 have it work as I intend it to.
 
-[fn:neglected-servers] The servers I've been running have had a tendency to get
-neglected and not really used for anything purposeful, or just running =IRC=
-clients in =Tmux=.
-[fn:docker-compose] Supposedly =Docker Compose= is not advised to be used in
-production. Besides the fact that my setup hardly qualifies as "production", it
-seems more than stable enough for my needs.
-[fn:tinkering] That's not completely true though, as I do have a tendency to
+[fn:3] That's not completely true though, as I do have a tendency to
 start short-lived (or active) coding projects just to try out some stuff.
