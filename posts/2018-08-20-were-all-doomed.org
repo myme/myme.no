@@ -1,0 +1,66 @@
+---
+title: We're all Doomed!
+---
+
+Just a quickie!
+
+I spent most of 2017 getting used to
+[[file:/posts/2017-12-24-move-to-spacemacs.html][Spacemacs]], even though
+thoroughly enjoyed the novel experience, as the year progressed I did start to
+realize that this still wasn't optimal. I didn't want to switch out =Evil=
+(which is awesome), nor to begin rolling my own config (I've got no time for
+that). Yet the elephant in the room gradually got more apparent. With its
+enormous configuration, layers of abstractions, nuclear power plan included,
+=Spacemacs= does feel like it's doing too much. It's an amazing piece of
+software, but I didn't find the performance I was after and (possibly worse)
+started feel a bit too removed from vanilla =Emacs=.
+
+Always on the lookout for ways of improving my workflow, I found rumors of this
+other curated =Emacs= configuration with the ominous name of
+[[https://github.com/hlissner/doom-emacs][Doom]]:
+
+#+ATTR_HTML: :width 700px :alt Capture TODO
+[[file:../images/doom.png]]
+
+A bit unsure of what exactly would set it apart from =Spacemacs=, I did decide
+to give it a try nonetheless. It is obviously a much smaller configuration[fn:1], and
+most likely has a much smaller user-base. But just having a look at the projects
+=README.md= and the accompanying screenshot got me curious.
+
+[fn:1] Now, the reduced size wouldn't necessarily imply increased performance,
+however, it /does/ seem to quite often be the case!
+
+** What a performance!
+
+Wheras =Spacemacs= felt clunky and slow, =Doom= feels snappy and responsive. The
+configuration, being mostly maintained and driven by a single developer, is a
+lot more opinionated. This also gives a much more unified experience though, and
+the editor really feels state of the art without any sign of the decades old
+software underneath.
+
+** But definitely not stable...
+
+I don't know what's with these =Emacs= config maintainers, but they never seem
+to be able to keep their =master= branches up to date. For =Doom=, at the time
+of writing, there's no point trying anything other than =develop=. That being
+said; this guy's a machine, churning out new features, responding to user
+feedback within minutes, and generally being polite and helpful when approached.
+
+If you want your editor to be solid as a rock, then =Doom= might not be what
+you're after, at least not now. But if you need up-to-date plugins[fn:2], a great
+curated set of custom commands and macros, then =Doom= could be the config for
+you.
+
+[fn:2] Yes, you have to expect to update both =Doom= and your packages
+/frequently/.
+
+** Sold, for now.
+
+I won't ever say I've found my ultimate, never-ever-gonna-change-again setup.
+But this is starting to feel pretty darn close. I can't say I spend much time
+reminiscing about my days using =Vim= though[fn:3].
+
+We'll see how long this new venture lasts. It's been two blazingly fast months
+already though!
+
+[fn:3] Although I'm pretty sure I'm still able to quit it.
