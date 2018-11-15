@@ -124,7 +124,7 @@ code {
     padding: 0 0.2em;
 }
 
-code.sourceCode {
+code.sourceCode, .example code {
     background-color: inherit;
     color: #369;
     padding: 0;
@@ -174,7 +174,7 @@ article.collapsed + a.expand + h1 {
     border-top: none;
 }
 
-pre.sourceCode {
+pre.sourceCode, pre.example {
     background-color: #e0f0ff;
     font-size: 0.9em;
     overflow: auto;

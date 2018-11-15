@@ -36,13 +36,13 @@ doublePure :: Int -> Int
 doublePure x = x * 2
 #+END_SRC
 
-There's really no way for `timesTwo` to perform any other action than doing
+There's really no way for ~timesTwo~ to perform any other action than doing
 valid operations with number of the Int type. But what if we want to keep a log
 of the calculations we're performing?
 
 ** Output side-effects
 
-First let us define a Log type which is a list of Strings, to be able to
+First let us define a ~Log~ type which is a list of Strings, to be able to
 provide multiple log statements in a computation:
 
 #+BEGIN_SRC haskell
@@ -58,8 +58,10 @@ doubleLog x = (result, ["Doubling: " ++ show x ++ " => " ++ show result])
   where result = doublePure x
 #+END_SRC
 
-< λ: doubleLog 42
-< (84,["Doubling: 42 => 84"])
+#+BEGIN_EXAMPLE
+λ: doubleLog 42
+(84,["Doubling: 42 => 84"])
+#+END_EXAMPLE
 
 This keeps the function just as pure, but forces the caller to handle the log
 in some way.
@@ -78,10 +80,12 @@ readLine xs = let first:rest = lines xs
               in (first, unlines rest)
 #+END_SRC
 
-< λ: readLine ""
-< ("","")
-< λ: readLine "foo\nbar\nbaz"
-< ("foo","bar\nbaz\n")
+#+BEGIN_EXAMPLE
+λ: readLine ""
+("","")
+λ: readLine "foo\nbar\nbaz"
+("foo","bar\nbaz\n")
+#+END_EXAMPLE
 
 ** Hiding our effect internals
 
@@ -149,7 +153,7 @@ appendLog :: String -> Effect ()
 appendLog msg = Effect $ \(Env input log') -> ((), Env input (log' ++ [msg]))
 #+END_SRC
 
-First, let's add an effect-full version of our `doubleLog`:
+First, let's add an effect-full version of our ~doubleLog~:
 
 #+BEGIN_SRC haskell
 doubleEff :: Int -> Effect Int
@@ -176,30 +180,34 @@ readDoubleEff = Effect $ \env ->
 
 Without a valid number on the input:
 
-< λ: readDoubleEff $ inputEnv "foo\nbar"
-< (Nothing,
-< Input: bar
-<
-< Log:
-< Read line: foo
-< Not a valid number: foo
-< )
+#+BEGIN_EXAMPLE
+λ: readDoubleEff $ inputEnv "foo\nbar"
+(Nothing,
+Input: bar
+
+Log:
+Read line: foo
+Not a valid number: foo
+)
+#+END_EXAMPLE
 
 With a valid number on the input:
 
-< λ: readDoubleEff $ inputEnv "42\nfoo\nbar"
-< (Just 84,
-< Input: foo
-< bar
-<
-< Log:
-< Read line: 42
-< Doubling 42: 84
-< )
+#+BEGIN_EXAMPLE
+λ: readDoubleEff $ inputEnv "42\nfoo\nbar"
+(Just 84,
+Input: foo
+bar
+
+Log:
+Read line: 42
+Doubling 42: 84
+)
+#+END_EXAMPLE
 
 We're struck with a sudden realization that we can't immediately compose our
 effect-full functions. What if we had more of these. Do we have to write
-functions like `readDoubleEff` each time? We can surely do better!
+functions like ~readDoubleEff~ each time? We can surely do better!
 
 #+BEGIN_SRC haskell
 composeEff :: Effect a -> (a -> Effect b) -> Effect b
@@ -207,7 +215,9 @@ composeEff :: Effect a -> (a -> Effect b) -> Effect b
 
 Note: Expanding the type alias this type is really quite intimidating:
 
-< composeEff :: Effect (Env -> (a, Env)) -> (a -> Effect (Env -> (b, Env))) -> Effect (Env -> (b, Env))
+#+BEGIN_SRC haskell :exports none
+composeEff :: Effect (Env -> (a, Env)) -> (a -> Effect (Env -> (b, Env))) -> Effect (Env -> (b, Env))
+#+END_SRC
 
 #+BEGIN_SRC haskell
 composeEff eff f = Effect $ \env ->
@@ -226,8 +236,8 @@ squareEff x = Effect $ \env ->
         message = "Squaring: " ++ show x ++ " => " ++ show result
 #+END_SRC
 
-There are a couple of pieces missing in order to compose our `doubleEff` and
-`squareEff`.
+There are a couple of pieces missing in order to compose our ~doubleEff~ and
+~squareEff~.
 
 First we need a way to inject an initial value into our computation:
 
@@ -239,12 +249,14 @@ pureEff x = Effect $ \env ->
   where message = "Injecting: " ++ show x
 #+END_SRC
 
-< λ: pureEff (42 :: Int) initEnv
-< (42,
-< Input:
-< Log:
-< Injecting 42
-< )
+#+BEGIN_EXAMPLE
+λ: pureEff (42 :: Int) initEnv
+(42,
+Input:
+Log:
+Injecting 42
+)
+#+END_EXAMPLE
 
 Note: The Show constraint is purely because we want to display our value in the
 log, and without this logging the function is quite a bit simpler:
@@ -254,10 +266,10 @@ pureEff' :: a -> Effect a
 pureEff' x = Effect (x,)
 #+END_SRC
 
-Then, because squareEff expects a Double, while doubleEff returns an Int (no pun
-intended), we have to be able to "lift" regular functions into our computation.
-This would allow us to use function like `fromIntegral` to convert our Int to a
-Double.
+Then, because squareEff expects a ~Double~, while ~doubleEff~ returns an ~Int~
+(no pun intended), we have to be able to "lift" regular functions into our
+computation. This would allow us to use function like ~fromIntegral~ to convert
+our ~Int~ to a ~Double~.
 
 #+BEGIN_SRC haskell
 liftEff :: Show a => Show b => (a -> b) -> a -> Effect b
@@ -268,19 +280,22 @@ liftEff f x = Effect $ \env ->
         message = "Lifting: " ++ show x ++ " => " ++ show result
 #+END_SRC
 
-The same goes for liftEff as with pureEff with regards to the Show constraints:
+The same goes for ~liftEff~ as with ~pureEff~ with regards to the ~Show~
+constraints:
 
 #+BEGIN_SRC haskell
 liftEff' :: (a -> b) -> a -> Effect b
 liftEff' f x = Effect (f x,)
 #+END_SRC
 
-< λ: liftEff (*2) (42 :: Int) initEnv
-< (84,
-< Input:
-< Log:
-< Lifting 42: 84
-< )
+#+BEGIN_EXAMPLE
+λ: liftEff (*2) (42 :: Int) initEnv
+(84,
+Input:
+Log:
+Lifting 42: 84
+)
+#+END_EXAMPLE
 
 We can now compose our effect-full functions into chained computations with
 effects!
@@ -294,17 +309,19 @@ squareDoubleEff x =
   squareEff
 #+END_SRC
 
-< λ: squareDoubleEff 42 initEnv
-< (7056.0,
-< Input:
-< Log:
-< Injecting 42
-< Doubling 42: 84
-< Lifting 84: 84.0
-< Squaring 84.0: 7056.0
-< )
+#+BEGIN_EXAMPLE
+λ: squareDoubleEff 42 initEnv
+(7056.0,
+Input:
+Log:
+Injecting 42
+Doubling 42: 84
+Lifting 84: 84.0
+Squaring 84.0: 7056.0
+)
+#+END_EXAMPLE
 
-We see that infix-ing `composeEffects` reads a bit clunky, so let's improve this
+We see that infix-ing ~composeEffects~ reads a bit clunky, so let's improve this
 by defining a handy infix operator alias. We use an arrow-like function to
 signal the direction of composition:
 
@@ -321,15 +338,17 @@ squareDoubleEffin :: Int -> Effect Double
 squareDoubleEffin x = pureEff x ==> doubleEff ==> liftEff fromIntegral ==> squareEff
 #+END_SRC
 
-< λ: squareDoubleEffin 42 initEnv
-< (7056.0,
-< Input:
-< Log:
-< Injecting 42
-< Doubling 42: 84
-< Lifting 84: 84.0
-< Squaring 84.0: 7056.0
-< )
+#+BEGIN_EXAMPLE
+λ: squareDoubleEffin 42 initEnv
+(7056.0,
+Input:
+Log:
+Injecting 42
+Doubling 42: 84
+Lifting 84: 84.0
+Squaring 84.0: 7056.0
+)
+#+END_EXAMPLE
 
 Lets' combine this with our effectful reader:
 
@@ -345,57 +364,64 @@ readSquareDoubleEff = readLineEff ==>
 
 With invalid input:
 
-< λ: readSquareDoubleEff $ inputEnv "foo\nbar"
-< (Nothing,
-< Input: bar
-<
-< Log:
-< Read line: foo
-< Lifting "foo": Nothing
-< Could not read a valid number
-< Injecting Nothing
-< )
+#+BEGIN_EXAMPLE
+λ: readSquareDoubleEff $ inputEnv "foo\nbar"
+(Nothing,
+Input: bar
+
+Log:
+Read line: foo
+Lifting "foo": Nothing
+Could not read a valid number
+Injecting Nothing
+)
+#+END_EXAMPLE
 
 With valid input:
 
-< λ: readSquareDoubleEff $ inputEnv "42\nfoo\nbar"
-< (Just 7056.0,
-< Input: foo
-< bar
-<
-< Log:
-< Read line: 42
-< Lifting "42": Just 42
-< Injecting 42
-< Doubling 42: 84
-< Lifting 84: 84.0
-< Squaring 84.0: 7056.0
-< Lifting 7056.0: Just 7056.0
-< )
+#+BEGIN_EXAMPLE
+λ: readSquareDoubleEff $ inputEnv "42\nfoo\nbar"
+(Just 7056.0,
+Input: foo
+bar
+
+Log:
+Read line: 42
+Lifting "42": Just 42
+Injecting 42
+Doubling 42: 84
+Lifting 84: 84.0
+Squaring 84.0: 7056.0
+Lifting 7056.0: Just 7056.0
+)
+#+END_EXAMPLE
 
 At this point we're able to compose effect-full computations to create programs
 which manages side-effects in a pure manner, without the programmer having to
 worry about managing these effects.
 
 We have seen from our exploration with composition that we can't quite hide the
-"glueing" of the composed pieces, namely the composition arrow `==>` and
+"glueing" of the composed pieces, namely the composition arrow ~==>~ and
 occasional lambdas.
 
 We're in luck though!
 
 Haskell provides syntactic sugar to improve the readability of these kinds of
-effect-full computations, called "do" notation. Specifically, "do" notation
-works by using Monad composition `>>=`, called "bind", to sequence
-computations.
+effect-full computations, called ~do~ notation. Specifically, ~do~ notation
+works by using the Monad composition operator ~>>=~, called "bind", to sequence
+computations. The catch is that we'd have to implement the ~Monad~ instance for
+our ~Effect~ type. Turns out we have already made most of the tools we need in
+order to that.
 
-On our way to Monad we need Functor:
+~Monad~ requires our type to also be an instance of ~Functor~ and ~Applicative~.
+So first let's define ~Functor~:
 
 #+BEGIN_SRC haskell
 instance Functor Effect where
   fmap f eff = eff ==> liftEff' f
 #+END_SRC
 
-and Applicative:
+and ~Applicative~:
 
 #+BEGIN_SRC haskell
 instance Applicative Effect where
@@ -403,8 +429,8 @@ instance Applicative Effect where
   effFn <*> eff = effFn ==> \f -> eff ==> \x -> pure (f x)
 #+END_SRC
 
-before the grand finale, Monad! Perhaps without knowing we've already
-implemented the bind operator, namely our `composeEff` function:
+before the grand finale, ~Monad~! Perhaps without knowing we've already
+implemented the bind operator, namely our ~composeEff~ function:
 
 #+BEGIN_SRC haskell
 instance Monad Effect where
@@ -413,7 +439,7 @@ instance Monad Effect where
 
 Wow! What an anti-climax!
 
-Let's try to run our new, shiny Effect Monad!
+Let's try to run our new, shiny ~Monad Effect~!
 
 #+BEGIN_SRC haskell
 readSquareDoubleEffMonad :: Effect (Maybe Double)
@@ -430,53 +456,57 @@ readSquareDoubleEffMonad = do
 
 With invalid input:
 
-< λ: runEffect readSquareDoubleEff $ inputEnv "foo\nbar"
-< (Nothing,
-< Input: bar
-<
-< Log:
-< Read line: foo
-< Lifting: "foo" => Nothing
-< Could not read a valid number
-< Injecting: Nothing
-< )
+#+BEGIN_EXAMPLE
+λ: runEffect readSquareDoubleEff $ inputEnv "foo\nbar"
+(Nothing,
+Input: bar
+
+Log:
+Read line: foo
+Lifting: "foo" => Nothing
+Could not read a valid number
+Injecting: Nothing
+)
+#+END_EXAMPLE
 
 With valid input:
 
-< λ: runEffect readSquareDoubleEff $ inputEnv "42\nfoo\nbar"
-< (Just 7056.0,
-< Input: foo
-< bar
-<
-< Log:
-< Read line: 42
-< Lifting: "42" => Just 42
-< Injecting: 42
-< Doubling: 42 => 84
-< Lifting: 84 => 84.0
-< Squaring: 84.0 => 7056.0
-< Lifting: 7056.0 => Just 7056.0
-< )
+#+BEGIN_EXAMPLE
+λ: runEffect readSquareDoubleEff $ inputEnv "42\nfoo\nbar"
+(Just 7056.0,
+Input: foo
+bar
 
-Our Effect type is starting to become a pretty good approximation of Haskell's
-IO type. One pretty significant difference though is our type is actually not
+Log:
+Read line: 42
+Lifting: "42" => Just 42
+Injecting: 42
+Doubling: 42 => 84
+Lifting: 84 => 84.0
+Squaring: 84.0 => 7056.0
+Lifting: 7056.0 => Just 7056.0
+)
+#+END_EXAMPLE
+
+Our ~Effect~ type is starting to become a pretty good approximation of Haskell's
+~IO~ type. One pretty significant difference though is our type is actually not
 able to talk to the outside world. We have, however, succeeded in hiding all
 Effect details behind utility functions. What this gives us is an opaque type
 which we know nothing about, but which "carries" our side-effects around in our
 computation.
 
-If we were to choose at this point to remove our data constructors for Effect,
+If we were to choose at this point to remove our data constructors for ~Effect~,
 we would no longer be able to initiate effect-full computation. Instead, we
-would have to rely on our entry-point to provide us with our initial Env and
+would have to rely on our entry-point to provide us with our initial ~Env~ and
 run our computation.
 
-This is exactly what Haskell does with its IO type. Through `main :: IO ()` we
+This is exactly what Haskell does with its ~IO~ type. Through ~main :: IO ()~ we
 are granted a way to compose effects into a sensible program, never really
 knowing what the runtime systems does in order to accommodate us in our
 requests.
 
 To illustrate how close we are, here's a function to turn effect-full
-computations into IO ones.
+computations into ~IO~ ones.
 
 #+BEGIN_SRC haskell
 effToIO :: Effect a -> IO a
@@ -484,7 +514,7 @@ effToIO eff = let (result, env) = runEffect eff initEnv
               in do print env; pure result
 #+END_SRC
 
-and here's the IO version of our readSquareDoubleEffMonad:
+and here's the ~IO~ version of our ~readSquareDoubleEffMonad~:
 
 #+BEGIN_SRC haskell
 readSquareDoubleIO :: IO (Maybe Double)
@@ -499,16 +529,18 @@ readSquareDoubleIO = do
       pure $ Just result
 #+END_SRC
 
-< λ: readSquareDoubleIO
-< 42
-<
-< Input:
-< Log:
-< Injecting: 42
-< Doubling: 42 => 84
-< Lifting: 84 => 84.0
-< Squaring: 84.0 => 7056.0
-<
-< Just 7056.0
+#+BEGIN_EXAMPLE
+λ: readSquareDoubleIO
+42
+
+Input:
+Log:
+Injecting: 42
+Doubling: 42 => 84
+Lifting: 84 => 84.0
+Squaring: 84.0 => 7056.0
+
+Just 7056.0
+#+END_EXAMPLE
 
 Tada!
