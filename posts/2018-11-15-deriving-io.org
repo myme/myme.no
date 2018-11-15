@@ -47,8 +47,8 @@ doublePure x = x * 2
 #+END_EXAMPLE
 
 There's really no way for ~doublePure~ to perform any other action than doing
-valid operations with number of the Int type. But what if we want to keep a log
-of the calculations we're performing?
+valid operations with number of the ~Int~ type. But what if we want to keep a
+log of the calculations we're performing?
 
 ** Outbound side-effects
 
