@@ -7,7 +7,7 @@ title: "Deriving :: IO"
 I've been really getting back into functional programming lately. In particular,
 with both [[https://www.haskell.org/][Haskell]] and [[http://www.purescript.org/][PureScript]]. When attempting to revamp/rewrite pieces of an
 internal web app, a colleague and myself decided it was time to start playing
-around with PureScript. This kickstarted us getting back into discussions about
+around with PureScript. This kick-started us getting back into discussions about
 FP, reading up on new material, writing all kinds of toy projects, and starting
 a Haskell study group at work. I thought I could attempt to prepare material for
 the study group by writing blog posts about the topics up front. Which explains
@@ -114,7 +114,7 @@ instance Show Env where
 #+END_SRC
 
 "Env" is short for "Environment". What the environment is exactly should not be
-concern for the programmer, but it can be thought of as the entire executional
+concern for the programmer, but it can be thought of as the entire execution
 context in which an effect-full program/computation is running. Some like to
 name this type "World".
 
@@ -154,9 +154,9 @@ Read line: foo
 )
 #+END_EXAMPLE
 
-We can see that readLineEnv is transforming the environment by accepting an
-initial Env, and returning a line (String) together with an updated Env with our
-input consumed and log message appended.
+We can see that ~readLineEnv~ is transforming the environment by accepting an
+initial ~Env~, and returning a line (String) together with an updated ~Env~ with
+our input consumed and log message appended.
 
 Let's create a type alias for this transformation to simplify function
 signatures:
@@ -337,7 +337,7 @@ pureEff' :: a -> Effect a
 pureEff' x = Effect (x,)
 #+END_SRC
 
-Then, because squareEff expects a ~Double~, while ~doubleEff~ returns an ~Int~
+Then, because ~squareEff~ expects a ~Double~, while ~doubleEff~ returns an ~Int~
 (no pun intended), we have to be able to "lift" regular functions into our
 computation. This would allow us to use function like ~fromIntegral~ to convert
 our ~Int~ to a ~Double~.
@@ -470,7 +470,7 @@ which manages side-effects in a pure manner, without the programmer having to
 worry about managing these effects.
 
 We have seen from our exploration with composition that we can't quite hide the
-"glueing" of the composed pieces, namely the composition arrow ~==>~ and
+"gluing" of the composed pieces, namely the composition arrow ~==>~ and
 occasional lambdas.
 
 We're in luck though!
@@ -614,4 +614,4 @@ Squaring: 84.0 => 7056.0
 Just 7056.0
 #+END_EXAMPLE
 
-And that concludes our playfull derivation of the ~IO~ type in Haskell. Tada!
+And that concludes our playful derivation of the ~IO~ type in Haskell. Tada!
