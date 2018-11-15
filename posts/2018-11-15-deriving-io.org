@@ -560,10 +560,10 @@ Lifting: 7056.0 => Just 7056.0
 ** From ~Effect~ to ~IO~
 
 Our ~Effect~ type is starting to become a pretty good approximation of Haskell's
-~IO~ type. One pretty significant difference though is our type is actually not
-able to talk to the outside world. We have, however, succeeded in hiding all
-Effect details behind utility functions. What this gives us is an opaque type
-which we know nothing about, but which "carries" our side-effects around in our
+~IO~ type. One significant difference though is our type is actually not able to
+talk to the outside world. We have, however, succeeded in hiding all Effect
+details behind utility functions. What this gives us is an opaque type which we
+know nothing about, but which "carries" our side-effects around in our
 computation.
 
 If we were to choose at this point to remove our data constructors for ~Effect~,
