@@ -339,7 +339,7 @@ pureEff' x = Effect (x,)
 
 Then, because ~squareEff~ expects a ~Double~, while ~doubleEff~ returns an ~Int~
 (no pun intended), we have to be able to "lift" regular functions into our
-computation. This would allow us to use function like ~fromIntegral~ to convert
+computation. This would allow us to use functions like ~fromIntegral~ to convert
 our ~Int~ to a ~Double~.
 
 #+BEGIN_SRC haskell
@@ -391,7 +391,7 @@ Lifting: 42 => 84
 
 ** Is this operator?
 
-We see that infix-ing ~composeEffects~ reads a bit clunky, so let's improve this
+We see that using ~composeEffects~ infix is a bit clunky, so let's improve this
 by defining a handy infix operator alias. We use an arrow-like function to
 signal the direction of composition:
 
@@ -561,15 +561,15 @@ Lifting: 7056.0 => Just 7056.0
 
 Our ~Effect~ type is starting to become a pretty good approximation of Haskell's
 ~IO~ type. One significant difference though is our type is actually not able to
-talk to the outside world. We have, however, succeeded in hiding all Effect
+talk to the outside world. We have, however, succeeded in hiding all ~Effect~
 details behind utility functions. What this gives us is an opaque type which we
 know nothing about, but which "carries" our side-effects around in our
 computation.
 
-If we were to choose at this point to remove our data constructors for ~Effect~,
-we would no longer be able to initiate effectful computation. Instead, we
-would have to rely on our entry-point to provide us with our initial ~Env~ and
-run our computation.
+If we were to choose at this point to hide our data constructor ~Effect~ and
+~runEffect~, we would no longer be able to initiate nor evaluate effectful
+computation. Instead, we would have to rely on our entry-point to provide us
+with our initial ~Env~ and run our computation.
 
 This is exactly what Haskell does with its ~IO~ type. Through ~main :: IO ()~ we
 are granted a way to compose effects into a sensible program, never really
@@ -615,3 +615,7 @@ Just 7056.0
 #+END_EXAMPLE
 
 And that concludes our playful derivation of the ~IO~ type in Haskell. Tada!
+** Notes
+
+Much of the material covered in this post was inspired by a recent ~YouTube~
+video: [[https://www.youtube.com/watch?v=fCoQb-zqYDI][What is IO Monad?]]
