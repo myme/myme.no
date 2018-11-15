@@ -115,7 +115,7 @@ instance Show Env where
 
 "Env" is short for "Environment". What the environment is exactly should not be
 concern for the programmer, but it can be thought of as the entire execution
-context in which an effect-full program/computation is running. Some like to
+context in which an effectful program/computation is running. Some like to
 name this type "World".
 
 To simplify creating Env's later, we'll define an initial, or empty Env:
@@ -183,9 +183,9 @@ We call the type ~Effect~ to signal that it has an effect on the environment.
 
 ** Bring on the ~Effect~!
 
-We can now start defining effect-full computations, using our ~Effect~ type.
+We can now start defining effectful computations, using our ~Effect~ type.
 
-To simplify logging, let's create an effect-full function for appending a log
+To simplify logging, let's create an effectful function for appending a log
 message to the environment:
 
 #+BEGIN_SRC haskell
@@ -202,7 +202,7 @@ Hello, World!
 )
 #+END_EXAMPLE
 
-We can then create an effect-full version of our ~doubleLog~:
+We can then create an effectful version of our ~doubleLog~:
 
 #+BEGIN_SRC haskell
 doubleEff :: Int -> Effect Int
@@ -222,7 +222,7 @@ Doubling: 42 => 84
 )
 #+END_EXAMPLE
 
-Then we can create an effect-full function which reads a number from the input
+Then we can create an effectful function which reads a number from the input
 and doubles it using ~doubleEff~:
 
 #+BEGIN_SRC haskell
@@ -264,7 +264,7 @@ Doubling: 42 => 84
 #+END_EXAMPLE
 
 Writing ~readDoubleEff~ we're struck with the sudden realization that we can't
-immediately compose our effect-full functions. What if we had more of these. Do
+immediately compose our effectful functions. What if we had more of these. Do
 we have to write functions like ~readDoubleEff~ each time?
 
 We can surely do better!
@@ -287,7 +287,7 @@ composeEff eff f = Effect $ \env ->
   in runEffect (f x) env'
 #+END_SRC
 
-Let's add another effect-full computation:
+Let's add another effectful computation:
 
 #+BEGIN_SRC haskell
 squareEff :: Double -> Effect Double
@@ -368,7 +368,7 @@ liftEff' :: (a -> b) -> a -> Effect b
 liftEff' f x = Effect (f x,)
 #+END_SRC
 
-We can now compose our effect-full functions into chained computations with
+We can now compose our effectful functions into chained computations with
 effects!
 
 #+BEGIN_SRC haskell
@@ -465,7 +465,7 @@ Lifting: 7056.0 => Just 7056.0
 
 ** Do do do...
 
-At this point we're able to compose effect-full computations to create programs
+At this point we're able to compose effectful computations to create programs
 which manages side-effects in a pure manner, without the programmer having to
 worry about managing these effects.
 
@@ -476,7 +476,7 @@ occasional lambdas.
 We're in luck though!
 
 Haskell provides syntactic sugar to improve the readability of these kinds of
-effect-full computations, called ~do~ notation. Specifically, ~do~ notation
+effectful computations, called ~do~ notation. Specifically, ~do~ notation
 works by using the Monad composition operator ~>>=~, called "bind", to sequence
 computations. The catch is that we'd have to implement the ~Monad~ instance for
 our ~Effect~ type. Turns out we have already made most of the tools we need in
@@ -567,7 +567,7 @@ know nothing about, but which "carries" our side-effects around in our
 computation.
 
 If we were to choose at this point to remove our data constructors for ~Effect~,
-we would no longer be able to initiate effect-full computation. Instead, we
+we would no longer be able to initiate effectful computation. Instead, we
 would have to rely on our entry-point to provide us with our initial ~Env~ and
 run our computation.
 
@@ -576,7 +576,7 @@ are granted a way to compose effects into a sensible program, never really
 knowing what the runtime systems does in order to accommodate us in our
 requests.
 
-To illustrate how close we are, here's a function to turn effect-full
+To illustrate how close we are, here's a function to turn effectful
 computations into ~IO~ ones.
 
 #+BEGIN_SRC haskell
