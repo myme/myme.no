@@ -52,7 +52,7 @@ of the calculations we're performing?
 
 ** Outbound side-effects
 
-First let us define a ~Log~ type which is a list of Strings, to be able to
+First let us define a ~Log~ type which is a list of ~String~, to be able to
 provide multiple log statements in a computation:
 
 #+BEGIN_SRC haskell
@@ -104,8 +104,8 @@ second tuple element.
 ** Hiding our effect internals
 
 We have to combine these two concepts into one to be able to create a function
-which both reads input and produces a log. We also have to combine our Input
-data type with our Log type unless we want our tuple type to become unwieldy:
+which both reads input and produces a log. We also have to combine our ~Input~
+data type with our ~Log~ type unless we want our tuple type to become unwieldy:
 
 #+BEGIN_SRC haskell
 data Env = Env Input Log
@@ -114,18 +114,18 @@ instance Show Env where
 #+END_SRC
 
 "Env" is short for "Environment". What the environment is exactly should not be
-concern for the programmer, but it can be thought of as the entire execution
-context in which an effectful program/computation is running. Some like to
-name this type "World".
+a concern for the programmer, but it can be thought of as the entire execution
+context in which an effectful program/computation is running. Some like to name
+this type "World".
 
-To simplify creating Env's later, we'll define an initial, or empty Env:
+To simplify creating ~Env~'s later, we'll define an initial, or empty ~Env~:
 
 #+BEGIN_SRC haskell
 initEnv :: Env
 initEnv = Env "" []
 #+END_SRC
 
-and an Env with some initial input:
+and an ~Env~ with some initial input:
 
 #+BEGIN_SRC haskell
 inputEnv :: String -> Env
@@ -155,7 +155,7 @@ Read line: foo
 #+END_EXAMPLE
 
 We can see that ~readLineEnv~ is transforming the environment by accepting an
-initial ~Env~, and returning a line (String) together with an updated ~Env~ with
+initial ~Env~, and returning a line (~String~) together with an updated ~Env~ with
 our input consumed and log message appended.
 
 Let's create a type alias for this transformation to simplify function
