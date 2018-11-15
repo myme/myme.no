@@ -21,6 +21,10 @@ p iframe {
     width: 280px;
 }
 
+p img {
+    width: 95%;
+}
+
 @media (min-width: 50em) {
     body {
         width: 50em;

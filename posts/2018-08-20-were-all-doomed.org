@@ -19,7 +19,7 @@ Always on the lookout for ways of improving my workflow, I found rumors of this
 other curated =Emacs= configuration with the ominous name of
 [[https://github.com/hlissner/doom-emacs][Doom]]:
 
-#+ATTR_HTML: :width 700px :alt Capture TODO
+#+ATTR_HTML: :alt Capture TODO
 [[file:../images/doom.png]]
 
 A bit unsure of what exactly would set it apart from =Spacemacs=, I did decide

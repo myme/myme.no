@@ -76,7 +76,7 @@ then it's most likely an editor I won't be using much...
  I currently don't host my =dotfiles= repository publicly, so here's a snippet
  from the configuration layer list in my =~/.spacemacs.d/init.el= file:
    
- #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC lisp
  dotspacemacs-configuration-layers
     '(
       ;; Languages
