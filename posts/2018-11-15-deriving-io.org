@@ -33,7 +33,7 @@ import Text.Read (readMaybe)
 
 [fn:1] The material covered in this post is not revolutionary in any way, and
 there's plenty of sources online which covers this from other angles. In
-particular, this post was inspired by a recent ~YouTube~ video: [[https://www.youtube.com/watch?v=fCoQb-zqYDI][What is IO
+particular, this post was inspired by a recent =YouTube= video: [[https://www.youtube.com/watch?v=fCoQb-zqYDI][What is IO
 Monad?]]
 
 ** Purity is king
@@ -51,13 +51,13 @@ doublePure x = x * 2
 84
 #+END_EXAMPLE
 
-There's really no way for ~doublePure~ to perform any other action than doing
-valid operations with number of the ~Int~ type. But what if we want to keep a
+There's really no way for =doublePure= to perform any other action than doing
+valid operations with number of the =Int= type. But what if we want to keep a
 log of the calculations we're performing?
 
 ** Outbound side-effects
 
-First let us define a ~Log~ type which is a list of ~String~, to be able to
+First let us define a =Log= type which is a list of =String=, to be able to
 provide multiple log statements in a computation:
 
 #+BEGIN_SRC haskell
@@ -109,8 +109,8 @@ second tuple element.
 ** Hiding our effect internals
 
 We have to combine these two concepts into one to be able to create a function
-which both reads input and produces a log. We also have to combine our ~Input~
-data type with our ~Log~ type unless we want our tuple type to become unwieldy:
+which both reads input and produces a log. We also have to combine our =Input=
+data type with our =Log= type unless we want our tuple type to become unwieldy:
 
 #+BEGIN_SRC haskell
 data Env = Env Input Log
@@ -123,14 +123,14 @@ a concern for the programmer, but it can be thought of as the entire execution
 context in which an effectful program/computation is running. Some like to name
 this type "World".
 
-To simplify creating ~Env~'s later, we'll define an initial, or empty ~Env~:
+To simplify creating =Env='s later, we'll define an initial, or empty =Env=:
 
 #+BEGIN_SRC haskell
 initEnv :: Env
 initEnv = Env "" []
 #+END_SRC
 
-and an ~Env~ with some initial input:
+and an =Env= with some initial input:
 
 #+BEGIN_SRC haskell
 inputEnv :: String -> Env
@@ -159,8 +159,8 @@ Read line: foo
 )
 #+END_EXAMPLE
 
-We can see that ~readLineEnv~ is transforming the environment by accepting an
-initial ~Env~, and returning a line (~String~) together with an updated ~Env~ with
+We can see that =readLineEnv= is transforming the environment by accepting an
+initial =Env=, and returning a line (=String=) together with an updated =Env= with
 our input consumed and log message appended.
 
 Let's create a type alias for this transformation to simplify function
@@ -184,11 +184,11 @@ Read line: foo
 )
 #+END_EXAMPLE
 
-We call the type ~Effect~ to signal that it has an effect on the environment.
+We call the type =Effect= to signal that it has an effect on the environment.
 
-** Bring on the ~Effect~!
+** Bring on the =Effect=!
 
-We can now start defining effectful computations, using our ~Effect~ type.
+We can now start defining effectful computations, using our =Effect= type.
 
 To simplify logging, let's create an effectful function for appending a log
 message to the environment:
@@ -207,7 +207,7 @@ Hello, World!
 )
 #+END_EXAMPLE
 
-We can then create an effectful version of our ~doubleLog~:
+We can then create an effectful version of our =doubleLog=:
 
 #+BEGIN_SRC haskell
 doubleEff :: Int -> Effect Int
@@ -228,7 +228,7 @@ Doubling: 42 => 84
 #+END_EXAMPLE
 
 Then we can create an effectful function which reads a number from the input
-and doubles it using ~doubleEff~:
+and doubles it using =doubleEff=:
 
 #+BEGIN_SRC haskell
 readDoubleEff :: Effect (Maybe Int)
@@ -268,9 +268,9 @@ Doubling: 42 => 84
 )
 #+END_EXAMPLE
 
-Writing ~readDoubleEff~ we're struck with the sudden realization that we can't
+Writing =readDoubleEff= we're struck with the sudden realization that we can't
 immediately compose our effectful functions. What if we had more of these. Do
-we have to write functions like ~readDoubleEff~ each time?
+we have to write functions like =readDoubleEff= each time?
 
 We can surely do better!
 
@@ -312,8 +312,8 @@ Squaring: 42.0 => 1764.0
 )
 #+END_EXAMPLE
 
-There are a couple of pieces missing in order to compose our ~doubleEff~ and
-~squareEff~.
+There are a couple of pieces missing in order to compose our =doubleEff= and
+=squareEff=.
 
 First we need a way to inject an initial value into our computation:
 
@@ -334,7 +334,7 @@ Injecting: 42
 )
 #+END_EXAMPLE
 
-Note: The ~Show~ constraint is purely because we want to display our value in the
+Note: The =Show= constraint is purely because we want to display our value in the
 log, and without this logging the function is quite a bit simpler:
 
 #+BEGIN_SRC haskell
@@ -342,10 +342,10 @@ pureEff' :: a -> Effect a
 pureEff' x = Effect (x,)
 #+END_SRC
 
-Then, because ~squareEff~ expects a ~Double~, while ~doubleEff~ returns an ~Int~
+Then, because =squareEff= expects a =Double=, while =doubleEff= returns an =Int=
 (no pun intended), we have to be able to "lift" regular functions into our
-computation. This would allow us to use functions like ~fromIntegral~ to convert
-our ~Int~ to a ~Double~.
+computation. This would allow us to use functions like =fromIntegral= to convert
+our =Int= to a =Double=.
 
 #+BEGIN_SRC haskell
 liftEff :: Show a => Show b => (a -> b) -> a -> Effect b
@@ -365,7 +365,7 @@ Lifting: 42 => 84
 )
 #+END_EXAMPLE
 
-The same goes for ~liftEff~ as with ~pureEff~ with regards to the ~Show~
+The same goes for =liftEff= as with =pureEff= with regards to the =Show=
 constraints:
 
 #+BEGIN_SRC haskell
@@ -396,7 +396,7 @@ Lifting: 42 => 84
 
 ** Is this operator?
 
-We see that using ~composeEffects~ infix is a bit clunky, so let's improve this
+We see that using =composeEffects= infix is a bit clunky, so let's improve this
 by defining a handy infix operator alias. We use an arrow-like function to
 signal the direction of composition:
 
@@ -475,31 +475,31 @@ which manages side-effects in a pure manner, without the programmer having to
 worry about managing these effects.
 
 We have seen from our exploration with composition that we can't quite hide the
-"gluing" of the composed pieces, namely the composition arrow ~==>~ and
+"gluing" of the composed pieces, namely the composition arrow ===>= and
 occasional lambda abstractions.
 
 We're in luck though!
 
 Haskell provides syntactic sugar to improve the readability of these kinds of
-effectful computations, called ~do~ notation. Specifically, ~do~ notation works
-by using the ~Monad~ composition operator ~>>=~, called "bind", to sequence
-computations. The catch is that we'd have to implement the ~Monad~ instance for
-our ~Effect~ type. Turns out we have already made most of the tools we need in
+effectful computations, called =do= notation. Specifically, =do= notation works
+by using the =Monad= composition operator =>>==, called "bind", to sequence
+computations. The catch is that we'd have to implement the =Monad= instance for
+our =Effect= type. Turns out we have already made most of the tools we need in
 order to that.
 
-~Monad~ requires our type to also be an instance of ~Functor~ and ~Applicative~.
-So first let's define ~Functor~:
+=Monad= requires our type to also be an instance of =Functor= and =Applicative=.
+So first let's define =Functor=:
 
 #+BEGIN_SRC haskell
 instance Functor Effect where
   fmap f eff = eff ==> liftEff' f
 #+END_SRC
 
-~fmap~ takes a pure function and applies it to a value from[fn:2] an effectful
+=fmap= takes a pure function and applies it to a value from[fn:2] an effectful
 computation. Our instance needs to extract a value from the left hand side
-computation, and apply ~f~ to it. We do that using our ~composeEff~ function.
+computation, and apply =f= to it. We do that using our =composeEff= function.
 
-Then for ~Applicative~:
+Then for =Applicative=:
 
 #+BEGIN_SRC haskell
 instance Applicative Effect where
@@ -507,14 +507,14 @@ instance Applicative Effect where
   effFn <*> eff = effFn ==> \f -> eff ==> \x -> pure (f x)
 #+END_SRC
 
-~Applicative~ requires us to provide means of injecting pure values into
+=Applicative= requires us to provide means of injecting pure values into
 effectful contexts, as well as means of applying functions from effectful
-contexts to values from effecful context. The definition of ~<*>~ must therefore
-extract an ~f~ from the left hand side, then extract an ~x~ from the right hand
-side, apply ~f~ to ~x~, and wrap up the result.
+contexts to values from effecful context. The definition of =<*>= must therefore
+extract an =f= from the left hand side, then extract an =x= from the right hand
+side, apply =f= to =x=, and wrap up the result.
 
-Finally, the grand finale: ~Monad~! Perhaps without knowing we've already
-implemented the bind operator, namely our ~composeEff~ function:
+Finally, the grand finale: =Monad=! Perhaps without knowing we've already
+implemented the bind operator, namely our =composeEff= function:
 
 #+BEGIN_SRC haskell
 instance Monad Effect where
@@ -523,7 +523,7 @@ instance Monad Effect where
 
 Wow! I've heard that monads are hard... What an anti-climax!
 
-Let's try to run our new, shiny ~Monad Effect~!
+Let's try to run our new, shiny =Monad Effect=!
 
 #+BEGIN_SRC haskell
 readSquareDoubleEffMonad :: Effect (Maybe Double)
@@ -572,32 +572,32 @@ Lifting: 7056.0 => Just 7056.0
 )
 #+END_EXAMPLE
 
-[fn:2] I find that saying ~Functor~ applies a function to a value *in* a
+[fn:2] I find that saying =Functor= applies a function to a value *in* a
 context doesn't properly capture the cases where the context is an execution of
 sorts. This is because the value isn't necessarily stored in a context, but it's
 a context which *yields* a value.
 
-** From ~Effect~ to ~IO~
+** From =Effect= to =IO=
 
-Our ~Effect~ type is starting to become a pretty good approximation of Haskell's
-~IO~ type. One significant difference though is our type is actually not able to
-talk to the outside world. We have, however, succeeded in hiding all ~Effect~
+Our =Effect= type is starting to become a pretty good approximation of Haskell's
+=IO= type. One significant difference though is our type is actually not able to
+talk to the outside world. We have, however, succeeded in hiding all =Effect=
 details behind utility functions. What this gives us is an opaque type which we
 know nothing about, but which "carries" our side-effects around in our
 computation.
 
-If we were to choose at this point to hide our data constructor ~Effect~ and
-~runEffect~, we would no longer be able to initiate nor evaluate effectful
+If we were to choose at this point to hide our data constructor =Effect= and
+=runEffect=, we would no longer be able to initiate nor evaluate effectful
 computation. Instead, we would have to rely on our entry-point to provide us
-with our initial ~Env~ and run our computation.
+with our initial =Env= and run our computation.
 
-This is exactly what Haskell does with its ~IO~ type. Through ~main :: IO ()~ we
+This is exactly what Haskell does with its =IO= type. Through =main :: IO ()= we
 are granted a way to compose effects into a sensible program, never really
 knowing what the runtime systems does in order to accommodate us in our
 requests.
 
 To illustrate how close we are, here's a function to turn effectful
-computations into ~IO~ ones.
+computations into =IO= ones.
 
 #+BEGIN_SRC haskell
 effToIO :: Effect a -> IO a
@@ -605,7 +605,7 @@ effToIO eff = let (result, env) = runEffect eff initEnv
               in do print env; pure result
 #+END_SRC
 
-and here's the ~IO~ version of our ~readSquareDoubleEffMonad~:
+and here's the =IO= version of our =readSquareDoubleEffMonad=:
 
 #+BEGIN_SRC haskell
 readSquareDoubleIO :: IO (Maybe Double)
@@ -634,6 +634,6 @@ Squaring: 84.0 => 7056.0
 Just 7056.0
 #+END_EXAMPLE
 
-And that concludes our playful derivation of the ~IO~ type in Haskell. Tada!
+And that concludes our playful derivation of the =IO= type in Haskell. Tada!
 
 ** Notes
