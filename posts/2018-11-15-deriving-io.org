@@ -13,7 +13,7 @@ a Haskell study group at work. I thought I could attempt to prepare material for
 the study group by writing blog posts about the topics up front. Which explains
 the purpose of this post!
 
-** Preface
+** Preface[fn:1]
 
 This post is written as a literate Haskell program, so all code snippets should
 be executable and can be interpreted as a complete Haskell module.
@@ -30,6 +30,11 @@ module Effect where
 import Prelude hiding (log)
 import Text.Read (readMaybe)
 #+END_SRC
+
+[fn:1] The material covered in this post is not revolutionary in any way, and
+there's plenty of sources online which covers this from other angles. In
+particular, this post was inspired by a recent ~YouTube~ video: [[https://www.youtube.com/watch?v=fCoQb-zqYDI][What is IO
+Monad?]]
 
 ** Purity is king
 
@@ -329,7 +334,7 @@ Injecting: 42
 )
 #+END_EXAMPLE
 
-Note: The Show constraint is purely because we want to display our value in the
+Note: The ~Show~ constraint is purely because we want to display our value in the
 log, and without this logging the function is quite a bit simpler:
 
 #+BEGIN_SRC haskell
@@ -471,13 +476,13 @@ worry about managing these effects.
 
 We have seen from our exploration with composition that we can't quite hide the
 "gluing" of the composed pieces, namely the composition arrow ~==>~ and
-occasional lambdas.
+occasional lambda abstractions.
 
 We're in luck though!
 
 Haskell provides syntactic sugar to improve the readability of these kinds of
-effectful computations, called ~do~ notation. Specifically, ~do~ notation
-works by using the Monad composition operator ~>>=~, called "bind", to sequence
+effectful computations, called ~do~ notation. Specifically, ~do~ notation works
+by using the ~Monad~ composition operator ~>>=~, called "bind", to sequence
 computations. The catch is that we'd have to implement the ~Monad~ instance for
 our ~Effect~ type. Turns out we have already made most of the tools we need in
 order to that.
@@ -490,7 +495,11 @@ instance Functor Effect where
   fmap f eff = eff ==> liftEff' f
 #+END_SRC
 
-and ~Applicative~:
+~fmap~ takes a pure function and applies it to a value from[fn:2] an effectful
+computation. Our instance needs to extract a value from the left hand side
+computation, and apply ~f~ to it. We do that using our ~composeEff~ function.
+
+Then for ~Applicative~:
 
 #+BEGIN_SRC haskell
 instance Applicative Effect where
@@ -498,7 +507,13 @@ instance Applicative Effect where
   effFn <*> eff = effFn ==> \f -> eff ==> \x -> pure (f x)
 #+END_SRC
 
-before the grand finale, ~Monad~! Perhaps without knowing we've already
+~Applicative~ requires us to provide means of injecting pure values into
+effectful contexts, as well as means of applying functions from effectful
+contexts to values from effecful context. The definition of ~<*>~ must therefore
+extract an ~f~ from the left hand side, then extract an ~x~ from the right hand
+side, apply ~f~ to ~x~, and wrap up the result.
+
+Finally, the grand finale: ~Monad~! Perhaps without knowing we've already
 implemented the bind operator, namely our ~composeEff~ function:
 
 #+BEGIN_SRC haskell
@@ -556,6 +571,11 @@ Squaring: 84.0 => 7056.0
 Lifting: 7056.0 => Just 7056.0
 )
 #+END_EXAMPLE
+
+[fn:2] I find that saying ~Functor~ applies a function to a value *in* a
+context doesn't properly capture the cases where the context is an execution of
+sorts. This is because the value isn't necessarily stored in a context, but it's
+a context which *yields* a value.
 
 ** From ~Effect~ to ~IO~
 
@@ -615,7 +635,5 @@ Just 7056.0
 #+END_EXAMPLE
 
 And that concludes our playful derivation of the ~IO~ type in Haskell. Tada!
-** Notes
 
-Much of the material covered in this post was inspired by a recent ~YouTube~
-video: [[https://www.youtube.com/watch?v=fCoQb-zqYDI][What is IO Monad?]]
+** Notes
