@@ -1,0 +1,428 @@
+---
+title: Parser combinators
+---
+
+#+PROPERTY: header-args:haskell :tangle ../src/Parser.hs
+
+#+BEGIN_SRC haskell :exports none
+import Text.Read (readMaybe)
+#+END_SRC
+
+In the [[file:2018-11-15-deriving-io.html][last post]] I mentioned how I've gotten back into ~Haskell~ over the last
+months. Come December and time for another round of [[https://adventofcode.com/][The Advent of Code]]. I
+haven't been participating in this programming challenge series the last few
+year. However, since this is an excellent chance to apply ~Haskell~ to new
+problems I decided to start [[https://github.com/myme/advent2018][follow the challenges]]. I have thoroughly enjoyed the
+ones I have attempted thus far, even though I've not been able to keep up with
+the daily challenges. They often end up taking a surprising amount of time,
+especially when using ~Haskell~.
+
+One common denominator with all the challenges in the ~Advent of Code~ is the
+requirement to parse input data. Parsers may be a "solved problem", but there
+are *many* ways to approach parsing when faced with challenges like these,
+ranging from pragmatic uses of regular expressions and ad-hoc string
+manipulation, to fully-specified grammars and parser generators.
+
+Coincidentally, parsing is one of the areas in which ~Haskell~ truly shines,
+especially in the domain of [[https://en.wikipedia.org/wiki/Parser_combinator][parser combinators]]. There are multiple parser
+combinator libraries for Haskell, yet I'm not going to focus on any of them
+here. For the ~Advent of Code~, I didn't want to stray too far away from the
+default ~base~ package, and to my joy I found that there actually is a quite
+capable parser combinator module included in ~base~:
+[[https://hackage.haskell.org/package/base-4.12.0.0/docs/Text-ParserCombinators-ReadP.html][Text.ParserCombinators.ReadP]].
+
+** Co-co-co-combinators!
+
+A parser combinator is a higher-order function which accepts parsers as input,
+returning a new parser as output[fn:1]. A combinator is a higher-order function
+that uses only function application and earlier defined combinators to define a
+result from its arguments[fn:2].
+
+So, in short, a parser combinator library lets you construct complex parsers by
+composing smaller, "atomic" parsers. Here's an example before we get into the
+details:
+
+#+BEGIN_SRC haskell
+import Data.Char
+import Text.ParserCombinators.ReadP
+
+parseDigits :: ReadP String
+parseDigits = many1 (satisfy isDigit)
+#+END_SRC
+
+This is an example of a =ReadP= parser which parses and yields a =String=
+containing only digits. =many1= is an example of a combinator:
+
+#+BEGIN_EXAMPLE
+λ: :t many1
+many1 :: ReadP a -> ReadP [a]
+λ: :t satisfy
+satisfy :: (Char -> Bool) -> ReadP Char
+#+END_EXAMPLE
+
+=many1= repeats a given parser one or more times, yielding a list of the result,
+while =satisfy= yields a single =Char= if it passes a predicate function
+(=isDigit= in our example).
+
+[fn:1] [[https://en.wikipedia.org/wiki/Parser_combinator]]
+
+[fn:2] [[https://en.wikipedia.org/wiki/Combinatory_logic]]
+
+** Demystifying some types
+
+=ReadP= is our parser type. Its *actual* internals are out of scope of this
+post, but it can help our intuition by imagining it encapsulates stateful
+"stuff" like the input along with the cursor location within the input,
+backtracking/lookahead information, and so on. We'll treat it as an opaque data
+type, but here's what ~GHCi~ has to say about it (with some details removed):
+
+#+BEGIN_EXAMPLE
+λ: :i ReadP
+newtype ReadP a
+  = Text.ParserCombinators.ReadP.R (...)
+instance Applicative ReadP
+instance Functor ReadP
+instance Monad ReadP
+#+END_EXAMPLE
+
+We don't get to look at what happens /within/ =ReadP=, but we need a way to
+actually /run/ our parser on a piece of input. To do this, we can use the
+aptly named =readP_to_S=... /sigh/
+
+#+BEGIN_EXAMPLE
+λ: :i readP_to_S
+readP_to_S :: ReadP a -> ReadS a
+#+END_EXAMPLE
+
+We don't get much wiser from its type signature, so let's recurse yet another
+turtle[fn:3]:
+
+#+BEGIN_EXAMPLE
+λ: :i ReadS
+type ReadS a = String -> [(a, String)]
+#+END_EXAMPLE
+
+Aha! =ReadS= is just a type alias for a function accepting a =String= and
+returning a list of matches along with the remaining, unmatched input. We can
+expand =ReadS= in the type signature of =readP_to_S= to illustrate this a bit
+better:
+
+#+BEGIN_SRC haskell :tangle no
+readP_to_S :: ReadP a -> String -> [(a, String)]
+#+END_SRC
+
+The reason return value is a list, is because an input could result in multiple
+successful parses, and with varying lengths of matching input. The first element
+of the tuple is the parse result, while the second =String= element is the
+remaining, unprocessed input. This interface can be unexpected if you're used to
+parsers either failing or succeeding with a single result.
+
+Let's give it a spin with the atomic =get= parser, consuming a single character
+from the input:
+
+#+BEGIN_EXAMPLE
+λ: :t get
+get :: ReadP Char
+λ: readP_to_S get "foo"
+[('f',"oo")]
+#+END_EXAMPLE
+
+Since our simple parser only consumes a single character, there's only one
+successful parse, and the unprocessed input is returned as the second tuple
+element. Let's try out =parseDigits=:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S parseDigits "foo"
+[]
+λ: readP_to_S parseDigits "123"
+[("1","23"),("12","3"),("123","")]
+λ: readP_to_S parseDigits "123foo"
+[("1","23foo"),("12","3foo"),("123","foo")]
+#+END_EXAMPLE
+
+We're getting multiple successful parses with =many1= since we're not
+restricting our parser (=parseDigits= in particular) to parse until the end of
+input. Skipping ahead, here's how we can use the =Applicative= instance of
+=ReadP= and the =<*= operator to combine =parseDigits= with the =eof= parser:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S (parseDigits <* eof) "123"
+[("123","")]
+#+END_EXAMPLE
+
+[fn:3] [[https://en.wikipedia.org/wiki/Turtles_all_the_way_down]]
+
+** Let's get Funky!
+
+We've already seen glimpses of how we combine predefined parsers from =ReadP=
+into more complex parsers. Several of the =ReadP= parsers accept other parsers
+as input, hence the combinator-part. =parseDigits= uses only function
+application to construct a parser of digits from =many1= and =satisfy= with a
+predicate. There's one major flaw with =parseDigits= though, it doesn't actually
+yield us a number!
+
+One way to go at this, is to do our parse, then map a constructor accepting
+=String= over the parse result:
+
+#+BEGIN_EXAMPLE
+λ: map (readInt . fst) $ readP_to_S parseDigits "123"
+[1,12,123]
+#+END_EXAMPLE
+
+Unfortunately this is both clunky, and won't scale well when we want to expand
+our parser to construct more complex data structures. However, recalling the
+type of =readP_to_S= we can see that indeed, it accepts parsers which are
+polymorphic in their return values:
+
+#+BEGIN_SRC haskell :tangle no
+readP_to_S :: ReadP a -> String -> [(a, String)]
+#+END_SRC
+
+This means we can create parsers which directly yield the data types we desire.
+In order to do that though, we need to familiarize ourselves with some of the
+=ReadP= typeclass instances, mainly: =Functor= and =Applicative=. There are also
+instances for =Alternative= and =Monad=.
+
+Since =ReadP= has a =Functor= instance, our intuition should tell us that it
+should be quite possible to =fmap= =read= over our parser to convert our parser
+result type:
+
+#+BEGIN_SRC haskell
+parseInt :: ReadP Int
+parseInt = read <$> parseDigits
+#+END_SRC
+
+and in the repl:
+
+#+BEGIN_EXAMPLE
+λ: :t readP_to_S parseInt "123"
+readP_to_S parseInt "123" :: [(Int, String)]
+λ: readP_to_S parseInt "123"
+[(1,"23"),(12,"3"),(123,"")]
+#+END_EXAMPLE
+
+If we're concerned about the (un)safety of =read=, we can choose to use
+=readMaybe= from =Text.Read= instead:
+
+#+BEGIN_SRC haskell
+parseMaybeInt :: ReadP (Maybe Int)
+parseMaybeInt = readMaybe <$> parseDigits
+#+END_SRC
+
+** Applicative parsing
+
+2D coordinates are a frequent source of input in the ~Advent of Code~
+challenges. The way we like to represent a 2D coordinate in code is using a
+=Tuple= of two elements, and the elements being the =x= and =y= position of the
+coordinate, or point. Points are often serialized using surrounding parenthesis,
+a comma separating the two parts, and optional whitespace:
+
+#+BEGIN_EXAMPLE
+(1,2)
+(-10, 100)
+(  5, -42)
+#+END_EXAMPLE
+
+We do not yet have the tools we need in order to create parsers for types which
+are constructed from multiple arguments, like =(,)= (the =Tuple= data
+constructor). =Functor= only allows us to map over a (single) parse result to
+yield another type. Granted, we could give up on type safety and parse our input
+into substrings, which we again validate piece by piece to construct our values.
+But we don't accept compromises like these, do we? No we don't.
+
+=Applicative= extends our toolbox with the ability to lift n-ary data
+constructors and functions into the world of =ReadP=, allowing us to construct
+more complex types:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S ((,) <$> parseInt <*> parseInt) "123"
+[((1,2),"3"),((1,23),""),((12,3),"")]
+#+END_EXAMPLE
+
+We're now getting tuples out of our parser, although we're not parsing /actual/
+tuples yet. Also note that our parser is ambiguous. The result of the parser
+should be a tuple, but it's equally valid to create a tuple of the first and
+second digit, as is splitting =x= and =y= between the second and third digits.
+The input format (and thus our parser) must change to specify *where* one
+coordinate component ends and the other begins. We use static delimiters "(",
+")", and "," for this.
+
+To match static input =ReadP= provides =char= and =string=:
+
+#+BEGIN_EXAMPLE
+λ: :t char
+char :: Char -> ReadP Char
+λ: :t string
+string :: String -> ReadP String
+#+END_EXAMPLE
+
+Both of these parsers accept a character (or string), resulting in a parser
+which yields the same value if the input matched successfully:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S (char 'a') "foo"
+[]
+λ: readP_to_S (char 'f') "foo"
+[('f',"oo")]
+λ: readP_to_S (string "bar") "foo"
+[]
+λ: readP_to_S (string "foo") "foo"
+[("foo","")]
+#+END_EXAMPLE
+
+We can combine =parseInt= with =char= using =Applicative= to parse tuples
+(in a strict manner, without any whitespace):
+
+#+BEGIN_SRC haskell
+parseCoord :: ReadP (Int, Int)
+parseCoord = (,)
+  <$> (char '(' *> parseInt)
+  <*> (char ',' *> parseInt <* char ')')
+#+END_SRC
+
+and applied to some input:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S parseCoord "(1,2)"
+[((1,2),"")]
+#+END_EXAMPLE
+
+The =<*= and =*>= operators just discard the result of the parsers on the right
+and left hand side, respectively. The arrows "point" at the part of the sequence
+whose value will be returned.
+
+** Negative space
+
+There are two issues with our coordinate parser: it's quite strict in the way it
+supports no whitespace, and it does not support negative values for the =x= and
+=y= component.
+
+To add whitespace support, we can use the operators from =Applicative= in
+combination with the provided =skipSpaces= parser. Let's update =parseInt= to
+consume whitespace surrounding a number:
+
+#+BEGIN_SRC haskell
+parseIntSpaces :: ReadP Int
+parseIntSpaces = skipSpaces *> parseInt <* skipSpaces
+#+END_SRC
+
+=parseCoord= should be updated to use =parserIntSpaces=:
+
+#+BEGIN_SRC haskell
+parseCoordSpaces :: ReadP (Int, Int)
+parseCoordSpaces = (,)
+  <$> (char '(' *> parseIntSpaces)
+  <*> (char ',' *> parseIntSpaces <* char ')')
+#+END_SRC
+
+Not much change required at all, besides renaming a function reference! We're
+now able to parse coordinates with whitespace:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S parseCoord "(  1  ,  2  )"
+[((1,2),"")]
+#+END_EXAMPLE
+
+Finally, in order to support negative numbers prefixed with "-" we need to
+change =parseInt= yet again. Using the provided =option= parser we can add
+support of an optional prefix of "-":
+
+#+BEGIN_SRC haskell
+parseSignedInt :: ReadP Int
+parseSignedInt = read <$> ((:) <$> parseSign <*> parseDigits)
+  where parseSign = option ' ' (char '-')
+#+END_SRC
+
+Note that we have to =fmap= the list cons operator to prepend the sign to the
+resulting list of digits. =read= for =Int= also supports whitespace around the
+number, which means =option= can yield a blank space character if there is no
+"-" in front of the number.
+
+=option= takes, along with a parser, a default value which it yields if the
+parse is not successful:
+
+#+BEGIN_EXAMPLE
+λ: :t option
+option :: a -> ReadP a -> ReadP a
+#+END_EXAMPLE
+
+Now we can parse negative numbers too!
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S (parseInt <* eof) "-123"
+[(-123,"")]
+#+END_EXAMPLE
+
+** Monadic parsing
+
+We've already mentioned that =ReadP= has a =Monad= instance, giving us access to
+~do~ notation. This allows a bit more flexibility and write parsers in a
+somewhat more imperative style. Let's do a rewrite of our tuple parser:
+
+#+BEGIN_SRC haskell
+parseCoordM :: ReadP (Int, Int)
+parseCoordM = do
+  x <- char '(' >> parseIntSpaces
+  y <- char ',' >> parseIntSpaces
+  char ')'
+  return (x, y)
+#+END_SRC
+
+Note that we can use the Monadic sequencing operator =>>= and Applicative
+sequencing operator =*>= interchangeably. While in a ~do~ notation it might be
+more consistent to stick with the monadic operators.
+
+One of the benefits of using the =Monad= instance for =ReadP= is that it
+simplifies sequencing parsers where later parts of the parser depends on earlier
+matched input. For instance, we might want to parse a piece of input which
+starts with a number of elements to parse, followed by the elements themselves:
+
+#+BEGIN_SRC haskell
+parseCountInts :: ReadP [Int]
+parseCountInts = do
+  n <- parseInt <* char '\n'
+  count n (parseInt <* char '\n')
+#+END_SRC
+
+We use the =count= parser to repeat a given parser ~n~ times:
+
+#+BEGIN_EXAMPLE
+λ: :t count
+count :: Int -> ReadP a -> ReadP [a]
+#+END_EXAMPLE
+
+This parser first reads a number ~n~ stating how many elements to parse, then
+proceeds to parse ~n~ numbers separated by newline:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S parseCountInts "2\n1\n2\n3\n4\n5"
+[([1,2],"3\n4\n5")]
+λ: readP_to_S parseCountInts "3\n1\n2\n3\n4\n5"
+[([1,2,3],"4\n5")]
+λ: readP_to_S parseCountInts "4\n1\n2\n3\n4\n5"
+[([1,2,3,4],"5")]
+#+END_EXAMPLE
+
+The parser does not proceed to process input beyond the number of elements we
+specify.
+
+** Summary
+
+Functional programming in Haskell centers around breaking down problems into
+smaller, independent pieces. Then using various means of composition to combine
+these pieces into a working solution. Parser combinators are yet another example
+of how we can achieve proper reusability in Haskell. Recall how we reused
+=parseInt= (and its derivatives) to create more complex parsers, which again
+could be composed to create even larger parsers.
+
+I really encourage you to have a go at using either =ReadP= or the many parser
+[[https://hackage.haskell.org/packages/search?terms=parser+combinator][combinator libraries]] available. Some focus on performance and speed, others on
+diagnostics and error reporting.
+
+Oh, and by the way, check out [[https://github.com/myme/advent2018][my GitHub repository]] for my ongoing[fn:4] solutions to
+the 2018 ~Advent of Code~.
+
+[fn:4] Yes, I did not manage (nor try) to keep up with the pace of the
+challenges.
+
+** Footnotes
