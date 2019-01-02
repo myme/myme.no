@@ -46,19 +46,19 @@ main = hakyllWith config $ do
         renderRss feedConfig feedCtx posts
 
     match "index.html" $ do
-        route idRoute
-        compile $ do
-          lastPost:earlierPosts <- take 5 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
-          let indexCtx =
-                constField "title" "Home" <>
-                listField "lastPost" postCtx (return [lastPost]) <>
-                listField "posts" postCtx (return earlierPosts) <>
-                defaultContext
+      route idRoute
+      compile $ do
+        lastPost:earlierPosts <- take 5 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
+        let indexCtx =
+              constField "title" "Home" <>
+              listField "lastPost" postCtx (return [lastPost]) <>
+              listField "posts" postCtx (return earlierPosts) <>
+              defaultContext
 
-          getResourceBody
-            >>= applyAsTemplate indexCtx
-            >>= loadAndApplyTemplate "templates/default.html" indexCtx
-            >>= relativizeUrls
+        getResourceBody
+          >>= applyAsTemplate indexCtx
+          >>= loadAndApplyTemplate "templates/default.html" indexCtx
+          >>= relativizeUrls
 
     match "templates/*" $ compile templateBodyCompiler
 
