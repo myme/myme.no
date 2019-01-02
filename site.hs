@@ -48,11 +48,10 @@ main = hakyllWith config $ do
     match "index.html" $ do
       route idRoute
       compile $ do
-        lastPost:earlierPosts <- take 5 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
+        latestPosts <- take 5 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
         let indexCtx =
               constField "title" "Home" <>
-              listField "lastPost" postCtx (return [lastPost]) <>
-              listField "posts" postCtx (return earlierPosts) <>
+              listField "posts" postCtx (return latestPosts) <>
               defaultContext
 
         getResourceBody
