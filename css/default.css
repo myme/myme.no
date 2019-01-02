@@ -16,6 +16,17 @@ body {
     padding: 0 10px;
 }
 
+main {
+    overflow: auto;
+}
+
+img.home-image {
+    float: right;
+    margin: 10px;
+    width: 150px;
+    height: 150px;
+}
+
 p iframe {
     height: 155px;
     width: 280px;
