@@ -3,7 +3,6 @@
 import           Data.Monoid (mappend)
 import           Hakyll
 
---------------------------------------------------------------------------------
 main :: IO ()
 main = hakyllWith config $ do
     match "images/*" $ do
@@ -40,14 +39,20 @@ main = hakyllWith config $ do
                 >>= loadAndApplyTemplate "templates/default.html" postsCtx
                 >>= relativizeUrls
 
+    create ["feed.xml"] $ do
+      route idRoute
+      compile $ do
+        posts <- recentFirst =<< loadAllSnapshots "posts/*" "content"
+        let feedCtx = postCtx `mappend` bodyField "description"
+        renderRss feedConfig feedCtx posts
+
     match "index.html" $ do
         route idRoute
         compile $ do
-            lastPost <- (return . take 1) =<< recentFirst =<< loadAllSnapshots "posts/*" "content"
-            earlierPosts <- (return . take 5 . drop 1) =<< recentFirst =<< loadAllSnapshots "posts/*" "content"
+            lastPost:earlierPosts <- take 5 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
             let indexCtx =
                     constField "title" "Home" `mappend`
-                    listField "lastPost" postCtx (return lastPost) `mappend`
+                    listField "lastPost" postCtx (return [lastPost]) `mappend`
                     listField "posts" postCtx (return earlierPosts) `mappend`
                     defaultContext
 
@@ -58,15 +63,22 @@ main = hakyllWith config $ do
 
     match "templates/*" $ compile templateBodyCompiler
 
---------------------------------------------------------------------------------
 config :: Configuration
 config = defaultConfiguration
        { destinationDirectory = "public"
        , deployCommand = "rsync -Pavz --delete ./public deque:/data/myme.no"
        }
 
---------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%F" `mappend`
     defaultContext
+
+feedConfig :: FeedConfiguration
+feedConfig = FeedConfiguration
+  { feedTitle = "myme.no tech blog"
+  , feedDescription = "Blog posts with technincal and programming related content."
+  , feedAuthorName = "Martin Myrseth"
+  , feedAuthorEmail = "myrseth@gmail.com"
+  , feedRoot = "https://myme.no"
+  }
