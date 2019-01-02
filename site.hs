@@ -1,6 +1,5 @@
---------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Data.Monoid (mappend)
+
 import           Hakyll
 
 main :: IO ()
@@ -30,8 +29,8 @@ main = hakyllWith config $ do
         compile $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let postsCtx =
-                    constField "title" "Posts" `mappend`
-                    listField "posts" postCtx (return posts) `mappend`
+                    constField "title" "Posts" <>
+                    listField "posts" postCtx (return posts) <>
                     defaultContext
 
             makeItem ""
@@ -43,7 +42,7 @@ main = hakyllWith config $ do
       route idRoute
       compile $ do
         posts <- recentFirst =<< loadAllSnapshots "posts/*" "content"
-        let feedCtx = postCtx `mappend` bodyField "description"
+        let feedCtx = postCtx <> bodyField "description"
         renderRss feedConfig feedCtx posts
 
     match "index.html" $ do
@@ -51,9 +50,9 @@ main = hakyllWith config $ do
         compile $ do
             lastPost:earlierPosts <- take 5 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
             let indexCtx =
-                    constField "title" "Home" `mappend`
-                    listField "lastPost" postCtx (return [lastPost]) `mappend`
-                    listField "posts" postCtx (return earlierPosts) `mappend`
+                    constField "title" "Home" <>
+                    listField "lastPost" postCtx (return [lastPost]) <>
+                    listField "posts" postCtx (return earlierPosts) <>
                     defaultContext
 
             getResourceBody
@@ -71,7 +70,7 @@ config = defaultConfiguration
 
 postCtx :: Context String
 postCtx =
-    dateField "date" "%F" `mappend`
+    dateField "date" "%F" <>
     defaultContext
 
 feedConfig :: FeedConfiguration
