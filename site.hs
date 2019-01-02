@@ -48,7 +48,7 @@ main = hakyllWith config $ do
     match "index.html" $ do
       route idRoute
       compile $ do
-        latestPosts <- take 5 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
+        latestPosts <- take 10 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
         let indexCtx =
               constField "title" "Home" <>
               listField "posts" postCtx (return latestPosts) <>
