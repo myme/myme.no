@@ -280,7 +280,7 @@ We can surely do better!
 composeEff :: Effect a -> (a -> Effect b) -> Effect b
 #+END_SRC
 
-Note: Expanding the type alias this type is really quite intimidating:
+Note: Expanding the type of this type alias is quite intimidating:
 
 #+BEGIN_SRC haskell :eval no :tangle no
 composeEff :: Effect (Env -> (a, Env)) -> (a -> Effect (Env -> (b, Env))) -> Effect (Env -> (b, Env))
