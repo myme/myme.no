@@ -112,10 +112,9 @@ readP_to_S :: ReadP a -> String -> [(a, String)]
 #+END_SRC
 
 The reason return value is a list, is because an input could result in multiple
-successful parses, and with varying lengths of matching input. The first element
-of the tuple is the parse result, while the second =String= element is the
-remaining, unprocessed input. This interface can be unexpected if you're used to
-parsers either failing or succeeding with a single result.
+successful parses, and with varying lengths of matching input. This interface
+can be unexpected if you're used to parsers either failing or succeeding with a
+single result.
 
 Let's give it a spin with the atomic =get= parser, consuming a single character
 from the input:
@@ -192,7 +191,7 @@ parseInt :: ReadP Int
 parseInt = read <$> parseDigits
 #+END_SRC
 
-and in the repl:
+and in ~GHCi~:
 
 #+BEGIN_EXAMPLE
 λ: :t readP_to_S parseInt "123"
@@ -208,6 +207,15 @@ If we're concerned about the (un)safety of =read=, we can choose to use
 parseMaybeInt :: ReadP (Maybe Int)
 parseMaybeInt = readMaybe <$> parseDigits
 #+END_SRC
+
+which gives us:
+
+#+BEGIN_EXAMPLE
+λ: readP_to_S parseMaybeInt "123"
+[(Just 1,"23"),(Just 12,"3"),(Just 123,"")]
+λ: readP_to_S (parseMaybeInt <* eof) "123"
+[(Just 123,"")]
+#+END_EXAMPLE
 
 ** Applicative parsing
 
