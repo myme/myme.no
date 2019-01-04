@@ -15,7 +15,7 @@ year. However, since this is an excellent chance to apply ~Haskell~ to new
 problems I decided to start [[https://github.com/myme/advent2018][follow the challenges]]. I have thoroughly enjoyed the
 ones I have attempted thus far, even though I've not been able to keep up with
 the daily challenges. They often end up taking a surprising amount of time,
-especially when using ~Haskell~.
+perhaps also due to me using ~Haskell~.
 
 One common denominator with all the challenges in the ~Advent of Code~ is the
 requirement to parse input data. Parsers may be a "solved problem", but there
@@ -34,9 +34,9 @@ capable parser combinator module included in ~base~:
 ** Co-co-co-combinators!
 
 A parser combinator is a higher-order function which accepts parsers as input,
-returning a new parser as output[fn:1]. A combinator is a higher-order function
+returning a new parser as output. A combinator is a higher-order function
 that uses only function application and earlier defined combinators to define a
-result from its arguments[fn:2].
+result from its arguments[fn:1].
 
 So, in short, a parser combinator library lets you construct complex parsers by
 composing smaller, "atomic" parsers. Here's an example before we get into the
@@ -64,9 +64,7 @@ satisfy :: (Char -> Bool) -> ReadP Char
 while =satisfy= yields a single =Char= if it passes a predicate function
 (=isDigit= in our example).
 
-[fn:1] [[https://en.wikipedia.org/wiki/Parser_combinator]]
-
-[fn:2] [[https://en.wikipedia.org/wiki/Combinatory_logic]]
+[fn:1] [[https://en.wikipedia.org/wiki/Combinatory_logic]]
 
 ** Demystifying some types
 
@@ -95,7 +93,7 @@ readP_to_S :: ReadP a -> ReadS a
 #+END_EXAMPLE
 
 We don't get much wiser from its type signature, so let's recurse yet another
-turtle[fn:3]:
+turtle[fn:2]:
 
 #+BEGIN_EXAMPLE
 λ: :i ReadS
@@ -111,10 +109,10 @@ better:
 readP_to_S :: ReadP a -> String -> [(a, String)]
 #+END_SRC
 
-The reason return value is a list, is because an input could result in multiple
-successful parses, and with varying lengths of matching input. This interface
-can be unexpected if you're used to parsers either failing or succeeding with a
-single result.
+The reason the return value is a list, is because an input could result in
+multiple successful parses, and with varying lengths of matching input. This
+interface can be unexpected if you're used to parsers either failing or
+succeeding with a single result.
 
 Let's give it a spin with the atomic =get= parser, consuming a single character
 from the input:
@@ -149,7 +147,9 @@ input. Skipping ahead, here's how we can use the =Applicative= instance of
 [("123","")]
 #+END_EXAMPLE
 
-[fn:3] [[https://en.wikipedia.org/wiki/Turtles_all_the_way_down]]
+[fn:2] [[https://en.wikipedia.org/wiki/Turtles_all_the_way_down]]
+
+[fn:3] [[https://en.wikipedia.org/wiki/Parser_combinator]]
 
 ** Let's get Funky!
 
@@ -357,7 +357,7 @@ option :: a -> ReadP a -> ReadP a
 Now we can parse negative numbers too!
 
 #+BEGIN_EXAMPLE
-λ: readP_to_S (parseInt <* eof) "-123"
+λ: readP_to_S (parseSignedInt <* eof) "-123"
 [(-123,"")]
 #+END_EXAMPLE
 
@@ -426,11 +426,5 @@ could be composed to create even larger parsers.
 I really encourage you to have a go at using either =ReadP= or the many parser
 [[https://hackage.haskell.org/packages/search?terms=parser+combinator][combinator libraries]] available. Some focus on performance and speed, others on
 diagnostics and error reporting.
-
-Oh, and by the way, check out [[https://github.com/myme/advent2018][my GitHub repository]] for my ongoing[fn:4] solutions to
-the 2018 ~Advent of Code~.
-
-[fn:4] Yes, I did not manage (nor try) to keep up with the pace of the
-challenges.
 
 ** Footnotes
