@@ -1,0 +1,33 @@
+#+TITLE: tools
+
+* Pet projects:
+
+Here's a list of more or less useful tools that I've created over the years, in
+no particular order:
+
+- [[https://github.com/myme/piddif][Piddif]] (Haskell)
+
+  A document renderer supporting different formats, outputting HTML ready to
+  print from a browser. Created because I *know* how to style ~HTML~ using
+  ~CSS~, and I *don't* know how to style ~LaTeX~. Uses
+  [[https://pandoc.org/][Pandoc]].
+
+- [[https://github.com/cisco-ce/jsxapi][JSXAPI]] (JavaScript)
+
+  JavaScript language binding library for Cisco's CE Telepresence endpoints.
+  Proprietary software turned open-source. In "widespread" use.
+
+- [[https://github.com/myme/annodate][Annodate]] (Haskell)
+
+  A tiny, simple *nix tool to prepend (customizable) timestamps to input streams.
+
+- [[https://github.com/myme/eeep][eeep]] (JavaScript)
+
+  A tiny, pretty silly, and not so robust little tool to get IP information from
+  a *nix system.
+
+- [[https://github.com/myme/elvis][Elvis]] (JavaScript)
+
+  A library for creating DOM elements with a JavaScript-friendly API. Quite
+  similar to, and superseeded by
+  [[https://github.com/hyperhype/hyperscript][Hyperscript]].

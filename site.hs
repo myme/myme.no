@@ -49,8 +49,10 @@ main = hakyllWith config $ do
       route idRoute
       compile $ do
         latestPosts <- take 10 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
+        tools <- loadBody "tools.org"
         let indexCtx =
               constField "title" "Home" <>
+              constField "tools" tools <>
               listField "posts" postCtx (return latestPosts) <>
               defaultContext
 
@@ -59,7 +61,8 @@ main = hakyllWith config $ do
           >>= loadAndApplyTemplate "templates/default.html" indexCtx
           >>= relativizeUrls
 
-    match "templates/*" $ compile templateBodyCompiler
+    match "tools.org" (compile pandocCompiler)
+    match "templates/*" (compile templateBodyCompiler)
 
 config :: Configuration
 config = defaultConfiguration
