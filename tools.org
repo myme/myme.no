@@ -5,6 +5,11 @@
 Here's a list of more or less useful tools that I've created over the years, in
 no particular order:
 
+- [[https://github.com/myme/dotfiles][dotfiles]]
+
+  These are my dotfiles. There are many like them, but these ones are mine. I
+  take my dotfiles very seriously, as any professional programmer should.
+
 - [[https://github.com/myme/piddif][Piddif]] (Haskell)
 
   A document renderer supporting different formats, outputting HTML ready to
