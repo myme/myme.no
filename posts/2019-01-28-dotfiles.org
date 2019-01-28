@@ -1,0 +1,134 @@
+---
+title: Dotfiles
+---
+
+Some time ago, I moved my publicly available ~dotfiles~[fn:1] to a private [[http://gitolite.com/gitolite/][gitolite]]
+installation. I don't remember exactly why I pulled it from ~GitHub~, and
+recently I thought there might be some value to share my setup with others.
+Besides, I haven't had a reason to track any sensitive or personal data /in/ my
+configuration files themselves. Last week I decided that I might as well just
+push it to ~GitHub~ again, so here it is: [[https://github.com/myme/dotfiles][my dotfiles repository]].
+
+I consider my configuration files some of /the/ most valuable assets I have on a
+system. I try to constantly improve my configurations to suit my everyday needs.
+One blog post which really struck home with me, was John Cook's [[https://www.johndcook.com/blog/2015/12/22/automate-to-save-mental-energy-not-time/][Automate to save
+mental energy, not time]]. I don't necessarily /save/ heaps of time polishing my
+configuration setup, but I know I spare myself for future headaches fixing
+itches and pain-points /today/.
+
+Mostly this is related to tools and technologies I use as a professional
+software developer. This post highlights some of the more notable parts of the
+repository.
+
+[fn:1] [[https://en.wikipedia.org/wiki/Dotfiles][Hidden file and hidden directory]]
+
+** Overview
+
+From ~README.org~ in the repository:
+
+#+BEGIN_QUOTE
+For the time being, I'm using ~git~ to track my configurations across multiple
+hosts using branches. These branches has a set of host-specific patches which
+are continuously rebased on top of the master branch. This provides a sensible
+backup across hosts, while having tailored configuration for each host.
+
+Most configurations are applied by symlinking dotfiles into ~$HOME~ using [[https://www.gnu.org/software/stow/][GNU
+stow]].
+#+END_QUOTE
+
+The configuration section with most frequent changes are, perhaps not
+surprisingly, related to my editor: ~Emacs~. Then comes my current window
+manager [[https://i3wm.org/][i3wm]] and ~zsh~ shell setup.
+
+** Emacs
+
+I've already [[file:2018-08-20-were-all-doomed.html][written about my usage of Doom Emacs]], and I still continues to use
+it. I've found no other, better alternative, and quite frankly I think it's
+pretty amazing. The project is evolving constantly, which can be both a good
+thing, and a bad thing. There still are things which aren't entirely optimal
+using it, but all-in-all I'm quite satisfied with my editor setup these days.
+
+** [[https://i3wm.org/][i3wm]]
+
+I've been switching between using ~MacOS~ and ~Linux~ on my laptop the last 10
+years or so. Currently I'm on ~Linux~. On the desktop computers I've used at
+work I've exclusively used ~Linux~. This means I'm pretty much on a ~Linux~-only
+setup these days. One of my favorite pieces of software on systems with a
+graphical user interface has to be tiling window managers. I've tried quite a
+few, but I'm currently using ~i3wm~. This isn't a post about tiling window
+managers, but you should definitely consider trying one out I you haven't already.
+
+** [[https://github.com/DaveDavenport/rofi][Rofi]]
+
+I used [[https://launchpad.net/synapse-project][Synapse]] to launch applications in ~i3~ for quite a while, before
+switching over to ~rofi~. ~Rofi~ is pretty great. I mostly just use it as an
+application launcher, but it can also switch between ~i3~ workspaces, and
+application windows, as well as be programmed to do basically /whatever/.
+
+** Git
+
+Not really much exiting here. I absolute *love* ~git~, and it's up there as one
+of the pieces of software I use the most. However, I try to keep my
+configuration quite simple, and not bother too much with customized behavior.
+One thing to note though, are a few convenient aliases for showing the log.
+
+A thing to note about my ~git~ configuration is that I purposely don't fill in
+my email by default in ~$HOME/.gitconfig~. It's too easy to mess up committing
+as either my personal persona in a work context, or vice versa. I've done this
+on several occasions, so now ~git~ prompts me to set my email in every new and
+cloned repository that I set up, using:
+
+#+BEGIN_SRC bash
+$ git config user.email <email>
+#+END_SRC
+
+** Zsh (with [[https://github.com/sorin-ionescu/prezto][prezto]])
+
+The command line interface never gets old. Not a day goes by where there's
+something I have to do which involves the command line. Before the terminal used
+to be my main entry point to the command line, although this has tilted the
+scale more towards my editor after switching to ~Emacs~. Still though, it's the
+same shell which powers it all though: ~zsh~.
+
+These days I'm no longer sure why I use ~zsh~. I'm no power-user though, nor do
+I think I use features which wouldn't be available through e.g. ~bash~. Who
+knows, one of these days I might switch back just to make default setup easier,
+not having to install a new shell on new systems.
+
+In any case, I currently use ~prezto~ to drive most of the ~zsh~ configuration.
+I'm too old to write all this shit myself...
+
+** [[https://github.com/tmux/tmux/wiki][Tmux]]
+
+~Tmux~ is awesome. I started using the ~GNU Screen~ terminal multiplexer a long
+time ago, but quickly switched over to ~tmux~ when first learning about it and
+its advantages over ~screen~. I use it less frequently now that more of my
+workflow evolve around ~Emacs~, but it remains an important tool in my toolbox.
+
+** [[https://github.com/junegunn/fzf][Fzf]]
+
+I mostly use ~fzf~ as a fuzzy finder for my shell command line history in ~zsh~,
+but it does a whole lot more like fuzzy finding files to send to command line
+applications.
+
+** Vim
+
+I *do* still have my old ~vim~ configuration lying around, although I don't
+change it much. I expect it to be quite rotten by now. I can't really recall the
+last time I fired it up, but I do have to from time to time. It uses a plugin
+manager to install a few plugins, and nothing much more fancy than that.
+
+** The rest
+
+There are configurations for a bunch of other applications and software which I
+don't bother mentioning here. I expect my configuration files and tools of
+choice to continue to evolve, as well as accumulating new tricks and picking up
+new snippets which all make everyday programming life easier.
+
+Hopefully publishing my ~dotfiles~ could prove directly useful to others, or
+inspire others to improve their own setup in ways which could be interesting to
+me in return. Publicly available dotfiles from other users is one of my main
+source of inspiration for my own setup, so if you haven't checked out mine yet,
+please knock yourself out!
+
+** Footnotes
