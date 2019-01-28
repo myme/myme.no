@@ -157,3 +157,5 @@ have it work as I intend it to.
 
 [fn:3] That's not completely true though, as I do have a tendency to
 start short-lived (or active) coding projects just to try out some stuff.
+
+** Footnotes

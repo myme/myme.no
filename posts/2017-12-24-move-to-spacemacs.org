@@ -186,3 +186,5 @@ instead of =js2 mode=.
 [fn:4] I do a significant bit of work while commuting and access
 a desktop computer through =Mosh= and =Tmux=. =Tramp= is not the way to go over
 unstable connections.
+
+** Footnotes

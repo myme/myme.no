@@ -636,4 +636,4 @@ Just 7056.0
 
 And that concludes our playful derivation of the =IO= type in Haskell. Tada!
 
-** Notes
+** Footnotes

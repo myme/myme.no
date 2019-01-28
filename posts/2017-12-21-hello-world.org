@@ -34,6 +34,8 @@ I don't have very large expectations of putting out article after article in a
 regular fashion, but hopefully I'll get some sporadic inspirations motivating me
 to write.
 
+** Footnotes
+
 [fn:1] ♬ I gave you my heart... ♬
 
 [fn:2] Blog posts can easily start out from a simple capture, or a note
