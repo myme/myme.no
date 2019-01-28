@@ -14,7 +14,7 @@ relationship spanning over a decade. However, last christmas I suddenly decided
 to see if the grass was greener on the other side and so I gave =Emacs= a fair
 chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacemacs]]-powered =Emacs=:
 
-#+ATTR_HTML: :width 200px :alt Spacemacs logo
+#+ATTR_HTML: :height 200px :width 200px :alt Spacemacs logo
 [[file:../images/spacemacs-logo.svg]]
 
 ** Prologue
