@@ -161,11 +161,6 @@ p img, p iframe {
     margin: 0 auto;
 }
 
-article.collapsed {
-    height: 500px;
-    overflow: hidden;
-}
-
 article + a.expand {
     display: none;
 }
