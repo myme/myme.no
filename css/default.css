@@ -161,6 +161,11 @@ p img, p iframe {
     margin: 0 auto;
 }
 
+article {
+    text-align: justify;
+    text-justify: auto;
+}
+
 article + a.expand {
     display: none;
 }
