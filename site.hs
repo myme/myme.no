@@ -38,6 +38,12 @@ main = hakyllWith config $ do
           >>= loadAndApplyTemplate "templates/default.html" postsCtx
           >>= relativizeUrls
 
+    match "projects.org" $ do
+      route $ setExtension "html"
+      compile $ pandocCompiler
+        >>= saveSnapshot "content"
+        >>= loadAndApplyTemplate "templates/default.html" postCtx
+
     create ["feed.xml"] $ do
       route idRoute
       compile $ do
@@ -49,10 +55,10 @@ main = hakyllWith config $ do
       route idRoute
       compile $ do
         latestPosts <- take 10 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
-        tools <- loadBody "tools.org"
+        projects <- itemBody <$> loadSnapshot "projects.org" "content"
         let indexCtx =
               constField "title" "Home" <>
-              constField "tools" tools <>
+              constField "projects" projects <>
               listField "posts" postCtx (return latestPosts) <>
               defaultContext
 
@@ -61,7 +67,6 @@ main = hakyllWith config $ do
           >>= loadAndApplyTemplate "templates/default.html" indexCtx
           >>= relativizeUrls
 
-    match "tools.org" (compile pandocCompiler)
     match "templates/*" (compile templateBodyCompiler)
 
 config :: Configuration

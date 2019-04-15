@@ -1,9 +1,10 @@
 #+TITLE: tools
 
-* Pet projects:
+* Public Projects:
 
-Here's a list of more or less useful tools that I've created over the years, in
-no particular order:
+Here's a list of more or less useful tools that I've created over the years.
+This is just a selection of stuff I have hosted on ~GitHub~. In no particular
+order:
 
 - [[https://github.com/myme/dotfiles][dotfiles]]
 
