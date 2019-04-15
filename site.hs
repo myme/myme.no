@@ -1,6 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Hakyll
+import Control.Monad
+import Hakyll hiding (fromList)
+import Text.Pandoc.Builder
+import Text.Pandoc.Options
+import Text.Pandoc.Walk
 
 main :: IO ()
 main = hakyllWith config $ do
@@ -40,8 +44,11 @@ main = hakyllWith config $ do
 
     match "projects.org" $ do
       route $ setExtension "html"
-      compile $ pandocCompiler
-        >>= saveSnapshot "content"
+      let saveProjectTitles p = do
+            projects <- writePandoc <$> makeItem (extractHeaders 10 p)
+            void $ saveSnapshot "headers" projects
+            pure p
+      compile $ pandocCompilerWithTransformM def def saveProjectTitles
         >>= loadAndApplyTemplate "templates/default.html" postCtx
 
     create ["feed.xml"] $ do
@@ -55,7 +62,7 @@ main = hakyllWith config $ do
       route idRoute
       compile $ do
         latestPosts <- take 10 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
-        projects <- itemBody <$> loadSnapshot "projects.org" "content"
+        projects <- loadSnapshotBody "projects.org" "headers"
         let indexCtx =
               constField "title" "Home" <>
               constField "projects" projects <>
@@ -86,3 +93,11 @@ feedConfig = FeedConfiguration
   , feedAuthorEmail = "myrseth@gmail.com"
   , feedRoot = "https://myme.no"
   }
+
+-- | Extract headers from a Pandoc document
+extractHeaders :: Int -> Pandoc -> Pandoc
+extractHeaders n p = doc (bulletList links)
+  where
+    links = plain . fromList . take n <$> query headers p
+    headers (Header lvl _ content) | lvl > 1 = [content]
+    headers _ = []
