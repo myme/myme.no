@@ -1,3 +1,5 @@
 .stack-work
 _cache
 public
+dist-newstyle
+.ghc.environment.*
