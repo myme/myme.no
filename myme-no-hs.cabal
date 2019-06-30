@@ -3,12 +3,15 @@ version:            0.1.0.0
 build-type:         Simple
 cabal-version:      >= 1.10
 
-executable site
+executable myme.no
   main-is:          site.hs
   build-depends:    base
                   , hakyll
                   , pandoc
                   , pandoc-types
-  ghc-options:      -threaded
-                    -Wall
+  ghc-options:      -Wall
+                    -threaded
+                    -rtsopts
+                    -with-rtsopts=-N
+
   default-language: Haskell2010
