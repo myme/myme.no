@@ -1,0 +1,303 @@
+---
+title: "NixOS: Into the deep end"
+---
+
+My first experience with a ~Linux~-based operating system was in the early
+2000s. I remember a friend and I got hold of a ~Red Hat~ installation disk, and
+thought we'd give it a test run. We managed to boot the image and I remember us
+ending up in quite an unfamiliar shell environment. We didn't know how to launch
+programs, we didn't even know /which/ programs were accessible. Eventually we
+/did/ manage to start [[https://en.wikipedia.org/wiki/Pidgin_(software)][Pidgin]] (called ~GAIM~ at the time), most likely using some
+kind of a ~DOS~-inspired command, only working by accident.
+
+I've been using several ~Linux~ distributions to various degrees over the years
+since those initial baby steps. ~Linux~-based systems have been my OS of choice
+for my entire professional career, and for the last couple of years I've been
+using my work laptop as my main home computer as well. I can't remember exactly
+which distros I've been using over the years, but to name a few, in no
+particular order: [[http://www.slackware.org/][Slackware]], [[https://www.debian.org/][Debian]], [[https://www.archlinux.org/][Arch]], [[https://www.ubuntu.com/][Ubuntu]], and, for the sake of
+completeness, a /very/ brief stint with ~BSD~ (I don't even remember which).
+~Ubuntu~ is the only distribution I can say I've been running for a significant
+amount of time.
+
+Although ~Linux~ distributions have come a /long/ way with regards to usability,
+no ~Linux~ setup is without its issues or challenges. This post is a
+consolidation of some of my notes and remarks on how to get ~NixOS~ installed,
+and running.
+
+** Why ~NixOS~?
+
+Well, why /not/? I didn't really have any particular reason as to why I wanted
+to try ~NixOS~. I guess it sounded luring for an entire operating system to be
+based off the ~Nix~ build/package management system. Build recipies consumed by
+~Nix~ (the tool) are written using ~Nix~ (the language), which is a pure, lazy
+programming language. The functional nature of the ~Nix~ language makes it ideal
+for the declarative and deterministic domain of dependency and build management.
+Using ~NixOS~ wouldn't be possible without me fully embracing the ~Nix~
+ecosystem.
+
+I was also growing a bit tired of my ~Ubuntu~ installations. Both my laptop and
+desktop workstation had accumulated quite a bit of cruft over the years. Wanting
+to clean up my laptop would probably resulted in a full reinstall anyways. In
+the end, I guess I didn't really need a whole lot of convincing. Once I heard
+some colleagues were also trying out ~NixOS~, that was enough for me. If somehow
+it didn't work out, switching back wouldn't mean much of a sunk cost.
+
+Having made my decision, I quickly made an encrypted[fn:1] backup of my laptop's
+home directory using [[http://duplicity.nongnu.org/][duplicity]], which turned out to be a pleasantly simple and
+useful little tool. I only used the full backup that ~duplicity~ makes
+initially, but the it also supports incremental backups, which I'll keep in mind
+for later.
+
+[fn:1] In case I had to move it off-site to have access to it.
+
+** Bookmarks & resources
+
+Access to documentation is vital whenever jumping into new tech. I found that
+the documentation hosted at [[https://nixos.org/][nixos.org]] covered most of the questions and guidance
+I needed for the initial installation. Here are links to some of the resources
+I found the most useful:
+
+- [[https://nixos.org/nixos/manual/][NixOS Manual]]
+- [[https://nixos.org/nix/manual/][Nix Package Manager Guide]]
+- [[https://nixos.org/nixos/packages.html#][NixOS Packages]]
+- [[https://nixos.org/nixos/options.html#][NixOS Options]]
+- [[https://nixos.org/nixos/nix-pills/index.html][Nix Pills]]
+- [[https://nixos.wiki/wiki/FAQ][Nix FAQ]]
+
+Furthermore, there is also the ~#nixos~ IRC channel on ~freenode~, and the
+[[https://discourse.nixos.org/][NixOS Discourse]] wiki.
+
+It's worth noting that ~Nix~ is quite the mouthful for newcomers, to put it
+mildly. In its attempt to be the one and only build and packaging system it has
+evolved into a large ecosystem of packages, libraries, conventions, and
+contributors. As a user you might get along nicely with ~NixOS~ without having
+to dive deep into the tech, but as a developer creating your own ~Nix~
+expressions becomes inevitable fairly quickly[fn:2].
+
+[fn:2] Even just setting up development environments require basic knowledge of
+~Nix~ and the ~Nixpkgs~ repository.
+
+** Downloading ~NixOS~
+
+Of course we can't start installing anything before having a boot medium with
+the installer on it. ~NixOS~ can be downloaded from [[https://nixos.org/nixos/download.html][here]]. I don't exactly
+remember how I created the installation ~USB~ stick that I used, but I would
+guess I just used ~dd~:
+
+#+BEGIN_EXAMPLE
+# dd if=nixos.iso of=/dev/usb-device bs=4MB
+#+END_EXAMPLE
+
+** About the installer
+
+For most ~Linux~ users[fn:3], actually /installing/ a distribution isn't
+something you do all that often. Yet, it's the installation process we're first
+presented with when trying out a new distribution. Making installation as
+smooth as possible is crucial in order to drive adoption.
+
+The boot menu of the ~NixOS~ installer doesn't let you choose between graphical
+or terminal based installation. However, you are dropped into a root shell which
+then notes how to start a graphical user interface. For the novice user, this
+might be a bit intimidating, seeing just the command line. It is very trivial to
+spawn the graphical user interface following the notes though. That the
+distribution chose to default to not starting the GUI does mean quicker boot
+times.
+
+It is possible to install ~NixOS~ using just the command line, meaning you never
+need to launch the graphical interface. The graphical installer does provide
+some benefits in that it includes a full browser (~Firefox~), along with a link
+to the ~NixOS~ manual on the desktop. This helps a lot if you don't have access
+to another machine to look up documentation while installing, or if you end up
+having to do some extra troubleshooting.
+
+[fn:3] Dev/Sysops people might in fact do this quite often. In this case,
+however, it's basically about spawning replicated setups across a multitude of
+machines.
+
+** Disk partitioning & encryption
+
+The ~NixOS~ installer doesn't come with a managed partitioning wizard, like
+~Ubuntu~ does. This does imply a bit more fiddling for the user, unfortunately.
+Even more so for me, as I wanted to run with an encrypted file system as this
+was for my laptop. The ~NixOS~ manual does include some notes regarding disk
+encryption, but I didn't find it exhaustive enough, and had to read up on some
+of the ~LVM~ and ~LUKS~ commands as well.
+
+If I recall correctly, I had success following mostly just the steps from a
+couple of "Installing NixOS" blog posts: [[https://chris-martin.org/2015/installing-nixos][this one]] and [[https://blog.qfpl.io/posts/installing-nixos/][this one]]. Following is a
+(hopefully complete) summary of the required partitioning commands[fn:4].
+
+[fn:4] The plan was to write down all of the formatting and crypt setup steps
+immediately after having a successful install... yeah, that didn't
+happen. ¯\__(ツ)_/¯
+
+*** Partitioning with ~parted~
+
+1. Create a partition table
+
+   #+BEGIN_EXAMPLE
+   # parted /dev/sda -- mklabel gpt
+   #+END_EXAMPLE
+
+2. Add a boot partition
+
+   #+BEGIN_EXAMPLE
+   # parted /dev/sda -- mkpart ESP fat32 1MiB 512MiB
+   # parted /dev/sda -- set 1 boot on
+   #+END_EXAMPLE
+
+3. Add a root partition
+
+   #+BEGIN_EXAMPLE
+   # parted /dev/sda -- mkpart primary 512MiB -8GiB
+   #+END_EXAMPLE
+
+*** Setting up ~LUKS~
+
+1. Initialize an empty partition
+
+  #+BEGIN_EXAMPLE
+  # cryptsetup luksFormat /dev/sda2
+  #+END_EXAMPLE
+
+2. Open the partition
+
+   #+BEGIN_EXAMPLE
+   # cryptsetup luksOpen /dev/sda3 enc-pv
+   #+END_EXAMPLE
+
+3. Create lvm groups and volumes
+
+   #+BEGIN_EXAMPLE
+   # pvcreate /dev/mapper/enc-pv
+   # vgcreate vg /dev/mapper/enc-pv
+   # lvcreate -n swap vg -L 10G
+   # lvcreate -n root vg -l 100%FREE
+   #+END_EXAMPLE
+
+4. Format partitions
+
+   #+BEGIN_EXAMPLE
+   # mkfs.vfat -n BOOT /dev/sda2
+   # mkfs.ext4 -L root /dev/vg/root
+   # mkswap -L swap /dev/vg/swap
+   #+END_EXAMPLE
+
+** Configuration and installation
+
+Once the file system is correctly setup, it's time to generate the initial configuration:
+
+#+BEGIN_EXAMPLE
+# nixos-generate-config --root /mnt
+#+END_EXAMPLE
+
+The ~nixos-generate-config~ command just generates a default ~configuration.nix~
+file under ~/mnt/etc/nixos/configuration.nix~. This file is the system-wide
+configuration file, which declaratively specifies /how/ the base system should
+be setup.
+
+It's not uncommon for other distro installers to have some kind of wizard
+guiding the user through the initial configuration steps. In ~NixOS~ though,
+you're shot right into your first ~Nix~ expression, which is the format in which
+~configuration.nix~ is written.
+
+The configuration file won't change after the initial installation, and later
+system-wide changes have to be made in the same file. It's worth noting that
+prior to installing the root filesystem is mounted under ~/mnt~, so on a running
+system the configuration file is to be found under ~/etc/nixos~.
+
+Depending on the desktop manager[fn:5] (or lack thereof), it might be necessary to
+enable ~networking.networkmanager~ in order to gain network connectivity:
+
+#+BEGIN_SRC nix
+  networking.networkmanager.enable = true;
+#+END_SRC
+
+Users should mostly stick to installing whatever they need into their own user
+environment. Yet the ~environment.systemPackages~ option allows specifying which
+packages should be exposed by default to all users. Some packages are obviously
+handy to install globally:
+
+#+BEGIN_SRC nix
+  environment.systemPackages = with pkgs; [
+    vim
+    w3m
+    wget
+  ];
+#+END_SRC
+
+There are some ~NixOS~ options related to ~LUKS~ which are needed to
+successfully boot the system from the encrypted volume:
+
+#+BEGIN_SRC nix
+  # LVM
+  boot.initrd.luks.devices = [
+    {
+      name = "root";
+      device = "/dev/disk/by-uuid/<disk-uuid-here>";
+      preLVM = true;
+      allowDiscards = true;
+    }
+  ];
+#+END_SRC
+
+Users can also be defined declaratively (add the ~networkmanager~ group to grant
+access to network settings):
+
+#+BEGIN_SRC nix
+  users.users.someuser = {
+    isNormalUser = true;
+    home = "/home/someuser";
+    description = "Some User";
+    extraGroups = [ "wheel" "networkmanager" ];
+    shell = pkgs.zsh;
+  };
+#+END_SRC
+
+After saving ~configuration.nix~, it's time to install everything according to
+it:
+
+#+BEGIN_EXAMPLE
+# nixos-install
+#+END_EXAMPLE
+
+This causes ~Nix~ to start fetching packages, then symlinking everything into
+place. The install command is idempotent, so running it several times is
+perfectly fine. That's also required in order to apply changes made to the
+configuration. The new system is ready to be booted into once the
+~nixos-install~ command terminates.
+
+#+BEGIN_EXAMPLE
+# reboot
+#+END_EXAMPLE
+
+[fn:5] ~Gnome~ does seem to depend on network manager, while ~KDE~ did not.
+
+** Distribution upgrade
+
+Just a few days after I installed ~NixOS~ on my laptop a new stable branch was
+released: ~19.03~[fn:6]. Switching branches basically means switching the
+"nixos" channel, then upgrade all the packages to the derivations listed by the
+new channel:
+
+#+BEGIN_EXAMPLE
+# nix-channel --add https://nixos.org/channels/nixos-19.03 nixos
+# nixos-rebuild --upgrade boot
+#+END_EXAMPLE
+
+[fn:6] ~NixOS~ share a similar release cycle/naming scheme as ~Ubuntu~. Stable
+releases every ~6 months, with the year and month on the version number.
+
+** First impressions
+
+All in all after using ~NixOS~ for a couple of months now, I can safely say I'm
+satisfied with both the distribution /and/ my decision to try it out. There were
+several things I've spent a considerable amount of time scratching my head over,
+as well as other issues which I frankly haven't figured out how to best do yet.
+I do consider this a long term learning experience, and so hopefully I'll
+resolve most of these with time and a bit of effort. I plan to write one or more
+follow-up posts focusing more on ~NixOS~ usage, and mainly how I use it for
+development. So stay tuned!
+
+** Footnotes
