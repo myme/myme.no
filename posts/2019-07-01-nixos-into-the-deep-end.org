@@ -46,8 +46,8 @@ it didn't work out, switching back wouldn't mean much of a sunk cost.
 Having made my decision, I quickly made an encrypted[fn:1] backup of my laptop's
 home directory using [[http://duplicity.nongnu.org/][duplicity]], which turned out to be a pleasantly simple and
 useful little tool. I only used the full backup that ~duplicity~ makes
-initially, but the it also supports incremental backups, which I'll keep in mind
-for later.
+initially, but it also supports incremental backups, which I'll keep in mind for
+later.
 
 [fn:1] In case I had to move it off-site to have access to it.
 
