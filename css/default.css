@@ -252,3 +252,17 @@ pre.sourceCode, pre.example {
 .footnotes p {
     line-height: 1em;
 }
+
+.TODO {
+    color: #6b6;
+    background-color: #d9f9d9;
+    font-size: 80%;
+    padding: 2px 5px;
+}
+
+.DONE {
+    color: #666;
+    background-color: #ddd;
+    font-size: 80%;
+    padding: 2px 5px;
+}
