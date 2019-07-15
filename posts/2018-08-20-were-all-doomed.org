@@ -30,7 +30,7 @@ most likely has a much smaller user-base. But just having a look at the projects
 [fn:1] Now, the reduced size wouldn't necessarily imply increased performance,
 however, it /does/ seem to quite often be the case!
 
-** What a performance!
+* What a performance!
 
 Wheras =Spacemacs= felt clunky and slow, =Doom= feels snappy and responsive. The
 configuration, being mostly maintained and driven by a single developer, is a
@@ -38,7 +38,7 @@ lot more opinionated. This also gives a much more unified experience though, and
 the editor really feels state of the art without any sign of the decades old
 software underneath.
 
-** But definitely not stable...
+* But definitely not stable...
 
 I don't know what's with these =Emacs= config maintainers, but they never seem
 to be able to keep their =master= branches up to date. For =Doom=, at the time
@@ -54,7 +54,7 @@ you.
 [fn:2] Yes, you have to expect to update both =Doom= and your packages
 /frequently/.
 
-** Sold, for now.
+* Sold, for now.
 
 I won't ever say I've found my ultimate, never-ever-gonna-change-again setup.
 But this is starting to feel pretty darn close. I can't say I spend much time
@@ -65,4 +65,4 @@ already though!
 
 [fn:3] Although I'm pretty sure I'm still able to quit it.
 
-** Footnotes
+* Footnotes

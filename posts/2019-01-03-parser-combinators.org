@@ -31,7 +31,7 @@ default ~base~ package, and to my joy I found that there actually is a quite
 capable parser combinator module included in ~base~:
 [[https://hackage.haskell.org/package/base-4.12.0.0/docs/Text-ParserCombinators-ReadP.html][Text.ParserCombinators.ReadP]].
 
-** Co-co-co-combinators!
+* Co-co-co-combinators!
 
 A parser combinator is a higher-order function which accepts parsers as input,
 returning a new parser as output. A combinator is a higher-order function
@@ -66,7 +66,7 @@ while =satisfy= yields a single =Char= if it passes a predicate function
 
 [fn:1] [[https://en.wikipedia.org/wiki/Combinatory_logic]]
 
-** Demystifying some types
+* Demystifying some types
 
 =ReadP= is our parser type. Its *actual* internals are out of scope of this
 post, but it can help our intuition by imagining it encapsulates stateful
@@ -151,7 +151,7 @@ input. Skipping ahead, here's how we can use the =Applicative= instance of
 
 [fn:3] [[https://en.wikipedia.org/wiki/Parser_combinator]]
 
-** Let's get Funky!
+* Let's get Funky!
 
 We've already seen glimpses of how we combine predefined parsers from =ReadP=
 into more complex parsers. Several of the =ReadP= parsers accept other parsers
@@ -217,7 +217,7 @@ which gives us:
 [(Just 123,"")]
 #+END_EXAMPLE
 
-** Applicative parsing
+* Applicative parsing
 
 2D coordinates are a frequent source of input in the ~Advent of Code~
 challenges. The way we like to represent a 2D coordinate in code is using a
@@ -299,7 +299,7 @@ The =<*= and =*>= operators just discard the result of the parsers on the right
 and left hand side, respectively. The arrows "point" at the part of the sequence
 whose value will be returned.
 
-** Negative space
+* Negative space
 
 There are two issues with our coordinate parser: it's quite strict in the way it
 supports no whitespace, and it does not support negative values for the =x= and
@@ -361,7 +361,7 @@ Now we can parse negative numbers too!
 [(-123,"")]
 #+END_EXAMPLE
 
-** Monadic parsing
+* Monadic parsing
 
 We've already mentioned that =ReadP= has a =Monad= instance, giving us access to
 ~do~ notation. This allows a bit more flexibility and write parsers in a
@@ -414,7 +414,7 @@ proceeds to parse ~n~ numbers separated by newline:
 The parser does not proceed to process input beyond the number of elements we
 specify.
 
-** Summary
+* Summary
 
 Functional programming in Haskell centers around breaking down problems into
 smaller, independent pieces. Then using various means of composition to combine
@@ -427,4 +427,4 @@ I really encourage you to have a go at using either =ReadP= or the many parser
 [[https://hackage.haskell.org/packages/search?terms=parser+combinator][combinator libraries]] available. Some focus on performance and speed, others on
 diagnostics and error reporting.
 
-** Footnotes
+* Footnotes

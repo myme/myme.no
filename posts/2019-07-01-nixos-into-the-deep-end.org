@@ -25,7 +25,7 @@ no ~Linux~ setup is without its issues or challenges. This post is a
 consolidation of some of my notes and remarks on how to get ~NixOS~ installed,
 and running.
 
-** Why ~NixOS~?
+* Why ~NixOS~?
 
 Well, why /not/? I didn't really have any particular reason as to why I wanted
 to try ~NixOS~. I guess it sounded luring for an entire operating system to be
@@ -51,7 +51,7 @@ later.
 
 [fn:1] In case I had to move it off-site to have access to it.
 
-** Bookmarks & resources
+* Bookmarks & resources
 
 Access to documentation is vital whenever jumping into new tech. I found that
 the documentation hosted at [[https://nixos.org/][nixos.org]] covered most of the questions and guidance
@@ -78,7 +78,7 @@ expressions becomes inevitable fairly quickly[fn:2].
 [fn:2] Even just setting up development environments require basic knowledge of
 ~Nix~ and the ~Nixpkgs~ repository.
 
-** Downloading ~NixOS~
+* Downloading ~NixOS~
 
 Of course we can't start installing anything before having a boot medium with
 the installer on it. ~NixOS~ can be downloaded from [[https://nixos.org/nixos/download.html][here]]. I don't exactly
@@ -89,7 +89,7 @@ guess I just used ~dd~:
 # dd if=nixos.iso of=/dev/usb-device bs=4MB
 #+END_EXAMPLE
 
-** About the installer
+* About the installer
 
 For most ~Linux~ users[fn:3], actually /installing/ a distribution isn't
 something you do all that often. Yet, it's the installation process we're first
@@ -115,7 +115,7 @@ having to do some extra troubleshooting.
 however, it's basically about spawning replicated setups across a multitude of
 machines.
 
-** Disk partitioning & encryption
+* Disk partitioning & encryption
 
 The ~NixOS~ installer doesn't come with a managed partitioning wizard, like
 ~Ubuntu~ does. This does imply a bit more fiddling for the user, unfortunately.
@@ -132,7 +132,7 @@ couple of "Installing NixOS" blog posts: [[https://chris-martin.org/2015/install
 immediately after having a successful install... yeah, that didn't
 happen. ¯\__(ツ)_/¯
 
-*** Partitioning with ~parted~
+** Partitioning with ~parted~
 
 1. Create a partition table
 
@@ -153,7 +153,7 @@ happen. ¯\__(ツ)_/¯
    # parted /dev/sda -- mkpart primary 512MiB -8GiB
    #+END_EXAMPLE
 
-*** Setting up ~LUKS~
+** Setting up ~LUKS~
 
 1. Initialize an empty partition
 
@@ -184,7 +184,7 @@ happen. ¯\__(ツ)_/¯
    # mkswap -L swap /dev/vg/swap
    #+END_EXAMPLE
 
-** Configuration and installation
+* Configuration and installation
 
 Once the file system is correctly setup, it's time to generate the initial configuration:
 
@@ -274,7 +274,7 @@ configuration. The new system is ready to be booted into once the
 
 [fn:5] ~Gnome~ does seem to depend on network manager, while ~KDE~ did not.
 
-** Distribution upgrade
+* Distribution upgrade
 
 Just a few days after I installed ~NixOS~ on my laptop a new stable branch was
 released: ~19.03~[fn:6]. Switching branches basically means switching the
@@ -289,7 +289,7 @@ new channel:
 [fn:6] ~NixOS~ share a similar release cycle/naming scheme as ~Ubuntu~. Stable
 releases every ~6 months, with the year and month on the version number.
 
-** First impressions
+* First impressions
 
 All in all after using ~NixOS~ for a couple of months now, I can safely say I'm
 satisfied with both the distribution /and/ my decision to try it out. There were
@@ -300,4 +300,4 @@ resolve most of these with time and a bit of effort. I plan to write one or more
 follow-up posts focusing more on ~NixOS~ usage, and mainly how I use it for
 development. So stay tuned!
 
-** Footnotes
+* Footnotes

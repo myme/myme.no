@@ -22,7 +22,7 @@ main = hakyllWith config $ do
 
     match "posts/*" $ do
       route $ setExtension "html"
-      compile $ pandocCompiler
+      compile $ fmap demoteHeaders <$> pandocCompiler
         >>= loadAndApplyTemplate "templates/post.html"    postCtx
         >>= saveSnapshot "content"
         >>= loadAndApplyTemplate "templates/default.html" postCtx

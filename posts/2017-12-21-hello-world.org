@@ -34,7 +34,7 @@ I don't have very large expectations of putting out article after article in a
 regular fashion, but hopefully I'll get some sporadic inspirations motivating me
 to write.
 
-** Footnotes
+* Footnotes
 
 [fn:1] ♬ I gave you my heart... ♬
 

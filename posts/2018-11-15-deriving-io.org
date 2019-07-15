@@ -13,7 +13,7 @@ a Haskell study group at work. I thought I could attempt to prepare material for
 the study group by writing blog posts about the topics up front. Which explains
 the purpose of this post!
 
-** Preface[fn:1]
+* Preface[fn:1]
 
 This post is written as a literate Haskell program, so all code snippets should
 be executable and can be interpreted as a complete Haskell module.
@@ -36,7 +36,7 @@ there's plenty of sources online which covers this from other angles. In
 particular, this post was inspired by a recent =YouTube= video: [[https://www.youtube.com/watch?v=fCoQb-zqYDI][What is IO
 Monad?]]
 
-** Purity is king
+* Purity is king
 
 Functions in Haskell are pure. For every input, there's a single, well-defined
 output. This is called referential transparency. Here's an example:
@@ -55,7 +55,7 @@ There's really no way for =doublePure= to perform any other action than doing
 valid operations with number of the =Int= type. But what if we want to keep a
 log of the calculations we're performing?
 
-** Outbound side-effects
+* Outbound side-effects
 
 First let us define a =Log= type which is a list of =String=, to be able to
 provide multiple log statements in a computation:
@@ -81,7 +81,7 @@ doubleLog x = (result, ["Doubling: " ++ show x ++ " => " ++ show result])
 This keeps the function just as pure, but forces the caller to handle the log
 in some way.
 
-** Inbound side-effects
+* Inbound side-effects
 
 Next, we'd like to add side-effect inputs to our functions, while keeping them
 pure. We have to provide an addition parameter containing the data we wish to
@@ -106,7 +106,7 @@ We can see that the result of reading a line consumes the first line and returns
 it as the first tuple element, while the rest of the input is preserved in the
 second tuple element.
 
-** Hiding our effect internals
+* Hiding our effect internals
 
 We have to combine these two concepts into one to be able to create a function
 which both reads input and produces a log. We also have to combine our =Input=
@@ -137,7 +137,7 @@ inputEnv :: String -> Env
 inputEnv input = Env input []
 #+END_SRC
 
-** Environment transformers
+* Environment transformers
 
 Let's define a function reading a line from the environment, logging the line
 and yielding it as a return value:
@@ -186,7 +186,7 @@ Read line: foo
 
 We call the type =Effect= to signal that it has an effect on the environment.
 
-** Bring on the =Effect=!
+* Bring on the =Effect=!
 
 We can now start defining effectful computations, using our =Effect= type.
 
@@ -274,7 +274,7 @@ we have to write functions like =readDoubleEff= each time?
 
 We can surely do better!
 
-** Composing effects
+* Composing effects
 
 #+BEGIN_SRC haskell
 composeEff :: Effect a -> (a -> Effect b) -> Effect b
@@ -394,7 +394,7 @@ Lifting: 42 => 84
 )
 #+END_EXAMPLE
 
-** Is this operator?
+* Is this operator?
 
 We see that using =composeEffects= infix is a bit clunky, so let's improve this
 by defining a handy infix operator alias. We use an arrow-like function to
@@ -468,7 +468,7 @@ Lifting: 7056.0 => Just 7056.0
 )
 #+END_EXAMPLE
 
-** Do do do...
+* Do do do...
 
 At this point we're able to compose effectful computations to create programs
 which manages side-effects in a pure manner, without the programmer having to
@@ -577,7 +577,7 @@ context doesn't properly capture the cases where the context is an execution of
 sorts. This is because the value isn't necessarily stored in a context, but it's
 a context which *yields* a value.
 
-** From =Effect= to =IO=
+* From =Effect= to =IO=
 
 Our =Effect= type is starting to become a pretty good approximation of Haskell's
 =IO= type. One significant difference though is our type is actually not able to
@@ -636,4 +636,4 @@ Just 7056.0
 
 And that concludes our playful derivation of the =IO= type in Haskell. Tada!
 
-** Footnotes
+* Footnotes

@@ -17,7 +17,7 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
 #+ATTR_HTML: :height 200px :width 200px :alt Spacemacs logo
 [[file:../images/spacemacs-logo.svg]]
 
-** Prologue
+* Prologue
 
  It all started when I stumbled on this YouTube video of a talk by
  [[https://www.aaronbieber.com/][Aaron Bieber]] about =Evil Mode= for =Emacs=. I
@@ -44,7 +44,7 @@ chance. More specifically, this turned out to be [[http://spacemacs.org/][Spacem
 always do is figure out if it has a =Vim= plugin or keybinding mode. If not,
 then it's most likely an editor I won't be using much...
 
-** Pimp my =Emacs=
+* Pimp my =Emacs=
 
  =Emacs= is not much different to =Vim= when it comes to their default
  configuration being pretty lame. It does most definitely *not* rock. Having
@@ -62,7 +62,7 @@ then it's most likely an editor I won't be using much...
 
 [fn:2] [[http://emacs-bootstrap.com/][Emacs bootstrap]]
 
-** Configuration sneak peek
+* Configuration sneak peek
    
  =Spacemacs= is a rather opinionated yet holistic plug and play configuration for
  =Emacs=. There's plenty of material out about what =Spacemacs= is and isn't, so
@@ -126,14 +126,14 @@ then it's most likely an editor I won't be using much...
 [fn:3] I don't like the =react= layer being based off =Web mode=
 instead of =js2 mode=.
 
-*** Killer apps
+** Killer apps
 
  A couple of the killer apps you typically hear about when coming to =Emacs= are
  =Magit= and =Org mode=. I've become a heavy user of both of these amazing
  extensions. I have accumulated a bit of =elisp= and configurations in order to
  make sense of my =Org Agenda=, which is why I've placed it in a separate layer.
 
-*** Fuzzy finding
+** Fuzzy finding
 
  One of my most important =Vim= plugins was =Ctrl-P=, fuzzy-search for files.
  There are two main searching/completion frameworks for =Emacs=: =Helm= and
@@ -145,7 +145,7 @@ instead of =js2 mode=.
  performance issues. There are annoying quirks with =Ivy= too though, yet none of
  which are performance related.
 
-*** Batteries included
+** Batteries included
 
  The batteries included in the =Spacemacs= distribution is quite impressive, and
  there's not been much I can say that I miss from =Vim=. There are numerous
@@ -162,7 +162,7 @@ instead of =js2 mode=.
   - =SPC s= :: Search commands (there are some amazing tools and integrations here)
   - =SPC w= :: All window related actions, e.g. delete window =SPC w d=
 
-** In conclusion
+* In conclusion
    
  I'm grateful for the excellent editor which is =Vim=. The impact it and its
  predecessors have had on the editor space is enormous. For me though, the time
@@ -187,4 +187,4 @@ instead of =js2 mode=.
 a desktop computer through =Mosh= and =Tmux=. =Tramp= is not the way to go over
 unstable connections.
 
-** Footnotes
+* Footnotes
