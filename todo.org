@@ -1,0 +1,27 @@
+#+TITLE: TODO
+
+* TODO Set upstream and push to GitHub
+* TODO Remove stack commands from README
+* TODO Use ~withUrls~ to convert .org links to .html
+* TODO Make table of contents condidation
+
+Perhaps see if it's possible to parameterize it too, by adding e.g. "toc:2" for
+a 2 level table of contents.
+
+From [[https://argumatronic.com/posts/2018-01-16-pandoc-toc.html#cb3-1][Pandoc TOC generation]]:
+
+#+BEGIN_SRC haskell
+postCompiler :: Compiler (Item String)
+postCompiler = do
+   tags  <- buildTags postsGlob (fromCapture "tags/*.html")
+   ident <- getUnderlying                                 -- these are the five lines
+   toc   <- getMetadataField ident "withtoc"              -- that I added to this
+   let writerSettings = case toc of                       -- function today
+        Just _ ->  withToc                                -- in order to make my TOC
+        Nothing     -> defaultHakyllWriterOptions         -- conditional
+   pandocCompilerWith defaultHakyllReaderOptions writerSettings
+              >>= saveSnapshot "content"
+              >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags)
+              >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags)
+              >>= relativizeUrls
+#+END_SRC
