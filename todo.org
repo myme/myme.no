@@ -33,3 +33,7 @@ postCompiler = do
               >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags)
               >>= relativizeUrls
 #+END_SRC
+* TODO Remove redundant ~pureEff x~ (needs verification) :post:
+
+In [[file:posts/2018-11-15-deriving-io.org::*Composing%20effects][Composing effects]] ~squareDoubleEff~ there's a redundant ~pureEff x~. Just
+pass the ~x~ to ~doubleEff~ directly.

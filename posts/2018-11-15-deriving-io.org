@@ -84,9 +84,12 @@ in some way.
 
 * Inbound side-effects
 
-Next, we'd like to add side-effect inputs to our functions, while keeping them
-pure. We have to provide an addition parameter containing the data we wish to
-read. This function must also return the unconsumed part of the input:
+Next, we'd like to add side-effect inputs to our functions. In an impure
+language a function reading lines called ~readLine~ could potentially read input
+from anywhere: a global buffer, a file descriptor or socket, or just random
+data. If we want to maintain purity, we have to provide an additional parameter
+with the input we wish to read. This function must also return the unconsumed
+part of the input:
 
 #+BEGIN_SRC haskell
 type Input = String
@@ -164,8 +167,7 @@ We can see that =readLineEnv= is transforming the environment by accepting an
 initial =Env=, and returning a line (=String=) together with an updated =Env= with
 our input consumed and log message appended.
 
-Let's create a type alias for this transformation to simplify function
-signatures:
+Let's create a new type for this transformation to simplify function signatures:
 
 #+BEGIN_SRC haskell
 newtype Effect a = Effect { runEffect :: Env -> (a, Env) }
@@ -277,6 +279,8 @@ We can surely do better!
 
 * Composing effects
 
+Let's begin with the type signature of ~composeEff~:
+
 #+BEGIN_SRC haskell
 composeEff :: Effect a -> (a -> Effect b) -> Effect b
 #+END_SRC
@@ -286,6 +290,12 @@ Note: Expanding the type of this type alias is quite intimidating:
 #+BEGIN_SRC haskell :eval no :tangle no
 composeEff :: Effect (Env -> (a, Env)) -> (a -> Effect (Env -> (b, Env))) -> Effect (Env -> (b, Env))
 #+END_SRC
+
+The idea of ~composeEff~ is to start with an initial effect which yields an ~a~.
+Then pass that ~a~ to another effectful computation expecting an ~a~ and
+yielding a ~b~. Finally ~composeEff~ yields the ~b~ from the second effectful
+computation. This results in a new effectful computation which is the
+composition of the two effects:
 
 #+BEGIN_SRC haskell
 composeEff eff f = Effect $ \env ->
