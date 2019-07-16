@@ -6,9 +6,21 @@ import System.FilePath
 import Text.Pandoc.Builder
 import Text.Pandoc.Options
 import Text.Pandoc.Walk
+import Text.Read (readMaybe)
 
 postCompiler :: Compiler (Item String)
-postCompiler = fmap (withUrls rewriteOrgUrl . demoteHeaders) <$> pandocCompiler
+postCompiler = do
+  ident <- getUnderlying
+  toc <- getMetadataField ident "toc"
+  let writerOpts = case toc >>= readMaybe of
+        Nothing -> defaultHakyllWriterOptions
+        Just depth -> defaultHakyllWriterOptions
+          { writerTableOfContents = True
+          , writerTOCDepth = depth
+          , writerTemplate = Just "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
+          }
+      pandoc = pandocCompilerWith defaultHakyllReaderOptions
+  fmap (withUrls rewriteOrgUrl . demoteHeaders) <$> pandoc writerOpts
   where
     rewriteOrgUrl url = maybe url (`addExtension` ".html") (stripExtension ".org" url)
 

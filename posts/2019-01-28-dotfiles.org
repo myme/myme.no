@@ -1,5 +1,6 @@
 ---
 title: Dotfiles
+toc: 2
 ---
 
 Some time ago, I moved my publicly available ~dotfiles~[fn:1] to a private [[http://gitolite.com/gitolite/][gitolite]]

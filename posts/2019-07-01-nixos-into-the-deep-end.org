@@ -1,5 +1,6 @@
 ---
 title: "NixOS: Into the deep end"
+toc: 2
 ---
 
 My first experience with a ~Linux~-based operating system was in the early

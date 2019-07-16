@@ -7,7 +7,11 @@ CLOSED: [2019-07-16 Tue 09:22]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2019-07-16 Tue 09:22]
 :END:
-* TODO Make table of contents condidation
+* DONE Make table of contents conditional
+CLOSED: [2019-07-16 Tue 23:05]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2019-07-16 Tue 23:05]
+:END:
 
 Perhaps see if it's possible to parameterize it too, by adding e.g. "toc:2" for
 a 2 level table of contents.
