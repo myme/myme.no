@@ -4,16 +4,15 @@ title: We're all Doomed!
 
 Just a quickie!
 
-I spent most of 2017 getting used to
-[[file:/posts/2017-12-24-move-to-spacemacs.html][Spacemacs]], even though
-thoroughly enjoyed the novel experience, as the year progressed I did start to
-realize that this still wasn't optimal. I didn't want to switch out =Evil=
-(which is awesome), nor to begin rolling my own config (I've got no time for
-that). Yet the elephant in the room gradually got more apparent. With its
-enormous configuration, layers of abstractions, nuclear power plan included,
-=Spacemacs= does feel like it's doing too much. It's an amazing piece of
-software, but I didn't find the performance I was after and (possibly worse)
-started feel a bit too removed from vanilla =Emacs=.
+I spent most of 2017 getting used to [[file:2017-12-24-move-to-spacemacs.org][Spacemacs]], even though thoroughly enjoyed
+the novel experience, as the year progressed I did start to realize that this
+still wasn't optimal. I didn't want to switch out =Evil= (which is awesome), nor
+to begin rolling my own config (I've got no time for that). Yet the elephant in
+the room gradually got more apparent. With its enormous configuration, layers of
+abstractions, nuclear power plan included, =Spacemacs= does feel like it's doing
+too much. It's an amazing piece of software, but I didn't find the performance I
+was after and (possibly worse) started feel a bit too removed from vanilla
+=Emacs=.
 
 Always on the lookout for ways of improving my workflow, I found rumors of this
 other curated =Emacs= configuration with the ominous name of

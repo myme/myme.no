@@ -6,6 +6,7 @@ cabal-version:      >= 1.10
 executable myme.no
   main-is:          site.hs
   build-depends:    base
+                  , filepath
                   , hakyll
                   , pandoc
                   , pandoc-types

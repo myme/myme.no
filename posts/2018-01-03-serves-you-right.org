@@ -2,7 +2,7 @@
 title: Serves you right!
 ---
 
-A new post for a new year! I spent my [[file:/posts/2017-12-24-move-to-spacemacs.html][previous post]] advocating =Spacemacs= after
+A new post for a new year! I spent my [[file:2017-12-24-move-to-spacemacs.org][previous post]] advocating =Spacemacs= after
 having been a heavy =Vim= user for many years. I'll definitely get back to my
 editor setup in future posts, but before that I thought I'd do a quick post
 about the server setup I'm currently using for this site. It's not overly

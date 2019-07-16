@@ -2,9 +2,15 @@
 
 import Control.Monad
 import Hakyll hiding (fromList)
+import System.FilePath
 import Text.Pandoc.Builder
 import Text.Pandoc.Options
 import Text.Pandoc.Walk
+
+postCompiler :: Compiler (Item String)
+postCompiler = fmap (withUrls rewriteOrgUrl . demoteHeaders) <$> pandocCompiler
+  where
+    rewriteOrgUrl url = maybe url (`addExtension` ".html") (stripExtension ".org" url)
 
 main :: IO ()
 main = hakyllWith config $ do
@@ -22,7 +28,7 @@ main = hakyllWith config $ do
 
     match "posts/*" $ do
       route $ setExtension "html"
-      compile $ fmap demoteHeaders <$> pandocCompiler
+      compile $ postCompiler
         >>= loadAndApplyTemplate "templates/post.html"    postCtx
         >>= saveSnapshot "content"
         >>= loadAndApplyTemplate "templates/default.html" postCtx

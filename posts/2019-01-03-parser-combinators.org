@@ -8,7 +8,7 @@ title: Parser combinators
 import Text.Read (readMaybe)
 #+END_SRC
 
-In the [[file:2018-11-15-deriving-io.html][last post]] I mentioned how I've gotten back into ~Haskell~ over the last
+In the [[file:2018-11-15-deriving-io.org][last post]] I mentioned how I've gotten back into ~Haskell~ over the last
 months. Come December and time for another round of [[https://adventofcode.com/][The Advent of Code]]. I
 haven't been participating in this programming challenge series the last few
 year. However, since this is an excellent chance to apply ~Haskell~ to new

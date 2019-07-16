@@ -2,7 +2,11 @@
 
 * TODO Set upstream and push to GitHub
 * TODO Remove stack commands from README
-* TODO Use ~withUrls~ to convert .org links to .html
+* DONE Use ~withUrls~ to convert .org links to .html
+CLOSED: [2019-07-16 Tue 09:22]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2019-07-16 Tue 09:22]
+:END:
 * TODO Make table of contents condidation
 
 Perhaps see if it's possible to parameterize it too, by adding e.g. "toc:2" for

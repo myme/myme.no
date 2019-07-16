@@ -42,7 +42,7 @@ manager [[https://i3wm.org/][i3wm]] and ~zsh~ shell setup.
 
 * Emacs
 
-I've already [[file:2018-08-20-were-all-doomed.html][written about my usage of Doom Emacs]], and I still continues to use
+I've already [[file:2018-08-20-were-all-doomed.org][written about my usage of Doom Emacs]], and I still continues to use
 it. I've found no other, better alternative, and quite frankly I think it's
 pretty amazing. The project is evolving constantly, which can be both a good
 thing, and a bad thing. There still are things which aren't entirely optimal
