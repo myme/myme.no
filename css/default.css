@@ -8,7 +8,7 @@ body {
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
     margin: auto;
-    min-width: 20em;
+    min-width: 22em;
     padding: 0 10px;
 }
 
@@ -95,14 +95,26 @@ footer .social {
 }
 
 .toc {
-    float: right;
     background-color: #eafaff;
     border-radius: 5px;
     color: #07a;
-    margin-bottom: 2em;
-    margin-left: 2em;
+    margin-top: 1em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
     padding-left: 1em;
     padding-right: 2em;
+}
+
+@media (min-width: 50em) {
+    .toc {
+        float: right;
+        max-width: 50%;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 2em;
+        margin-left: 2em;
+    }
 }
 
 .toc ul {
