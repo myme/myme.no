@@ -1,6 +1,11 @@
 #+TITLE: TODO
 
 * TODO Set upstream and push to GitHub
+* TODO Add a quick "About" section to Home page
+* TODO Write about myme.no :post:
+
+Mostly about ~Hakyll~.
+
 * TODO Remove stack commands from README
 * DONE Use ~withUrls~ to convert .org links to .html
 CLOSED: [2019-07-16 Tue 09:22]
