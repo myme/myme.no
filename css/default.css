@@ -132,6 +132,10 @@ a {
     text-decoration: none;
 }
 
+a:hover {
+    text-decoration: underline;
+}
+
 .social > a {
     color: #556;
 }
