@@ -1,0 +1,122 @@
+---
+title: "Functional fallback fallout"
+---
+
+One thing I've always found fiddly with programming is managing optional
+configurations and falling back to defaults. Here I'm not referring to trivial
+cases like "if not this, then that", but where you'd typically have to run some
+logic to determine default actions. The scenario I'm thinking about can be
+generalized to less specific terms than "configurations" and "defaults", as it
+shares many similarities to proper error handling. There seems to be a pattern I
+often find myself having to do in many different corners of software
+applications. And I struggle to find a way to structure code in a satisfying
+way.
+
+A pain-point is either seeing, or worse, having to /write/ branches of code
+doing the same thing. WHY CAN'T THEY JUST BE COALESCED SOMEHOW!?
+
+#+BEGIN_SRC python
+if config_opt:
+    value = do_stuff_with_config(config_opt)
+    if value:
+        do_stuff_with_value(value)
+    else:
+        do_default_action()
+else:
+    do_default_action()
+#+END_SRC
+
+In a language like =Python= one idiomatic option is to simply run with it as far
+as the APIs allow, then catch an exception if any step fails spectacularly:
+
+#+BEGIN_SRC python
+try:
+    value = do_stuff_with_config(config_opt)
+    do_stuff_with_value(value)
+except:
+    do_default_action()
+#+END_SRC
+
+We've reduced the control flow down to basically just two options, and we only
+invoke once our default action whenever something fails or becomes
+"exceptional". There never is a silver bullet though.
+
+One problem which has been buzzing around in my brain today is how I might
+improve a specific control flow in one of my hobby =Haskell= applications. In
+short, the application pops up a list of known (/software/) projects for the
+user to select. One of the command line /optional/ arguments is a "project name
+query", and if the project name query is supplied, the project list is narrowed
+down to just the projects matching the query.
+
+Today I wanted to start implementing a way of using ="."= to indicate "use the
+current project", if the current working directory is found to be within one of
+the projects. If the current working directory is /not/ a project, then ignore
+the query entirely, and prompt for a project as usual. Not surprisingly, the
+devil is in the details...
+
+The code goes somewhere along the lines of:
+
+#+BEGIN_SRC haskell
+select_project :: Maybe Text -> [Project] -> IO (Maybe Project)
+select_project project_query projects = case project_query of
+  Nothing -> find_project Nothing projects
+  Just query | query == "." -> find_project_root <$> pwd >>= \case
+                 Nothing  -> find_project Nothing projects
+                 project' -> return project'
+             | otherwise  -> find_project project_query projects
+#+END_SRC
+
+In total there are four end-states of this control flow, where two of them are
+identical:
+
+#+BEGIN_SRC haskell
+                 Nothing  -> find_project Nothing projects
+#+END_SRC
+
+The third end-state using =find_project= is basically also the same, except
+passing along the query:
+
+#+BEGIN_SRC haskell
+             | otherwise  -> find_project project_query projects
+#+END_SRC
+
+The only significantly different result is when =cwd= is in a project, then the
+result is the project root:
+
+#+BEGIN_SRC haskell
+                 project' -> return project'
+#+END_SRC
+
+The code should not pass the =query= to =find_project= if it equals ="."= and
+=cwd= is not in a project.
+
+How can such a short snippet annoy my enough to write about it?
+
+Well, first off I had a slim hope that writing down my thoughts regarding the
+solution might put it in a different light. But the reason it annoys me so much
+is that my intuition is telling me there's a more elegant way to express this
+control flow. The trouble with hunches is that even though they're often valid
+up to a point, they just as often lead down a path of diminishing returns. What
+I mean is that the quest to formulate the perfect expression can quickly turn
+into obsessive code wankery, without any substantial improvements to the overall
+code quality to show for the time spent.
+
+Starting this post I set out to find a way to "improve" 7-or-so lines of an
+insignificant hobby command line application. Now as I've let the words form in
+my head and materialize into this rant I'm leaning towards simply saying "fuck
+it" and getting on with my life...
+
+Edit:
+
+I did quickly realize that it's possible to check for the "exceptional" case of
+="."= without having to unpack the =Maybe=, removing one of the duplicated
+invocations of =find_project=:
+
+#+BEGIN_SRC haskell
+select_project :: Maybe Text -> [Project] -> IO (Maybe Project)
+select_project project_query projects
+  | project_query == Just "." = find_project_root <$> pwd >>= \case
+      Nothing  -> find_project Nothing projects
+      project' -> return project'
+  | otherwise = find_project project_query projects
+#+END_SRC
