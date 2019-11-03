@@ -246,8 +246,10 @@ pre.sourceCode, pre.example {
 .sourceCode .dt { color: #c678dd }
 .sourceCode .dv { color: #dcaeea; }
 .sourceCode .kw { color: #319fdf; }
-.sourceCode .ot { color: #98be65; }
-.sourceCode .st { color: #98be65; }
+.sourceCode .cf { color: #319fdf; }
+.sourceCode .ot { color: #39a642; }
+.sourceCode .op { color: #39a642; }
+.sourceCode .st { color: #d7a401; }
 
 .footnotes {
     font-size: 0.8em;
