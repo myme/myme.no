@@ -182,6 +182,10 @@ code {
     padding: 0 0.2em;
 }
 
+code a:hover {
+    text-decoration: none;
+}
+
 code.sourceCode, .example code {
     background-color: inherit;
     color: #369;
