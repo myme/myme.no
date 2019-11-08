@@ -87,19 +87,16 @@ result is the project root:
                  project' -> return project'
 #+END_SRC
 
-The code should not pass the =query= to =find_project= if it equals ="."= and
-=cwd= is not in a project.
+How can such a short snippet annoy me enough to write about it?
 
-How can such a short snippet annoy my enough to write about it?
-
-Well, first off I had a slim hope that writing down my thoughts regarding the
-solution might put it in a different light. But the reason it annoys me so much
-is that my intuition is telling me there's a more elegant way to express this
-control flow. The trouble with hunches is that even though they're often valid
-up to a point, they just as often lead down a path of diminishing returns. What
-I mean is that the quest to formulate the perfect expression can quickly turn
-into obsessive code wankery, without any substantial improvements to the overall
-code quality to show for the time spent.
+Well, first off I had a slim hope that writing about the topic might put it in a
+different light. But the reason it annoys me so much is that my intuition is
+telling me there's a more elegant way to express this control flow. The trouble
+with hunches is that even though they're often valid up to a point, they just as
+often lead down a path of diminishing returns. What I mean is that the quest to
+formulate the perfect expression can quickly turn into obsessive code wankery,
+without any substantial improvements to the overall code quality to show for the
+time spent.
 
 Starting this post I set out to find a way to "improve" 7-or-so lines of an
 insignificant hobby command line application. Now as I've let the words form in
@@ -120,3 +117,7 @@ select_project project_query projects
       project' -> return project'
   | otherwise = find_project project_query projects
 #+END_SRC
+
+Funnily such a minor change makes me a lot happier with this little piece of
+code. I guess I've fed the hunch-machinery yet again, fuelling it to arrest my
+future pragmatic self by insisting on semi-useless bikeshedding.
