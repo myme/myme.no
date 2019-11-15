@@ -121,3 +121,9 @@ select_project project_query projects
 Funnily such a minor change makes me a lot happier with this little piece of
 code. I guess I've fed the hunch-machinery yet again, fuelling it to arrest my
 future pragmatic self by insisting on semi-useless bikeshedding.
+
+Edit 2:
+
+I rarely sleep well knowing I have settled for something which I /know/ is
+mediocre? Having put this topic aside to simmer for a short while, I of course
+reached enlightenment in [[file:2019-11-15-fallback-facepalm.org][the next post]].

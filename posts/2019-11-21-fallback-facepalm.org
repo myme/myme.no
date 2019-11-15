@@ -1,0 +1,140 @@
+---
+title: "Functional fallback facepalm"
+---
+
+In [[file:2019-11-03-fallback-fallout.org][the last post]] I vented some frustration with handling potentially failing and
+alternative code. Unsurprisingly it turns out there /are/ better ways to handle
+code paths like this. It's funny how often familiar functionality suddenly elude
+you in the spur of the moment.
+
+I know that I'm working with effectful computations yielding =Maybe= values.
+Most Haskellers know that =Maybe= has short-circuiting and alternative execution
+built in, and so what we're after is being able to combine this with effects in
+e.g. the =IO= monad. Haskell does provide ways of combining monads using what is
+called monad transformers. One commonly used package providing this ability is
+the [[https://hackage.haskell.org/package/transformers][transformers]] package.
+
+I have used many of the transformers previously, so I feel I'm able to manage
+e.g. the transformers from =transformers= fairly fluently. What I *didn't*
+immediately think about was the transformer version of =Maybe=, called =MaybeT=.
+The [[https://hackage.haskell.org/package/transformers-0.5.6.2/docs/Control-Monad-Trans-Maybe.html][=haddoc= documentation]] states its purpose as:
+
+#+BEGIN_QUOTE
+The MaybeT monad transformer extends a monad with the ability to exit the
+computation without returning a value.
+#+END_QUOTE
+
+There is also a nice and handy =Alternative= instance for the type:
+
+#+BEGIN_SRC haskell :tangle no
+instance (Functor m, Monad m) => Alternative (MaybeT m) where
+#+END_SRC
+
+Another things that frustrates me is that I didn't stumble over Matt Parsons
+excellent blog post [[https://www.parsonsmatt.org/2016/11/18/clean_alternatives_with_maybet.html][Clean Alternatives with MaybeT]] earlier. I immediately found
+it in my search results when I started moving some code over to =MaybeT= and
+Googling for usage examples.
+
+In the last post I ended up with:
+
+#+BEGIN_SRC haskell
+find_project_root :: FilePath -> IO (Maybe Project)
+
+select_project :: Maybe Text -> [Project] -> IO (Maybe Project)
+select_project project_query projects
+  | project_query == Just "." = pwd >>= find_project_root >>= \case
+      Nothing  -> find_project Nothing projects
+      project' -> return project'
+  | otherwise = find_project project_query projects
+#+END_SRC
+
+First we can factor out the "find the local project" part into a
+=find_local_project= function. Then using =MaybeT= and the =Alternative=
+selection function =<|>= we can rewrite it into the following:
+
+#+BEGIN_SRC haskell
+find_local_project :: Maybe FilePath -> IO (Maybe Project)
+find_local_project (Just ".") = find_project_root =<< pwd
+find_local_project _          = pure Nothing
+
+select_project :: Maybe Text -> [Project] -> IO (Maybe Project)
+select_project query projects = runMaybeT
+   $  MaybeT (find_local_project query)
+  <|> MaybeT (find_project query projects)
+#+END_SRC
+
+It would be madness not to agree that that's a /major/ improvement when it comes
+to readability!
+
+** File system domination
+
+Now that we've had our fun with =MaybeT= and =Alternative= I stumbled across a
+different, yet very similar issue with =Bool= computations. I had a need for a
+function similar to =Emacs='s =locate-dominating-file=, which searches up the
+file system hierarchy for a given filename. Much like how =git= and many other
+tools determines the repository or project root.
+
+My first working implementation after a bit of refactoring ended up as the
+following:
+
+#+BEGIN_SRC haskell
+find_dominating_file :: FilePath -> FilePath -> IO (Maybe FilePath)
+find_dominating_file path name = testdir path >>= \case
+  False -> up
+  True  -> testpath (path </> name) >>= \case
+    False -> up
+    True  -> pure (Just $ path </> name)
+  where up = if parent path == root path
+          then pure Nothing
+          else find_dominating_file (parent path) name
+#+END_SRC
+
+The function first checks if the =path= is a directory, and if it's not it
+traverses up to the parent. If it /is/ a directory, then it tests if there is a
+valid path in the current directory, and if it's not it does the traverse
+upwards again. If the path exists it is the result and the function =Just=
+returns it. The function also has to check if it has reached the root directory,
+in order to avoid an infinite recursion trying to traverse upwards past the
+root.
+
+It's not that I dislike pattern matching, but the code rubs me the wrong way. It
+feels like I'm back in the same corner as I was before with =Maybe=
+computations. I did spend a short while trying to figure out if I could somehow
+shoehorn this into something fitting into a =MaybeT= computation, but it didn't
+feel like an improvement. However, replacing pattern matching with the =bool=
+function, a bit of formatting and expression nesting with parentheses I ended up
+with something which, at least to my taste, reads a lot better:
+
+#+BEGIN_SRC haskell
+find_dominating_file :: FilePath -> FilePath -> IO (Maybe FilePath)
+find_dominating_file path name =
+  testdir path >>=
+  bool up (testpath (path </> name) >>=
+  bool up (pure $ Just (path </> name)))
+  where up = if parent path == root path
+          then pure Nothing
+          else find_dominating_file (parent path) name
+#+END_SRC
+
+I'm unsure about how idiomatic one would consider this to be though. As I was
+discussing this further with a colleague I got a tip that the Boolean checks can
+be combined by lifting =(&&)= to =IO= and applying it:
+
+#+BEGIN_SRC haskell
+find_dominating_file :: FilePath -> FilePath -> IO (Maybe FilePath)
+find_dominating_file path' name = do
+  let candidate = path' </> name
+      is_root = parent path' == root path'
+  (&&) <$> testdir path' <*> testpath candidate >>= \case
+    True -> pure (Just candidate)
+    False | is_root -> pure Nothing
+          | otherwise -> find_dominating_file (parent path') name
+#+END_SRC
+
+Instead of using =Alternative= as before, we're here using the =Applicative=
+instance of =IO=. It allows us to lift a pure binary operation into =IO= and
+applying it to the result of two file system checks. This can also be done using
+=liftA2=. In hindsight it should have been fairly obvious to me to choose this
+approach, but I guess my mind was to hung up with the similarly-looking =MaybeT=
+solution. In the end the resulting code is both quite short and idiomatic, I
+would say. Good times!
