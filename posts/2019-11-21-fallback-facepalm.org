@@ -4,7 +4,7 @@ title: "Functional fallback facepalm"
 
 In [[file:2019-11-03-fallback-fallout.org][the last post]] I vented some frustration with handling potentially failing and
 alternative code. Unsurprisingly it turns out there /are/ better ways to handle
-code paths like this. It's funny how often familiar functionality suddenly elude
+code paths like that. It's funny how often familiar functionality suddenly elude
 you in the spur of the moment.
 
 I know that I'm working with effectful computations yielding =Maybe= values.
@@ -15,7 +15,7 @@ called monad transformers. One commonly used package providing this ability is
 the [[https://hackage.haskell.org/package/transformers][transformers]] package.
 
 I have used many of the transformers previously, so I feel I'm able to manage
-e.g. the transformers from =transformers= fairly fluently. What I *didn't*
+the transformers from =transformers= fairly fluently. What I *didn't*
 immediately think about was the transformer version of =Maybe=, called =MaybeT=.
 The [[https://hackage.haskell.org/package/transformers-0.5.6.2/docs/Control-Monad-Trans-Maybe.html][=haddoc= documentation]] states its purpose as:
 
@@ -30,7 +30,7 @@ There is also a nice and handy =Alternative= instance for the type:
 instance (Functor m, Monad m) => Alternative (MaybeT m) where
 #+END_SRC
 
-Another things that frustrates me is that I didn't stumble over Matt Parsons
+Another thing that frustrates me is that I didn't stumble over Matt Parsons
 excellent blog post [[https://www.parsonsmatt.org/2016/11/18/clean_alternatives_with_maybet.html][Clean Alternatives with MaybeT]] earlier. I immediately found
 it in my search results when I started moving some code over to =MaybeT= and
 Googling for usage examples.
@@ -72,7 +72,7 @@ Now that we've had our fun with =MaybeT= and =Alternative= I stumbled across a
 different, yet very similar issue with =Bool= computations. I had a need for a
 function similar to =Emacs='s =locate-dominating-file=, which searches up the
 file system hierarchy for a given filename. Much like how =git= and many other
-tools determines the repository or project root.
+tools determine the repository or project root.
 
 My first working implementation after a bit of refactoring ended up as the
 following:
