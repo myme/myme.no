@@ -1,0 +1,867 @@
+---
+title: "NixOS: For developers"
+toc: 2
+---
+
+After [[file:2019-07-01-nixos-into-the-deep-end.org][my brief introduction]] to ~NixOS~ and the process of installing it, I
+thought I'd dive into my experience with development on ~NixOS~. I failed my
+initial intention to come with a follow-up post in quick succession to the
+introduction, but this one dragged on for several reasons. Finding structure and
+trying to be concise when discussing something as "generic" as ~Nix~ turned out
+to be quite challenging. Also, while still learning I found many of the things
+I'd written in the past to be obsolete the next time I returned to writing.
+
+* Again, why ~Nix~?
+
+One of the main selling points of ~Nix~ and ~NixOS~ is its focus on
+deterministic and reproducable builds, something all developers should strive
+for in their projects. Many build and packaging tools have been putting
+considerable effort into maintaining integrity, but normally this is localized
+to libraries and dependencies in a single language[fn:1]. It is still not
+uncommon for programming languages depending on system-wide compilers,
+interpreters, and shared libraries by default. No tool[fn:2] has pioneered and
+gone to the lengths ~Nix~ has to ensure reproducible builds, where not just the
+project's direct dependencies are locked, but practically /every/ external
+dependency up to and including the global system[fn:3].
+
+~Nix~ does not do away with the build tools you would use for building and
+deploying a project. Instead, it formalizes and encapsulates these tools in a
+way that they too are locked to a given version. ~Nix~-compatible projects are
+still built using the regular tools for that project's ecosystem, however, the
+versions of these tools will be deterministic.
+
+[fn:1] To provide an example of this ~npm~ introduced ~npm-shrinkwrap.json~ and
+later ~package-lock.json~ files to lock down the entire dependency tree of a
+project.
+
+[fn:2] No tool /I'm/ aware of, that is.
+
+[fn:3] [[https://github.com/tweag/rfcs/blob/flakes/rfcs/0049-flakes.md#motivation][Nix has plenty shortcomings]] though, and there are definitely ways to mess
+up a reproducible build by relying on e.g. the file system or hardcoded paths.
+
+* Arrested development
+
+~Nix~ as a language is quite minimalistic, yet built on sound functional
+programming concepts. The result is a language which shines when creating
+reusable functions, which again allows it express build recipies (derivations)
+for a wide variety of projects. ~Nix~ does not directly /compete/ with existing
+build tools, but tries to /complement/ and /combine/ them. While the "core" of
+the ~Nix~ ecosystem may be small the community has accumulated many conventions
+and utilities aiming to reduce duplication and boilerplate. This effort is
+mainly contained within the [[https://github.com/NixOS/nixpkgs][nixpkgs package collection]]. And while the modularity
+and reusability is impressive, the information overload when dealing with
+~nixpkgs~ leads to a steep learning curve for newcomers.
+
+I was of course expecting a learning curve when diving head first into ~NixOS~,
+but I must admit there were several times when I questioned my decision to
+switch. Learning curves imply drops in productivity as you spend time learning
+which could have been spent producing. It is not easy to value ongoing efforts
+like that which have yet to produce measurable results. I was steadily learning
+more about ~Nix~, yet I felt a growing desperation and despair because despite
+my efforts, I had very little to show for it. Progress was slow.
+
+In retrospect the goals I had to reach seem more well-defined that they were up
+front:
+
+ - Create project environments free of system dependencies.
+ - Change my development workflow to accommodate new restrictions and requirements.
+ - Manage my /own/ software using ~Nix~.
+
+But to begin with I was a bit stuck in ~NixOS~, enjoying all the great software
+built and maintained by others, yet having quite a bit of trouble getting
+anywhere with my own projects.
+
+* Turtles all the way down
+
+While learning ~Nix~ I've had many /aha/ moments. One was when I finally
+realized that ~Nix~ isn't a package manager in the normal sense used for
+distributing binary builds. The fact that it can fetch pre-built derivations is
+merely a consequence of its design. Primarily it is a /source distribution and
+build/ tool. I gradually grokked this as I got further involved with writing nix
+expressions. Documentation might already state it clearly, but here I'm talking
+about reaching enlightenment at a deeper level. Perhaps similar to being told
+something as a kid, but still having to /experience/ it first hand in order to
+"get it".
+
+The ~Nix~ expression for a [[https://nixos.org/nix/manual/#ssec-derivation][derivation]] (a build unit) must state all of its
+dependencies, in order to build. This first and foremost includes its /build/
+dependencies, but also its runtime dependencies. And here's where it gets weird.
+These dependencies are themselves merely other ~Nix~ expressions for other
+derivations. More concretely, if project /A/ uses tool /B/ in its build process,
+its obvious that /B/ must be built before attempting to build /A/. In most
+environment I've encountered this typically means to use "some package manager"™
+to go fetch /B/, typically not caring how it is built or distributed. In ~Nix~
+though, the dependency /A/ has on /B/ is declared by simply referring to the
+recipe for building /B/. This means ~Nix~ will simply go ahead an build /B/ in
+order to build /A/. And the same goes for all of the dependencies /B/ might have
+on other tools, even up to the ~C~ library and compiler.
+
+Nobody wants to waste precious CPU cycles (and time) on rebuilding the "whole
+world" whenever we wish to build a project. Which is why most build tools
+implement caching in one way or another. By tracking all inputs to every
+derivation, ~Nix~ is able to implement a [[https://en.wikipedia.org/wiki/Content-addressable_storage][content-addressable]] cache which is
+queried for pre-built derivations. This cache is also distributed allowing
+content to be fetched from trusted sources, primarily the ~NixOS~ cache at
+[[https://cache.nixos.org][cache.nixos.org]]. It is populated by [[https://hydra.nixos.org/][build servers]], ensuring that the most
+common/popular derivations are always up to date. Locally this doubles as the
+~Nix~ store, in which all the artifacts built and /used/ in the current system
+or user profile reside.
+
+In the end it's the sole fact that having deterministic builds, knowing all the
+inputs involved, it's possible to determine up front which identifier such an
+artifact will have in the ~Nix~ store. And if it's already there, there's no
+point in building it again. Et voilà, you get binary package distribution for
+"free"![fn:4] However, if a dependency is neither in the local ~Nix~ store, nor
+in one of the trusted binary caches, ~Nix~ simply builds the nested dependencies
+on demand. They're just layers upon layers of ~Nix~ expressions after all.
+Simply mind-bending!
+
+[fn:4] By "free" I'm not trying to undermine the amount of effort and hard work
+of developers, as well as the cost and computing power required to provide a
+much appreciated, fully-populated binary cache.
+
+* System integration
+
+** Virtual environments using ~nix-shell~
+
+~Nix~ provides packages for many compilers, interpreters, libraries, and related
+tools. Through ~Nix~ we get a uniform way of installing dependencies, as opposed
+to using several domain-specific ones, each with their own unique behavior.
+~Nix~ also comes with ~nix-shell~, which starts an interactive shell based on a
+~Nix~ expression, analogous to the way ~virtualenvs~ work in ~Python~. It either
+builds or fetches cached builds of dependencies and adds them to the
+~Nix~ store, before making them accessible in a sub shell through modified
+environment variables and symlinks. The user or system environment remains
+untouched, which means projects can pick and choose developer tools at their
+leisure, without polluting the user's environment or requiring root-access.
+
+Following is a short example of my system where neither ~python3~ nor ~node~ is
+not found in my ~$PATH~, then using ~nix-shell~ to create an ad-hoc environment
+where the ~Python 3.7~ and ~Node.js 10.x~ interpreters are available:
+
+#+BEGIN_EXAMPLE
+❯ which python
+python not found
+
+~
+❯ which node
+node not found
+
+~
+❯ nix-shell -p python3 -p nodejs-10_x
+
+[nix-shell:~]$ python --version
+Python 3.7.3
+
+[nix-shell:~]$ node --version
+v10.15.3
+#+END_EXAMPLE
+
+~Nix~ will download pre-built binaries of ~Python~ and ~Node.js~ on the first
+run, then cache them in the ~Nix~ store until garbage collected. The ~-p
+<package>~ flag to ~nix-shell~ is really convenient when you want to quickly try
+something out, but for proper projects you'd want something more persistent and
+declarative. Without the ~-p~ flag ~nix-shell~ will look for and evaluate ~Nix~
+expressions from files named ~shell.nix~, or fall back to ~default.nix~.
+
+[fn:5] I say "somewhat" because I'm not talking about containers or other
+completely sealed off sandboxes. You'd typically want access to your editor from
+within the project environment, without making it an /actual/ project
+dependency.
+
+I found that creating ~Nix~ expressions which could be used by ~nix-shell~ to
+setup project environments turned out to be really simple in some cases, and
+much more tricky in others. There were several factors contributing to this:
+
+ - Simple use-cases are often covered in the ~Nix~ manuals, and directly
+   translatable.
+ - ~Nix~ is /very/ flexible, and so there may be many ways to achieve the same things.
+ - Complex projects, e.g. with multiple languages and tools require more elaborate
+   ~Nix~ expressions, thus requiring more knowledge of the ~Nix~ language.
+ - ~nixpkgs~ is /huge/. There probably are existing, suitable abstractions for
+   your project, but finding them can be tricky.
+ - The ~nixpkgs~ documentation isn't great. I got the most mileage out of
+   reading [[https://github.com/NixOS/nixpkgs][its source]].
+ - Decide to go "all ~Nix~" or outsource some dependency management to existing
+   package managers like ~pip~ and ~npm~.
+
+Creating a persistent definition of an environment similar to the one in the
+previous section, can be as simple as defining a ~shell.nix~ with:
+
+#+BEGIN_SRC nix
+with import <nixpkgs> {};
+mkShell {
+  buildInputs = [
+    nodejs-10_x
+    python3
+  ];
+}
+#+END_SRC
+
+Invoking ~nix-shell~ in the same directory then loads the environment in a sub
+shell:
+
+#+BEGIN_EXAMPLE
+~/project $ nix-shell
+
+[nix-shell:~/project]$ node --version
+v10.15.3
+
+[nix-shell:~/project]$ python --version
+Python 3.7.3
+
+[nix-shell:~/project]$
+#+END_EXAMPLE
+
+We can also instruct ~Nix~ to include ~Python~ packages in our environment:
+
+#+BEGIN_SRC nix
+with import <nixpkgs> {};
+mkShell {
+  buildInputs = [
+    (python3.withPackages (ps: with ps; [
+      requests
+    ]))
+  ];
+}
+#+END_SRC
+
+Where invoking ~nix-shell~ gives us:
+
+#+BEGIN_EXAMPLE
+[nix-shell:~/tmp]$ python
+Python 3.7.3 (default, Mar 25 2019, 20:59:09)
+[GCC 7.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import requests
+>>> requests
+<module 'requests' from
+'/nix/store/j70h9pxi8sn1sq0cy65k5y3knhrmyqb7-python3-3.7.3-env/lib/python3.7/site-packages/requests/__init__.py'>
+#+END_EXAMPLE
+
+~nixpkgs~ provides definitions for a large set of ~Python~ packages. However, if
+a package is not available it's fully possible to pull it down using ~pip~. In
+order to use ~pip~ from within the environment it has to be added as a
+~buildInput~ like any other. Furthermore, ~pip install~ must either be invoked
+with the ~--user~ option to install dependencies under ~~/.local/lib~, or even
+better using a ~virtualenv~. There are also ways of instructing ~Nix~ about how
+to fetch packages from package archives like [[https://pypi.org/][pypi]], typically through utilities
+available in ~nixpkgs~ or using external tools called ~generators~.
+
+** Automatic environment activation using ~direnv~
+
+If you, like me, jump around a lot between projects and environments the
+inconvenience of having to invoke ~nix-shell~ all the time quickly becomes
+apparent. To automate this I rely on a tool called [[https://github.com/direnv/direnv][direnv]], a companion for your
+shell:
+
+#+BEGIN_QUOTE
+direnv is an extension for your shell. It augments existing shells with a new
+feature that can load and unload environment variables depending on the current
+directory.
+#+END_QUOTE
+
+Personally I integrate it with ~zsh~, which means that whenever I ~cd~ into a
+project directory tree, ~direnv~ will ensure that the shell is setup with the
+same environment you would get by invoking ~nix-shell~ directly. Another
+difference is that ~direnv~ does not invoke a new sub-shell for the new
+environment, but mutates the current process' environment. This provides a
+seamless experience navigating between different projects, not having to worry
+about loading the correct ~virtualenvs~ or switching between interpreter
+versions using tools like ~nvm~ or ~pyenv~:
+
+#+BEGIN_EXAMPLE
+~
+❯ for prg in cabal ghc hlint; do which "$prg"; done
+cabal not found
+ghc not found
+hlint not found
+
+~
+❯ cd ~/projects/nixon
+direnv: loading .envrc
+direnv: using nix
+direnv: using cached derivation
+direnv: eval .direnv/cache-.1926.5d6da42cf79
+direnv: export +AR +AR_FOR_TARGET ... ~PATH
+
+nixon on  master [$!?]
+❯ for prg in cabal ghc hlint; do which "$prg"; done
+/nix/store/h433cxh423lrm3d3hb960l056xpdagkh-cabal-install-2.4.1.0/bin/cabal
+/nix/store/zj821y9lddvn8wkh1wwk6c3j5z6hpjhh-ghc-8.6.5-with-packages/bin/ghc
+/nix/store/1pwskgibynsvr5fjqbvkdbw616baw8c4-hlint-2.2.2/bin/hlint
+#+END_EXAMPLE
+
+For ~direnv~ to know when and how to load an environment, it checks for the
+existence of ~.envrc~ files. These files are basic shell scripts evaluated using
+~bash~ and should output expressions for setting environment variables. In the
+case of ~Nix~ I typically just invoke ~use_nix~ in these files. The first time
+an ~.envrc~ file is found (and on changes) ~direnv~ will ask for permission to
+evaluate its content. This is a security mechanism in order to avoid
+accidentally invoking malicious code. Once allowed, ~direnv~ will continue to
+load and unload the environment when entering and leaving project directory
+trees.
+
+#+BEGIN_EXAMPLE
+~/tmp/project
+❯ echo 'use_nix' > .envrc
+direnv: error .envrc is blocked. Run `direnv allow` to approve its content.
+
+~/tmp/project
+❯ direnv allow
+direnv: loading .envrc
+error: getting status of '/home/mmyrseth/tmp/project/default.nix': No such file or directory
+direnv: eval .direnv/cache-.1926.5d6da42cf79
+direnv: export ~PATH
+#+END_EXAMPLE
+
+** The single ~Emacs~ process conundrum
+
+Back in my ~vim~ days I'd typically launch the editor from within a ~virtualenv~
+in a shell, or at least starting in a project directory. Typically I'd have a
+~tmux~ session for each project, a single ~vim~ for that project in one pane,
+and potentially several shells in other panes. When switching to ~Emacs~ I
+quickly got used to using [[https://github.com/bbatsov/projectile][projectile]] for switching between projects in
+combination with [[https://github.com/nex3/perspective-el][perspective]] to provide workspaces for each project. This keeps
+buffer lists and window layouts tidy and organized while working on multiple
+projects in a single ~Emacs~ process.
+
+~Emacs~ uses a single variable for the execution path (~exec-path~) and other
+similar globals defining environmental values, which ultimately affect how
+~Emacs~ will spawn external commands like compilers, linters, repls, and so on.
+Naturally ~Emacs~ won't be able to launch these tools if they aren't in the
+~$PATH~, and so these globals have to change when switching between projects.
+This can be done manually by invoking commands, or automatically by hooks
+triggered when switching between buffers. I was already using plugins like
+[[https://github.com/jorgenschaefer/pyvenv][pyvenv]] to switch between ~virtualenvs~ in ~Python~ projects. Most ~node~-related
+plugins already support finding tools in ~npm bin~.
+
+I started off looking for solutions which would allow me to keep my "single
+process ~Emacs~"-based workflow. There are ~direnv~ [[https://github.com/wbolster/emacs-direnv][plugins for Emacs]] which
+loads the project environment on file/buffer changes in ~Emacs~. Unfortunately,
+after using ~emacs-direnv~ for while I came to realize it wasn't the solution I
+wanted. The main issue with the ~direnv~ plugin for ~Emacs~ is that environments
+are loaded automatically, while this is typically what you want, I found that
+switching between buffers ~Emacs~ would keep evaluating and updating the
+environment. In the end this caused the editor to feel slow and unresponsive. A
+deal-breaker!
+
+Biting the bullet, I moved on to a workflow centered around having one ~Emacs~
+instance per project I was currently working on. I dropped my single long-lived
+~Emacs~ sessions in favor of multiple sessions, each running within the project
+environment set up by ~nix-shell~. It ended up with me firing up and shutting
+down ~Emacs~ much more often than before as well as having to find the correct
+editor instance for a certain project. This quickly started to annoy me in the
+same way using a slow ~direnv~ did. If only I could make the first approach
+faster...
+
+Turns out [[https://discourse.nixos.org/t/what-is-the-best-dev-workflow-around-nix-shell/418/4][I wasn't the only one looking for this]] and I eventually stubled on [[https://github.com/nix-community/nix-direnv][an
+implementation]] of the ~use_nix~ function used by ~direnv~. This provided a
+significant performance increase by /caching/ the result of evaluating
+~nix-shell~. Another benefit of this function is that it also symlinks the
+environment derivation into ~Nix~'s ~gcroots~. Don't worry, this basically means
+that the artifacts required by the development environment won't be garbage
+collected when cleaning out the ~Nix~ store using ~nix-collect-garbage~.
+
+Even more time passes, and I became aware of a new tool built by [[https://www.target.com/][Target]], called
+[[https://github.com/target/lorri][lorri]]. It is basically a daemon you can run in the background, building all your
+environments as their expressions or dependencies change, while also ensuring
+they are not garbage collected. I have yet to start using ~lorri~ myself mostly
+out of laziness, but I must say it looks very promising.
+
+# Here are some points which I consider pros and cons of either option:
+
+# Single ~Emacs~ process:
+
+#  - All contexts/projects available in a single process.
+#  - Access to all buffers across all projects in a single process.
+#  - Only one editor/process keeping any given file open.
+#  - No concerns as to how ~Emacs~ was started.
+#  - Slow context switches when swapping between environment-sensitive projects
+#    (~virtualenvs~, etc).
+
+# Multiple ~Emacs~ processes:
+
+#  - Much harder to accidentally run external processes within the wrong
+#    environment.
+#  - Avoid any overhead related to switching ~virtualenvs~, ~direnv~, and other
+#    environmental settings.
+#  - Less collateral when ~Emacs~ hangs or crashes (yes, it happens).
+#  - Harder to start ~Emacs~ properly from an application launcher like ~rofi~,
+#    because it will run ~Emacs~ without loading any environment.
+
+# I quickly got annoyed by having to start a terminal, launch ~nix-shell~, then
+# ~Emacs~ to get it running within the correct environment, which lead me to
+# create ~nixon~. It's a small ~Haskell~ program that searches pre-defined
+# directories for projects containing ~.nix~ files, loads them and launches e.g.
+# an application launcher or an editor directly from within that project
+# environment. I've got a section on it further into this post focused on the
+# ~Nix~ configuration for that project.
+
+# Figuring out how to use ~Nix~ to install my own tools like ~nixon~ was one of
+# the road-blocks which took a lot of time initially, as it requires more
+# familiarization with ~nixpkgs~.
+
+* Defining development environments
+
+** Installing my own tools
+
+In ~Nix~ it's important to distinguish between software intended to be used as a
+dependency, like libraries, compilers, and so on, and /end-user/ software, which
+can be command line tools and GUI applications. While libraries and developer
+tools should only be available from within any given project depending on them,
+end-user software should be accessible from a user environment. I do develop a
+few end-user tools that make my life easier, and so I had to figure out how to
+best install these projects into my user profile.
+
+Both ~stack~ and ~npm~, and many other package managers[fn:6], are able to
+install software into a "global" location. The ~stack install~ and ~npm install
+--global~ commands allow installing not just upstream packages, but also locally
+from the same machine. Even though this was the way I installed my own software
+on other operating systems, it was not the way I liked to do it on ~NixOS~. In
+my opinion it's [[https://en.wikipedia.org/wiki/Code_smell][a smell]] when you have to invoke several different tools to not
+only install software, but also figure out what you've already installed. Some
+tools do not even /track/ what they installed, forcing you to manually go
+through and remove stuff from you ~~/.local~~.
+
+~Nix~ resolves these issues in one go, at the cost of having to figure out /how/
+to create /proper/ ~Nix~ expressions for ~Python~, ~JavaScript~, and ~Haskell~
+code bases. Luckily, ~nixpkgs~ has us covered, normally providing a single
+function doing what you want. Some ~nixpkgs~ functions also wrap ~Nix~
+generators like ~callCabal2nix~, saving you from having to run these tools
+yourself. It took me a while to figure out it was ~callCabal2nix~ and
+~buildPythonApplication~ I wanted for most ~Haskell~ and ~Python~ projects,
+respectively. I have yet to make an attempt at installing any of my ~JavaScript~
+tools on ~NixOS~.
+
+[fn:6] ~stack~ doesn't market itself as a package manager, but that's besides
+the point.
+
+** A quick note on generators
+
+I've mentioned that ~Nix~ doesn't stop you from using package managers like
+~pip~ and ~yarn~ from within a project environment. The downside is that ~Nix~
+has no knowledge of what these tools are doing, and so cannot ensure the same
+guarantees as if it knew about the artifacts these tools create (or fetch). It
+is possible to use these other tools to fetch or build the software we want,
+/then/ inform ~Nix~ about the artifacts, which is then able to add these to the
+~Nix~ store.
+
+Since package managers normally operate based on existing dependency meta-data,
+it's possible to automate the process of listing out the dependencies,
+performing the build steps for each, adding artifacts to the ~Nix~ store, and so
+on. Tools that automatically generate ~Nix~ expressions from some input are
+called /generators/. The output of these generators are ~Nix~ expressions which
+can then be saved to file and evaluated by ~nix-build~ and ~nix-shell~. In the
+case of ~nixpkgs~ there are also wrapper functions around generators, which
+saves you from having to /use/ the generators themselves, One example of this is
+~callCabal2nix~ used for building ~Haskell~ packages.
+
+Here's a list of a few assorted generators for different project types:
+
+ - [[https://github.com/svanderburg/node2nix][node2nix]]: Generate ~Nix~ derivations to build ~npm~ packages.
+ - [[https://github.com/datakurre/setup.nix][setup.nix]]: Generate ~Nix~ derivations for ~Python~ packages.
+ - [[https://github.com/NixOS/cabal2nix][cabal2nix]]:  Generate ~Nix~ derivations from a ~.cabal~ file.
+
+** Pinning ~nixpkgs~
+
+The package repository ~nixpkgs~ is based on the concept of channels. Channels
+are basically branches of development in the ~git~ repository moving the
+contained ~Nix~ expressions forward by updating upstream versions, fixing bugs
+and security issues, and provide new ~Nix~ utilities. Channels are also moving
+targets. System /users/ want to automatically receive security updates, new
+application versions, and so on. Software developers on the other hand want to
+control the upgrade of dependencies in a controlled manner.
+
+The ~Nix~ way of locking down dependencies is to [[https://nixos.wiki/wiki/FAQ/Pinning_Nixpkgs][pin the ~nixpkgs~ versions]]. In
+essence this is to use a version of ~nixpkgs~ from a specific commit, a
+snapshot. This ensures that building the ~Nix~ derivation will always result in
+the same output, regardless of future upstream changes to ~nixpkgs~. Different
+derivations may also use different versions of ~nixpkgs~ without that
+necessarily becoming an issue. To upgrade one or more dependencies it is often
+enough to just change the snapshot of ~nixpkgs~ to a newer version.
+
+** Haskell
+
+~Haskell~ projects are typically built using ~cabal~. ~stack~ is another popular
+tool, which manages package sets of ~GHC~ versions along with compatible
+~Haskell~ packages. Gabriel Gonzales' writeup of [[https://github.com/Gabriel439/haskell-nix][Nix and Haskell in production]]
+state that ~Nix~ is not a replacement for ~cabal~, but rather a ~stack~
+replacement.
+
+~Nix~ has become quite popular in the ~Haskell~ community and it seems many
+people choose it to build their projects. In a way similar to [[https://www.stackage.org/][Stackage]],
+~nixpkgs~ contains package sets build for different versions of ~ghc~[fn:7].
+There's a section in the ~nixpkgs~ manual under [[https://nixos.org/nixpkgs/manual/#users-guide-to-the-haskell-infrastructure]["User’s Guide to the Haskell
+Infrastructure"]] providing some information on how to use ~Nix~ for ~Haskell~.
+
+I used ~stack~ for all ~Haskell~ development I'd been doing leading up to my
+switch to ~NixOS~, and so it felt natural to continue using ~stack~ under ~Nix~.
+~stack~ even has [[https://docs.haskellstack.org/en/stable/nix_integration/][native Nix support]]. However, since there's quite a bit of
+overlap what ~stack~ and ~Nix~ attempts to solve, I've since switched my
+workflow over to ~Nix~ and just ~cabal~. ~nixpkgs~ provide a ~callCabal2nix~
+function which in short suffices to setup a simple project. Following are a few
+hobby projects which I've recently switched over to this model:
+
+[fn:7] See: [[https://github.com/NixOS/nixpkgs/blob/master/pkgs/top-level/haskell-packages.nix]]
+
+*** [[https://github.com/myme/nixon][nixon]] - ~Nix~-aware project environment launcher
+
+Using either [[https://github.com/davatorium/rofi][rofi]] or [[https://github.com/junegunn/fzf][fzf]], select projects from predefined directories and
+launches ~nix-shell~ (or other commands) in the project's environment. This is
+very useful when projects have ~.nix~ files setting up shell environments in
+which you want to spawn a terminal, an editor, run compilation commands, and so
+on.
+
+This project uses a single ~default.nix~ file which also works by creating a
+shell environment with additional developer tools when run in ~nix-shell~:
+
+~default.nix~:
+
+#+BEGIN_SRC nix
+{
+  pkgs ? import ./nixpkgs.nix {},
+  haskellPackages ? pkgs.haskellPackages,
+}:
+
+let
+  gitignore = pkgs.nix-gitignore.gitignoreSourcePure [ ./.gitignore ];
+
+in haskellPackages.mkDerivation {
+  pname = "nixon";
+  version = "0.1.0.0";
+  src = (gitignore ./.);
+  isLibrary = true;
+  isExecutable = true;
+  executableHaskellDepends = with haskellPackages; [
+    aeson
+    base
+    bytestring
+    containers
+    directory
+    foldl
+    haskeline
+    process
+    text
+    transformers
+    turtle
+    unix
+    unordered-containers
+    wordexp
+  ];
+  executableSystemDepends = with pkgs; [
+    fzf
+    rofi
+  ];
+  testDepends = with haskellPackages; [
+    hspec
+  ];
+  license = pkgs.stdenv.lib.licenses.mit;
+}
+#+END_SRC
+
+~shell.nix~:
+
+#+BEGIN_SRC nix
+{
+  pkgs ? import ./nixpkgs.nix {},
+  haskellPackages ? pkgs.haskellPackages,
+}:
+let
+  drv = (import ./default.nix) {
+    inherit pkgs haskellPackages;
+  };
+in haskellPackages.shellFor {
+  packages = _: [ drv ];
+  buildInputs = (with pkgs; [
+    cabal2nix
+    cabal-install
+    hlint
+  ]) ++ (with haskellPackages; [
+    ghcid
+  ]);
+}
+#+END_SRC
+
+In short, to define the derivation (~drv~) I'm using the ~Haskell~
+specialization of ~mkDerivation~ in ~haskellPackages.mkDerivation~. It also
+makes use of ~haskellPackages.shellFor~ to setup a shell environment used when
+developing. This shell includes ~cabal2nix~, ~cabal~, ~hlint~, and ~ghcid~.
+
+*** [[https://github.com/myme/i3ws][i3ws]] - Automatic workspace management in [[https://i3wm.org/][i3]].
+
+This project is interesting because the project was using ~stack~ in a monorepo
+style layout before switching to ~Nix~. This meant that I had to find a nice way
+to have several packages under development integrating nicely in ~Nix~. Luckily
+somebody beat me to it, and I drew some inspiration from the "[[https://discourse.nixos.org/t/nix-haskell-monorepo-tutorial/2945][Nix + Haskell
+monorepo tutorial]]" post on the ~NixOS~ ~discourse~, pointing to the
+[[https://github.com/fghibellini/nix-haskell-monorepo][nix-haskell-monorepo]] ~GitHub~ repo.
+
+The new-style commands of ~cabal~ supports multiple projects using a
+~cabal.project~ file. This file contains a listing of the
+packages/subdirectories contained in the project, each with their own ~.cabal~
+file:
+
+#+BEGIN_EXAMPLE
+$ cat cabal.project
+packages: foo
+          bar
+          baz
+#+END_EXAMPLE
+
+For a working example of this setup, see the [[https://github.com/myme/i3ws/tree/325f6c6150d7d25a9e18bd842e42079dea7d182b][GitHub repo]][fn:8] for ~i3ws~.
+
+[fn:8] Linked to the commit at the time of writing. ~master~ might move away
+from this design at a later time.
+
+** Python
+
+We use ~Python~ extensively at work, and our most active codebase is a web
+application with a ~Python~ backend and a ~JavaScript/TypeScript~ frontend.
+It was this project I first tried to get working on my laptop after switching it
+to ~NixOS~. We use some automation scripts which call out to ~pip~ and ~yarn~ to
+install dependencies.
+
+This is not a trivial project, but still I find the ~shell.nix~ file I use to
+setup the environment to not be very large. It is worth noting that we do not
+build and deploy this project using ~Nix~, and so the expression is /only/
+setting up enough for me to successfully run our install, testing and packaging
+scripts:
+
+#+BEGIN_SRC nix
+{
+  pkgs ? import (fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/19.09.tar.gz";
+    sha256 = "0mhqhq21y5vrr1f30qd2bvydv4bbbslvyzclhw0kdxmkgg3z4c92";
+  }) {},
+}:
+
+let
+  # Pin Pillow to v6.0.0
+  pillowOverride = ps: with ps; pillow.override {
+    buildPythonPackage = attrs: buildPythonPackage (attrs // rec {
+      pname = "Pillow";
+      version = "6.0.0";
+      src = fetchPypi {
+        inherit pname version;
+        sha256 = "809c0a2ce9032cbcd7b5313f71af4bdc5c8c771cb86eb7559afd954cab82ebb5";
+      };
+    });
+  };
+  venv = "./venv";
+
+in self.mkShell {
+  buildInputs = with pkgs; [
+    binutils
+    gcc
+    gnumake
+    libffi.dev
+    libjpeg.dev
+    libxslt.dev
+    nodejs
+    openssl.dev
+    (python36.withPackages (ps: with ps; [
+      (pillowOverride ps)
+      pip
+      python-language-server
+      virtualenv
+    ]))
+    squashfsTools
+    sshpass
+    yarn
+    zip
+    zlib.dev
+  ];
+  shellHook = ''
+    # For using Python wheels
+    export SOURCE_DATE_EPOCH="$(date +%s)"
+    # https://github.com/NixOS/nixpkgs/issues/66366
+    export PYTHONEXECUTABLE=${venv}/bin/python
+    export PYTHONPATH=${python}/lib/python3.7/site-packages
+    if [ -d ${venv} ]; then
+        source ${venv}/bin/activate
+    fi
+  '';
+};
+#+END_SRC
+
+First of all, none of the other developers on the team use ~Nix~[fn:9], which means I
+have to add my ~Nix~ configuration without being too intrusive on the others. I
+also want to make sure I don't deviate too much from the rest, leading to issues
+caused by differences in my environment. We also have several scripts and
+workflows centered around some of these tools, like automating dependency
+installation across multiple sub-projects, package introspection, and ~yarn
+workspace~ symlinking, to name a few.
+
+I could go on a digression as to how ~NixOS~ breaks the [[https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard][Filesystem Hierarchy
+Standard]] of ~Linux~, but essentially it means that libraries and executables are
+not found in standard locations. ~Pillow~ uses some hardcoded paths in its
+~setup.py~ which point to invalid locations on ~NixOS~. That makes it hard to
+install it using ~pip~, and so it's the only ~Python~ dependency installed from
+~nixpkgs~. Overriding it to pin it to the version we are using, which ensures
+~pip~ is not going to try to install another version by itself. In the end this
+works well, but I spent /a lot/ of time trying to do this in several other ways.
+
+In my quest to get ~Pillow~ working nicely in our project I had to dive through
+the ~nixpkgs~ codebase. At which point I got more aware of all the helpers
+functions in that repository for building projects of different shapes and
+sizes. What ~buildPythonPackage~ does should be obvious from its name, but I
+found that figuring out usage, differences, and even discovering of all these
+different utilities within ~nixpkgs~ is not very easy. Much improvement could be
+made in the ~Nix~ community on this front.
+
+[fn:9] I'm hoping I'll be able to convince them how useful ~Nix~ is.
+
+** JavaScript & TypeScript
+
+~nixpkgs~ mainly contains ~Node.js~ /end user/ packages. The few ~Node.js~
+libraries are there because they are dependencies of non-NPM packages. The
+~nixpkgs~ docs has [[https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/node.section.md#nodejs-packages][a section on Node.js packages]]. The recommendation is to use
+the ~node2nix~ generator directly on a project's ~package.json~ file. Here's a
+short list of possible generators for ~Node.js~ packages:
+
+ - [[https://github.com/svanderburg/node2nix][node2nix]]
+ - [[https://github.com/moretea/yarn2nix][yarn2nix]]
+ - [[https://github.com/NixOS/npm2nix][npm2nix]] (probably abandoned)
+
+For simpler setups I prefer to use ~Nix~ to only provide ~node~, ~npm~, and
+~yarn~, then invoke these directly as it seems to work fine in most scenarios. I
+haven't had much reason for using ~node2nix~ yet, so I can't say much about that
+experience.
+
+One thing I typically do in my ~JavaScript/TypeScript~ environments is to
+include the ~javascript-typescript-langserver~ package, which is used by
+~lsp-mode~ in ~Emacs~ to provide IDE-like tools.
+
+** Ad-hoc environments
+
+Sometimes you want access to certain language tools in order to test something.
+While on other systems you typically have ~node~ or ~python~ installed somewhere
+directly accessible on the shell, in ~NixOS~ this isn't the case. Instead, by
+adding a few expressions to the ~nixpkgs~ configuration file it's easy to launch
+shells with access to these tools.
+
+*** Using ~nix-shell~ to run scripts
+
+~nix-shell~ also has support for being used in shebangs, making it ideal for
+setting up ad-hoc environments used by simple scripts. The following example
+instructs ~nix-shell~ to create a ~Haskell~ environment with ~GHC~ along with a
+predefined package [[https://hackage.haskell.org/package/turtle][turtle]].
+
+#+BEGIN_SRC haskell
+#! /usr/bin/env nix-shell
+#! nix-shell -p "haskellPackages.ghcWithPackages (ps: with ps; [turtle])"
+#! nix-shell -i runghc
+
+{-# LANGUAGE OverloadedStrings #-}
+
+import Turtle
+
+main :: IO ()
+main = do
+  echo "Hello, World!"
+#+END_SRC
+
+*** Pre-defined environments
+
+Using ~Nix~ overlays we can also define environments which can be referenced in
+~nix-shell~ invocations, to provide ad-hoc environments when testing out things.
+Overlays are a way in ~nixpkgs~ to define new packages and overrides to existing
+packages. It's a powerful concept, but here we're using it just to create our
+own derivations:
+
+**** Node.js
+
+Define ~env-node~ as an overlay in ~~/.config/nixpkgs/overlays.nix~:
+
+#+BEGIN_SRC nix
+let overlay = self: super: {
+  nodeEnv = with self; buildEnv {
+    name = "env-node";
+    paths = [
+      nodejs-10_x
+      nodePackages_10_x.javascript-typescript-langserver
+      yarn
+    ];
+  };
+};
+in [overlay]
+#+END_SRC
+
+Launching the environment:
+
+#+BEGIN_EXAMPLE
+$ nix-shell -p nodeEnv
+
+[nix-shell:~]$ node --version
+v10.15.3
+
+[nix-shell:~]$ npm --version
+6.4.1
+
+[nix-shell:~]$ yarn --version
+1.13.0
+
+[nix-shell:~]$
+#+END_EXAMPLE
+
+**** Python
+
+Similarly to ~nodeEnv~ define an overlay in ~~/.config/nixpkgs/overlays.nix~:
+
+#+BEGIN_SRC nix
+let overlay = self: super: {
+  pythonEnv = with self; buildEnv {
+    name = "env-python";
+    paths = [
+      (python3.withPackages (ps: with ps; [
+        pip
+        virtualenv
+      ]))
+    ];
+  };
+};
+in [overlay]
+#+END_SRC
+
+Launching the environment (here we're also adding ~ipython~ manually):
+
+#+BEGIN_EXAMPLE
+❯ nix-shell -p pythonEnv -p python3Packages.ipython
+
+[nix-shell:~]$ python --version
+Python 3.7.3
+
+[nix-shell:~]$ ipython
+Python 3.7.3 (default, Mar 25 2019, 20:59:09)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.2.0 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]:
+#+END_EXAMPLE
+
+* Summary
+
+In hindsight I should have known attempting to write a post like this would be
+opening a can of worms. Well, my setup and configurations /did/ end up changing
+parallel to writing this post, and so time dragged on. Also, nailing the scope
+of something as broad as this is not easy and I feel I've only managed to scrape
+the surface of describing development on ~NixOS~ (or using just ~Nix~, the package
+manager).
+
+Development based around ~Nix~ can be a very powerful thing indeed, although
+don't expect it to be a walk in the park. I see the lack of proper documentation
+and poor discoverability as one of the main hurdles ~Nix~ and ~nixpkgs~ has to
+overcome. Again, ~nixpkgs~ is a /huge/ collection of ~Nix~ expressions for
+applications, libraries, and tools ranging across many different programming
+languages and ecosystems. I think because of both the size of the repository and
+the diversity of its content, there has evolved certain idioms /within/
+different areas of the ~nixpkgs~ repo. This makes finding the correct functions
+and utilities to use for building a certain project harder for newcomers (and
+perhaps even seasoned ~Nix~-ers).
+
+Despite some of these areas of improvement I'm conviced that the concepts
+pioneered by ~Nix~ is here to stay. I have yet to find better alternatives for
+managing the complexity of building and distributing software.
+
+* Footnotes
