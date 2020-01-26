@@ -6,7 +6,7 @@ Here's a list of more or less useful tools that I've created over the years.
 This is just a selection of stuff I have hosted on ~GitHub~. In no particular
 order:
 
-*** [[https://github.com/myme/envix][envix]] (Haskell)
+*** [[https://github.com/myme/nixon][nixon]] (Haskell)
 
 Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
 
