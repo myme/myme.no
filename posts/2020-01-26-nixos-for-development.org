@@ -17,17 +17,17 @@ One of the main selling points of ~Nix~ and ~NixOS~ is its focus on
 deterministic and reproducable builds, something all developers should strive
 for in their projects. Many build and packaging tools have been putting
 considerable effort into maintaining integrity, but normally this is localized
-to libraries and dependencies in a single language[fn:1]. It is still not
-uncommon for programming languages depending on system-wide compilers,
-interpreters, and shared libraries by default. No tool[fn:2] has pioneered and
-gone to the lengths ~Nix~ has to ensure reproducible builds, where not just the
-project's direct dependencies are locked, but practically /every/ external
-dependency up to and including the global system[fn:3].
+to libraries and dependencies in a single language[fn:1]. It is still common for
+programming languages to depend on system-wide compilers, interpreters and
+shared libraries by default. No tool[fn:2] has pioneered and gone to the lengths
+~Nix~ has to ensure reproducible builds, where not just the project's direct
+dependencies are locked, but practically /every/ external dependency up to and
+including the global system[fn:3].
 
 ~Nix~ does not do away with the build tools you would use for building and
 deploying a project. Instead, it formalizes and encapsulates these tools in a
 way that they too are locked to a given version. ~Nix~-compatible projects are
-still built using the regular tools for that project's ecosystem, however, the
+still built using the regular tools for that project's ecosystem, however the
 versions of these tools will be deterministic.
 
 [fn:1] To provide an example of this ~npm~ introduced ~npm-shrinkwrap.json~ and
@@ -46,21 +46,21 @@ programming concepts. The result is a language which shines when creating
 reusable functions, which again allows it express build recipies (derivations)
 for a wide variety of projects. ~Nix~ does not directly /compete/ with existing
 build tools, but tries to /complement/ and /combine/ them. While the "core" of
-the ~Nix~ ecosystem may be small the community has accumulated many conventions
-and utilities aiming to reduce duplication and boilerplate. This effort is
+the ~Nix~ ecosystem may be small, the community has accumulated many conventions
+and utilities with the aim to reduce duplication and boilerplate. This effort is
 mainly contained within the [[https://github.com/NixOS/nixpkgs][nixpkgs package collection]]. And while the modularity
 and reusability is impressive, the information overload when dealing with
 ~nixpkgs~ leads to a steep learning curve for newcomers.
 
 I was of course expecting a learning curve when diving head first into ~NixOS~,
 but I must admit there were several times when I questioned my decision to
-switch. Learning curves imply drops in productivity as you spend time learning
-which could have been spent producing. It is not easy to value ongoing efforts
-like that which have yet to produce measurable results. I was steadily learning
-more about ~Nix~, yet I felt a growing desperation and despair because despite
-my efforts, I had very little to show for it. Progress was slow.
+switch. Learning curves imply a drop in productivity as you spend time learning,
+when you instead could have been producing. It is not easy to value ongoing
+efforts like these which have yet to produce measurable results. I was steadily
+learning more about ~Nix~, yet I felt a growing desperation and despair because
+despite my efforts, I had very little to show for it. Progress was slow.
 
-In retrospect the goals I had to reach seem more well-defined that they were up
+In retrospect the goals I had to reach seem more well-defined than they were up
 front:
 
  - Create project environments free of system dependencies.
@@ -84,7 +84,7 @@ something as a kid, but still having to /experience/ it first hand in order to
 "get it".
 
 The ~Nix~ expression for a [[https://nixos.org/nix/manual/#ssec-derivation][derivation]] (a build unit) must state all of its
-dependencies, in order to build. This first and foremost includes its /build/
+dependencies in order to build. This first and foremost includes its /build/
 dependencies, but also its runtime dependencies. And here's where it gets weird.
 These dependencies are themselves merely other ~Nix~ expressions for other
 derivations. More concretely, if project /A/ uses tool /B/ in its build process,
@@ -92,29 +92,29 @@ its obvious that /B/ must be built before attempting to build /A/. In most
 environment I've encountered this typically means to use "some package manager"™
 to go fetch /B/, typically not caring how it is built or distributed. In ~Nix~
 though, the dependency /A/ has on /B/ is declared by simply referring to the
-recipe for building /B/. This means ~Nix~ will simply go ahead an build /B/ in
+recipe for building /B/. This means ~Nix~ will simply go ahead and build /B/ in
 order to build /A/. And the same goes for all of the dependencies /B/ might have
 on other tools, even up to the ~C~ library and compiler.
 
 Nobody wants to waste precious CPU cycles (and time) on rebuilding the "whole
-world" whenever we wish to build a project. Which is why most build tools
+world" whenever we wish to build a project, which is why most build tools
 implement caching in one way or another. By tracking all inputs to every
 derivation, ~Nix~ is able to implement a [[https://en.wikipedia.org/wiki/Content-addressable_storage][content-addressable]] cache which is
-queried for pre-built derivations. This cache is also distributed allowing
+queried for pre-built derivations. This cache is also distributed, allowing
 content to be fetched from trusted sources, primarily the ~NixOS~ cache at
 [[https://cache.nixos.org][cache.nixos.org]]. It is populated by [[https://hydra.nixos.org/][build servers]], ensuring that the most
 common/popular derivations are always up to date. Locally this doubles as the
 ~Nix~ store, in which all the artifacts built and /used/ in the current system
 or user profile reside.
 
-In the end it's the sole fact that having deterministic builds, knowing all the
-inputs involved, it's possible to determine up front which identifier such an
-artifact will have in the ~Nix~ store. And if it's already there, there's no
-point in building it again. Et voilà, you get binary package distribution for
-"free"![fn:4] However, if a dependency is neither in the local ~Nix~ store, nor
-in one of the trusted binary caches, ~Nix~ simply builds the nested dependencies
-on demand. They're just layers upon layers of ~Nix~ expressions after all.
-Simply mind-bending!
+In the end it's the sole fact that by having deterministic builds and knowing
+all the inputs involved, it's possible to determine up-front which identifier
+such an artifact will have in the ~Nix~ store. And if it's already there,
+there's no point in building it again. Et voilà, you get binary package
+distribution for "free"![fn:4] However, if a dependency is neither in the local
+~Nix~ store, nor in one of the trusted binary caches, ~Nix~ simply builds the
+nested dependencies on demand. They're just layers upon layers of ~Nix~
+expressions after all. Simply mind-bending!
 
 [fn:4] By "free" I'm not trying to undermine the amount of effort and hard work
 of developers, as well as the cost and computing power required to provide a
@@ -128,15 +128,15 @@ much appreciated, fully-populated binary cache.
 tools. Through ~Nix~ we get a uniform way of installing dependencies, as opposed
 to using several domain-specific ones, each with their own unique behavior.
 ~Nix~ also comes with ~nix-shell~, which starts an interactive shell based on a
-~Nix~ expression, analogous to the way ~virtualenvs~ work in ~Python~. It either
+~Nix~ expression, analogous to the way ~virtualenv~ work in ~Python~. It either
 builds or fetches cached builds of dependencies and adds them to the
-~Nix~ store, before making them accessible in a sub shell through modified
+~Nix~ store, before making them accessible in a subshell through modified
 environment variables and symlinks. The user or system environment remains
 untouched, which means projects can pick and choose developer tools at their
 leisure, without polluting the user's environment or requiring root-access.
 
 Following is a short example of my system where neither ~python3~ nor ~node~ is
-not found in my ~$PATH~, then using ~nix-shell~ to create an ad-hoc environment
+found in my ~$PATH~, then using ~nix-shell~ to create an ad-hoc environment
 where the ~Python 3.7~ and ~Node.js 10.x~ interpreters are available:
 
 #+BEGIN_EXAMPLE
@@ -198,8 +198,8 @@ mkShell {
 }
 #+END_SRC
 
-Invoking ~nix-shell~ in the same directory then loads the environment in a sub
-shell:
+Invoking ~nix-shell~ in the same directory then loads the environment in a
+subshell:
 
 #+BEGIN_EXAMPLE
 ~/project $ nix-shell
@@ -250,7 +250,7 @@ available in ~nixpkgs~ or using external tools called ~generators~.
 
 ** Automatic environment activation using ~direnv~
 
-If you, like me, jump around a lot between projects and environments the
+If you, like me, jump around a lot between projects and environments, the
 inconvenience of having to invoke ~nix-shell~ all the time quickly becomes
 apparent. To automate this I rely on a tool called [[https://github.com/direnv/direnv][direnv]], a companion for your
 shell:
@@ -350,12 +350,12 @@ Biting the bullet, I moved on to a workflow centered around having one ~Emacs~
 instance per project I was currently working on. I dropped my single long-lived
 ~Emacs~ sessions in favor of multiple sessions, each running within the project
 environment set up by ~nix-shell~. It ended up with me firing up and shutting
-down ~Emacs~ much more often than before as well as having to find the correct
+down ~Emacs~ much more often than before, as well as having to find the correct
 editor instance for a certain project. This quickly started to annoy me in the
 same way using a slow ~direnv~ did. If only I could make the first approach
 faster...
 
-Turns out [[https://discourse.nixos.org/t/what-is-the-best-dev-workflow-around-nix-shell/418/4][I wasn't the only one looking for this]] and I eventually stubled on [[https://github.com/nix-community/nix-direnv][an
+Turns out [[https://discourse.nixos.org/t/what-is-the-best-dev-workflow-around-nix-shell/418/4][I wasn't the only one looking for this]] and I eventually stumbled on [[https://github.com/nix-community/nix-direnv][an
 implementation]] of the ~use_nix~ function used by ~direnv~. This provided a
 significant performance increase by /caching/ the result of evaluating
 ~nix-shell~. Another benefit of this function is that it also symlinks the
@@ -507,9 +507,9 @@ hobby projects which I've recently switched over to this model:
 
 *** [[https://github.com/myme/nixon][nixon]] - ~Nix~-aware project environment launcher
 
-Using either [[https://github.com/davatorium/rofi][rofi]] or [[https://github.com/junegunn/fzf][fzf]], select projects from predefined directories and
-launches ~nix-shell~ (or other commands) in the project's environment. This is
-very useful when projects have ~.nix~ files setting up shell environments in
+Using either [[https://github.com/davatorium/rofi][rofi]] or [[https://github.com/junegunn/fzf][fzf]], ~nixon~ selects projects from predefined directories
+and launches ~nix-shell~ (or other commands) in the project's environment. This
+is very useful when projects have ~.nix~ files setting up shell environments in
 which you want to spawn a terminal, an editor, run compilation commands, and so
 on.
 
@@ -714,11 +714,11 @@ made in the ~Nix~ community on this front.
 
 ** JavaScript & TypeScript
 
-~nixpkgs~ mainly contains ~Node.js~ /end user/ packages. The few ~Node.js~
-libraries are there because they are dependencies of non-NPM packages. The
-~nixpkgs~ docs has [[https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/node.section.md#nodejs-packages][a section on Node.js packages]]. The recommendation is to use
-the ~node2nix~ generator directly on a project's ~package.json~ file. Here's a
-short list of possible generators for ~Node.js~ packages:
+The ~Node.js~ packages in ~nixpkgs~ are mainly /end user/ packages. Some few
+~nodejs~ libraries are present because they are dependencies of non-NPM packages.
+The ~nixpkgs~ docs has [[https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/node.section.md#nodejs-packages][a section on Node.js packages]]. The recommendation is to
+use the ~node2nix~ generator directly on a project's ~package.json~ file. Here's
+a short list of possible generators for ~Node.js~ packages:
 
  - [[https://github.com/svanderburg/node2nix][node2nix]]
  - [[https://github.com/moretea/yarn2nix][yarn2nix]]
@@ -765,7 +765,7 @@ main = do
 *** Pre-defined environments
 
 Using ~Nix~ overlays we can also define environments which can be referenced in
-~nix-shell~ invocations, to provide ad-hoc environments when testing out things.
+~nix-shell~ invocations to provide ad-hoc environments when testing out things.
 Overlays are a way in ~nixpkgs~ to define new packages and overrides to existing
 packages. It's a powerful concept, but here we're using it just to create our
 own derivations:
@@ -807,7 +807,7 @@ v10.15.3
 
 **** Python
 
-Similarly to ~nodeEnv~ define an overlay in ~~/.config/nixpkgs/overlays.nix~:
+Similarly to ~nodeEnv~, define an overlay in ~~/.config/nixpkgs/overlays.nix~:
 
 #+BEGIN_SRC nix
 let overlay = self: super: {
@@ -849,9 +849,9 @@ of something as broad as this is not easy and I feel I've only managed to scrape
 the surface of describing development on ~NixOS~ (or using just ~Nix~, the package
 manager).
 
-Development based around ~Nix~ can be a very powerful thing indeed, although
-don't expect it to be a walk in the park. I see the lack of proper documentation
-and poor discoverability as one of the main hurdles ~Nix~ and ~nixpkgs~ has to
+Development based around ~Nix~ can be a very powerful thing indeed, but don't
+expect it to be a walk in the park. I see the lack of proper documentation and
+poor discoverability as one of the main hurdles ~Nix~ and ~nixpkgs~ has to
 overcome. Again, ~nixpkgs~ is a /huge/ collection of ~Nix~ expressions for
 applications, libraries, and tools ranging across many different programming
 languages and ecosystems. I think because of both the size of the repository and
@@ -863,5 +863,7 @@ perhaps even seasoned ~Nix~-ers).
 Despite some of these areas of improvement I'm conviced that the concepts
 pioneered by ~Nix~ is here to stay. I have yet to find better alternatives for
 managing the complexity of building and distributing software.
+
+Finally I'd like to thank Bjørnar Snoksrud [[https://twitter.com/snoksrud][@snoksrud]] for proofreading.
 
 * Footnotes
