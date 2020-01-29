@@ -8,7 +8,7 @@ body {
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
     margin: auto;
-    min-width: 22em;
+    min-width: 25em;
     padding: 0 10px;
 }
 
@@ -25,8 +25,15 @@ blockquote {
 img.home-image {
     float: right;
     margin: 10px;
-    width: 150px;
-    height: 150px;
+    width: 8em;
+    height: 8em;
+}
+
+@media (max-width: 35em) {
+    img.home-image {
+        width: 3.5em;
+        height: 3.5em;
+    }
 }
 
 p iframe {
