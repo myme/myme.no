@@ -2,18 +2,18 @@
 
 Main blog on https://myme.no
 
-## Building `site`
+## Building `myme.no`
 
-`stack build`
+`cabal build`
 
 ## Building static pages
 
-`stack exec site build`
+`cabal run myme.no -- build`
 
 ## Run development server
 
-`stack exec site watch`
+`cabal run myme.no -- watch`
 
 ## Publishing
 
-`stack exec site deploy`
+`cabal run myme.no -- deploy`
