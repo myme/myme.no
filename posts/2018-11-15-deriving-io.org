@@ -390,8 +390,7 @@ effects!
 #+BEGIN_SRC haskell
 squareDoubleEff :: Int -> Effect Double
 squareDoubleEff x =
-  pureEff x `composeEff`
-  doubleEff `composeEff`
+  doubleEff x `composeEff`
   liftEff fromIntegral `composeEff`
   squareEff
 #+END_SRC
