@@ -245,19 +245,24 @@ article.collapsed + a.expand + h1 {
 }
 
 pre.sourceCode, pre.example {
-    background-color: #eafaff;
+    background-color: #f0f9fc;
     font-size: 0.9em;
     overflow: auto;
     padding: 10px;
 }
 
-.sourceCode .dt { color: #c678dd }
-.sourceCode .dv { color: #dcaeea; }
-.sourceCode .kw { color: #319fdf; }
+.sourceCode .at { color: #986801; }
 .sourceCode .cf { color: #319fdf; }
-.sourceCode .ot { color: #39a642; }
-.sourceCode .op { color: #39a642; }
-.sourceCode .st { color: #d7a401; }
+.sourceCode .co { color: #99aabb; }
+.sourceCode .dt { color: #a626a4; }
+.sourceCode .dv { color: #a626a4; }
+.sourceCode .ex { color: #39a642; }
+.sourceCode .kw { color: #e45649; }
+.sourceCode .ot { color: #336699; }
+.sourceCode .op { color: #336699; }
+.sourceCode .pp { color: #336699; }
+.sourceCode .st { color: #39a642; }
+.sourceCode .va { color: #a626a4; }
 
 .footnotes {
     font-size: 0.8em;
