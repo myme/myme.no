@@ -9,6 +9,9 @@ import           Text.Pandoc.Options
 import           Text.Pandoc.Walk
 import           Text.Read (readMaybe)
 
+frontpagePosts :: Int
+frontpagePosts = 20
+
 postCompiler :: Compiler (Item String)
 postCompiler = do
   ident <- getUnderlying
@@ -83,7 +86,7 @@ main = hakyllWith config $ do
     match "index.html" $ do
       route idRoute
       compile $ do
-        latestPosts <- take 10 <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
+        latestPosts <- take frontpagePosts <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
         projects <- loadSnapshotBody "projects.org" "headers"
         let indexCtx =
               constField "title" "Home" <>
