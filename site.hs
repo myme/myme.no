@@ -1,12 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Control.Monad
-import Hakyll hiding (fromList)
-import System.FilePath
-import Text.Pandoc.Builder
-import Text.Pandoc.Options
-import Text.Pandoc.Walk
-import Text.Read (readMaybe)
+import           Control.Monad
+import           Hakyll hiding (fromList)
+import           System.FilePath
+import qualified Text.Pandoc as Pandoc
+import           Text.Pandoc.Builder
+import           Text.Pandoc.Options
+import           Text.Pandoc.Walk
+import           Text.Read (readMaybe)
 
 postCompiler :: Compiler (Item String)
 postCompiler = do
@@ -17,12 +18,15 @@ postCompiler = do
         Just depth -> defaultHakyllWriterOptions
           { writerTableOfContents = True
           , writerTOCDepth = depth
-          , writerTemplate = Just "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
+          , writerTemplate = Just tocTemplate
           }
       pandoc = pandocCompilerWith defaultHakyllReaderOptions
   fmap (withUrls rewriteOrgUrl . demoteHeaders) <$> pandoc writerOpts
   where
     rewriteOrgUrl url = maybe url (`addExtension` ".html") (stripExtension ".org" url)
+    tocTemplate = either error id $ either (error . show) id $
+      Pandoc.runPure $ Pandoc.runWithDefaultPartials $
+      Pandoc.compileTemplate "" "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
 
 main :: IO ()
 main = hakyllWith config $ do

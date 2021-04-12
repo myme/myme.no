@@ -1,4 +1,4 @@
-with import <nixpkgs> {};
+with import ./nixpkgs.nix {};
 let
   srcs = nix-gitignore.gitignoreSourcePure ./.gitignore ./.;
 in
