@@ -133,6 +133,17 @@ couple of "Installing NixOS" blog posts: [[https://chris-martin.org/2015/install
 immediately after having a successful install... yeah, that didn't
 happen. ¯\__(ツ)_/¯
 
+** Find hard drive
+
+The ~lsblk~ command lists block devices on the system. Find the name of the hard
+drive to install ~NixOS~ on.
+
+#+begin_example
+# lsblk
+NAME MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda    8:0    0 24.5G  0 disk /
+#+end_example
+
 ** Partitioning with ~parted~
 
 1. Create a partition table
@@ -151,10 +162,13 @@ happen. ¯\__(ツ)_/¯
 3. Add a root partition
 
    #+BEGIN_EXAMPLE
-   # parted /dev/sda -- mkpart primary 512MiB -8GiB
+   # parted /dev/sda -- mkpart primary 512MiB 100%
    #+END_EXAMPLE
 
 ** Setting up ~LUKS~
+
+In order to run with disk encryption the hard drive must be setup with ~LUKS~
+through ~cryptsetup~.
 
 1. Initialize an empty partition
 
@@ -165,7 +179,7 @@ happen. ¯\__(ツ)_/¯
 2. Open the partition
 
    #+BEGIN_EXAMPLE
-   # cryptsetup luksOpen /dev/sda3 enc-pv
+   # cryptsetup luksOpen /dev/sda2 enc-pv
    #+END_EXAMPLE
 
 3. Create lvm groups and volumes
@@ -180,10 +194,33 @@ happen. ¯\__(ツ)_/¯
 4. Format partitions
 
    #+BEGIN_EXAMPLE
-   # mkfs.vfat -n BOOT /dev/sda2
+   # mkfs.vfat -n BOOT /dev/sda1
    # mkfs.ext4 -L root /dev/vg/root
    # mkswap -L swap /dev/vg/swap
    #+END_EXAMPLE
+
+* Mount partitions and enable swap
+
+1. Mount the ~root~ partition on ~/mnt~
+
+    #+begin_example
+    mount /dev/vg/root /mnt
+    #+end_example
+
+2. Mount the ~boot~ partition on ~/mnt/boot~
+
+   #+begin_example
+   mkdir /mnt/boot
+   mount /dev/sda1 /mnt/boot
+   #+end_example
+
+
+3. Enable swap
+
+   #+begin_example
+   swapon /dev/vg/swap
+   #+end_example
+
 
 * Configuration and installation
 
@@ -233,14 +270,11 @@ successfully boot the system from the encrypted volume:
 
 #+BEGIN_SRC nix
   # LVM
-  boot.initrd.luks.devices = [
-    {
-      name = "root";
-      device = "/dev/disk/by-uuid/<disk-uuid-here>";
-      preLVM = true;
-      allowDiscards = true;
-    }
-  ];
+  boot.initrd.luks.devices.root = {
+    device = "/dev/disk/by-uuid/<disk-uuid-here>";
+    preLVM = true;
+    allowDiscards = true;
+  };
 #+END_SRC
 
 Users can also be defined declaratively (add the ~networkmanager~ group to grant
@@ -283,7 +317,7 @@ released: ~19.03~[fn:6]. Switching branches basically means switching the
 new channel:
 
 #+BEGIN_EXAMPLE
-# nix-channel --add https://nixos.org/channels/nixos-19.03 nixos
+# nix-channel --add https://nixos.org/channels/nixos-21.05 nixos
 # nixos-rebuild --upgrade boot
 #+END_EXAMPLE
 
