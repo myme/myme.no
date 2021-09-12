@@ -2,6 +2,12 @@ html {
     font-size: 16px;
 }
 
+@media (max-width: 25em) {
+    html {
+        font-size: 0.9em;
+    }
+}
+
 body {
     box-sizing: border-box;
     color: #556;
