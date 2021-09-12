@@ -1,12 +1,12 @@
-with import ./nixpkgs.nix {};
+{ pkgs ? import ./nix/nixpkgs.nix {} }:
 let
-  drv = import ./default.nix;
+  ssg = pkgs.callPackage ./ssg {};
 in
-  haskellPackages.shellFor {
-    packages = ps: [ drv ];
-    buildInputs = with haskellPackages; [
+  pkgs.mkShell {
+    buildInputs = with pkgs; [
       cabal-install
       ghcid
       hlint
+      ssg
     ];
   }

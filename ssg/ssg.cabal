@@ -1,10 +1,10 @@
-name:               myme-no-hs
+name:               ssg
 version:            0.1.0.0
 build-type:         Simple
 cabal-version:      >= 1.10
 
-executable myme.no
-  main-is:          site.hs
+executable ssg
+  main-is:          ssg.hs
   build-depends:    base
                   , filepath
                   , hakyll

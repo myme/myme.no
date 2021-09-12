@@ -1,5 +1,11 @@
-with import ./nixpkgs.nix {};
+{ pkgs ? import ./nix/nixpkgs.nix {} }:
+
 let
-  srcs = nix-gitignore.gitignoreSourcePure ./.gitignore ./.;
-in
-  haskellPackages.callCabal2nix "myme.no" srcs {}
+  ssg = pkgs.callPackage ./ssg {};
+  site = pkgs.callPackage ./site { inherit ssg; };
+  nginx = pkgs.callPackage ./nix/nginx.nix {
+    imageName = "myme.no";
+    nginxWebRoot = site;
+  };
+
+in nginx
