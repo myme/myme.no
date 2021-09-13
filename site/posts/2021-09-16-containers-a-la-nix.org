@@ -1,0 +1,353 @@
+---
+title: Containers a la Nix
+toc: 1
+---
+
+I don't really have much interest in maintaining a complex personal home page.
+First off I only quite sporadically find time and motivation to actually write
+content. Secondly, if things seem run well enough I tend to try to leave them
+alone. If it ain't broke, don't fix it, right? Thirdly, there's really no reason
+to do something overly complex, particularly for my use case.
+
+All that said I've been meaning to fix something which I've seen as an issue
+with how I [[file:2018-01-03-serves-you-right.org][serve this site]] using various containers running in ~docker~. To keep
+things simple I've been using stock images from [[https://hub.docker.com/][Docker Hub]] and have not been
+building custom containers with their own ~Dockerfile~.
+
+[[file:../images/containers.png]]
+
+* Impure imperfection
+
+In order to have the ~nginx~ container serve my statically generated blog I've
+been using [[https://docs.docker.com/storage/bind-mounts/][bind mounts]] or [[https://docs.docker.com/storage/volumes/][volumes]] to make files on the host file system readable
+for the container:
+
+#+begin_src yaml
+myme.no:
+  restart: always
+  image: nginx
+  container_name: myme.no
+  volumes:
+    - "/data/myme.no/nginx:/etc/nginx/conf.d:ro"
+    - "/data/myme.no/public:/usr/share/nginx/html:ro"
+#+end_src
+
+Making actual files accessible to the container allows for a very simple and
+straightforward way apply updates to the site content. Publishing a new post is
+as simple as a ~rsync~ command with the generated sources to the hosting server:
+
+#+begin_src bash
+rsync -Pavz --delete ./public myme.no:/data/myme.no
+#+end_src
+
+Where ~./public~ is in a working copy of the [[https://github.com/myme/myme.no][myme.no source code]] where somebody
+has compiled and run the [[https://jaspervdj.be/hakyll/][Hakyll]] static site generator.
+
+The convenience of directly copying files across hosts comes at the expense of
+reproducible builds and consistency. Even though the version of ~Hakyll~ and the
+sources for the posts are maintained using deterministic tools like [[https://nixos.org/][nix]] and [[https://git-scm.com/][git]]
+there is no guarantee that somebody or something has messed about with the files
+on disk on the production server. That could be me accidentally deleting some
+files leaving the site full of dead links, or somebody who've compromised the
+server and replaced site content with something malicious[fn:1].
+
+* Imagine all the containers
+
+Thinking about this for a while I think I'd most prefer a solution where the
+site content is baked into the web server container, instead of relying on the
+assets being accessible from the host. Getting there would mean creating custom
+containers rather than using existing ones. One requirement that's important to
+me though is for the containers to be reproducible with as little effort as
+possible. [[https://matduggan.com/are-dockerfiles-good-enough/][Are Dockerfiles good enough?]] questions the many pitfalls of using a
+regular ~Dockerfile~ and I've never been a particularly big fan of them myself.
+Much more tempting would be to build ~docker~ images from ~nix~ derivations, and
+luckily ~nixpkgs~ provides just that!
+
+In ~nixpkgs~ the ~docker~ utilities are found under ~dockerTools~. Primarily the
+~buildImage~ and ~buildLayeredImage~ functions generate ~OCI~ image derivations
+ready to be loaded into either [[https://www.docker.com/][Docker]] or [[https://podman.io/][Podman]]. Here's an example based on this
+site:
+
+#+begin_src nix
+dockerTools.buildLayeredImage {
+  name = imageName;
+  tag = "latest";
+  contents = [ fakeNss nginx ];
+
+  extraCommands = ''
+    # nginx still tries to read this directory even if error_log
+    # directive is specifying another file :/
+    mkdir -p var/log/nginx
+    mkdir -p var/cache/nginx
+  '';
+
+  config = {
+    Cmd = [ "nginx" "-c" nginxConf ];
+    ExposedPorts = {
+      "${nginxPort}/tcp" = {};
+    };
+  };
+}
+#+end_src
+
+The ~contents~ list enumerates all ~nix~ derivations that should be a part of
+the resulting image, in this case ~nginx~ and a custom hack ~fakeNss~ discussed
+further below. Also part of the derivation inputs, but somewhat more concealed
+are ~nginxConf~ and ~nginxPort~. Configurations for the image are defined under
+~config~. In this case ~nginx~ is specified as the default entrypoint command of
+the container.
+
+** The layer cake
+
+Using ~buildLayeredImage~ has the advantage of caching unchanged layers for
+better storage utilization:
+
+#+begin_example
+Creating layer 1 from paths: ['/nix/store/5d821pjgzb90lw4zbg6xwxs7llm335wr-libunistring-0.9.10']
+Creating layer 2 from paths: ['/nix/store/ckb0qa2yrxrpp0piffgjq9id38gc5z9v-libidn2-2.3.1']
+Creating layer 3 from paths: ['/nix/store/jsp3h3wpzc842j0rz61m5ly71ak6qgdn-glibc-2.32-54']
+Creating layer 4 from paths: ['/nix/store/ds491f6b5pdk3xxnc2w103asyz1y4cfc-zlib-1.2.11']
+...
+Creating layer 32 from paths: ['/nix/store/4kjqv0spn9pk4k873mi2ffm37glzx4w0-nginx.conf']
+Creating layer 33 from paths: ['/nix/store/gxipn2bzmj7ak1lr5af4k2j8qpcy8ny7-nsswitch.conf']
+Creating layer 34 from paths: ['/nix/store/wwymvm7qrlcr9y690ml3ws6r23h6cj5j-passwd']
+Creating layer 35 from paths: ['/nix/store/n3cg3kh8h9pwc6r71r226sav1z7xgkwb-fake-nss']
+Creating layer 36 with customisation...
+#+end_example
+
+From the output it's quite clear that each layer adds separate derivations with
+their ~nix~ store path. This means that any layer containing a ~nix~ derivation
+that has updated or otherwise changed will be rebuilt, whereas the remaining
+layers would remain unchanged.
+
+** Configuring ~nginx~
+
+Below is the very basic ~nginx.conf~ for this site which redirects log output to
+~stdout~, include the ~mime.types~ file from the ~nginx~ derivation, listens to
+a configurable port ~nginxPort~ and serve up the files under ~nginxWebRoot~. One
+fascinating thing about ~nix~ is that just from the fact of referring to two
+external paths: ~${nginx}~ and ~${nginxWebRoot}~ the resources /under/ those
+paths automatically become a dependency of the configuration. Wherever the
+~nginx.conf~ is used, its dependencies follow:
+
+#+begin_src nix
+nginxConf = writeText "nginx.conf" ''
+  user nobody nobody;
+  daemon off;
+  error_log /dev/stdout info;
+  pid /dev/null;
+  events {}
+  http {
+    include ${nginx}/conf/mime.types;
+    access_log /dev/stdout;
+    server {
+      listen ${nginxPort};
+      index index.html;
+      location / {
+        root ${nginxWebRoot};
+      }
+    }
+  }
+'';
+#+end_src
+
+[[https://github.com/NixOS/nixpkgs/blob/610ceb54e34aa95ec0a500d0021a22a55afda416/pkgs/build-support/docker/examples.nix#L44][Example straight from nixpkgs.]]
+
+** Some hacks required
+
+I should mention that ~nginx~ does require a hack to bypass the fact that the
+image lacks user mappings. Apparently ~nginx~ will not be able to start up it
+doesn't find valid users.
+
+#+begin_src nix
+fakeNss = symlinkJoin {
+  name = "fake-nss";
+  paths = [
+    (writeTextDir "etc/passwd" ''
+      root:x:0:0:root user:/var/empty:/bin/sh
+      nobody:x:65534:65534:nobody:/var/empty:/bin/sh
+    '')
+    (writeTextDir "etc/group" ''
+      root:x:0:
+      nobody:x:65534:
+    '')
+    (writeTextDir "etc/nsswitch.conf" ''
+      hosts: files dns
+    '')
+    (runCommand "var-empty" { } ''
+      mkdir -p $out/var/empty
+    '')
+  ];
+};
+#+end_src
+
+[[https://github.com/NixOS/nixpkgs/blob/610ceb54e34aa95ec0a500d0021a22a55afda416/pkgs/build-support/docker/default.nix#L738][Example straight from nixpkgs.]]
+
+* The static site generator
+
+There's nothing new in how the ~Hakyll~ static site generator (~ssg~) is built.
+Here's the short ~nix~ expression which uses ~callCabal2nix~ to build a standard
+~Haskell~ project using ~Cabal~.
+
+#+begin_src nix
+{ haskellPackages, locale, nix-gitignore }:
+
+let
+  srcs = nix-gitignore.gitignoreSourcePure ../.gitignore ./.;
+
+in
+  haskellPackages.callCabal2nix "ssg" srcs {}
+#+end_src
+
+** Building the sources
+
+One of the major issues of the impure approach was how the actual site files
+were generated. Relying on manual invocations of ~Hakyll~ is error prone, and
+even though having automated scripts reducing the chance of errors we can take
+this one step further: by defining a proper ~nix~ expression for the static
+files. This means not only that site files are generated by automation, but also
+that the /inputs/ to the environment in which the files are generated is
+deterministic.
+
+Following is a standard ~mkDerivation~ which uses the ~ssg~ to build all site
+files and assets:
+
+#+begin_src nix
+{ glibcLocales, nix-gitignore, ssg, stdenv }:
+
+stdenv.mkDerivation {
+  name = "myme.no-site";
+  version = "0.1.0";
+  srcs = nix-gitignore.gitignoreSourcePure ../.gitignore ./.;
+  buildInputs = [
+    glibcLocales
+  ];
+  LANG="en_US.UTF-8";
+  buildPhase = ''
+    ${ssg}/bin/ssg build
+  '';
+  installPhase = ''
+    cp -av public $out
+  '';
+}
+#+end_src
+
+** Didn't you say determinism?
+
+As a perfect example of /how/ important controlling the build environment is, is
+to note the inclusion of ~glibcLocales~ and setting ~LANG="en_US.UTF-8~.
+Unfortunately, despite ~Haskell~'s valiant and idealistic quest for programming
+purity ~Haskell~ programs have yet to escape the hell which is ~locales~.
+
+~Hakyll~ makes use various functions to read source files during static site
+generation, among them ~hGetContents~:
+
+#+begin_quote
+Encoding and decoding errors are always detected and reported, except during
+lazy I/O (~hGetContents~, ~getContents~, and ~readFile~), where a decoding error
+merely results in termination of the character stream, as with other I/O errors.
+#+end_quote
+
+Michael Snoyman has [[https://www.snoyman.com/blog/2016/12/beware-of-readfile/][a thing]] or [[https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/#data-text-io][two]] to say about ~System.IO~ and related file
+reading functions in ~Haskell~.
+
+In a minimal ~nix~ environment the ~locale~ is not set and so defaults to ~"C"~
+or ~"POSIX"~. With this text encoding non-ASCII character sequences are invalid,
+and so the static site generator fails:
+
+#+begin_example
+ssg: ./css/default.css: hGetContents: invalid argument (invalid byte sequence)
+#+end_example
+
+Since even ~Haskell~ programs may change their behavior based on global system
+settings, the more important controlling the environment in which stuff is built
+becomes. Enabling a sensible ~UTF-8~ locale isn't too hard, and now we'll
+hopefully never see this error again.
+
+* Deployment
+
+** Building the final image
+
+The ~docker~ image can be built using simple ~nix-build~ (I'm not using [[https://nixos.wiki/wiki/Flakes][flakes]]
+just yet). This ensures that all dependencies for the ~Hakyll~ static site
+generator (~ssg~) is downloaded. Then the generator is built because it's a
+dependency of the site assets. The site assets are generated because they are a
+dependency of the ~nginx~ derivation, which pulls them is as the root directory
+to serve. Finally, the ~nginx~ derivation is passed to the ~buildLayeredImage~
+function and the image is built:
+
+#+begin_example
+$ nix-build
+...
+Done.
+/nix/store/kj1mh526f568vyydapsq20gnrh3alv2x-myme.no.tar.gz
+$ ls -l result
+lrwxrwxrwx 1 mmyrseth users 58 Sep 16 23:37 result -> /nix/store/kj1mh526f568vyydapsq20gnrh3alv2x-myme.no.tar.gz
+#+end_example
+
+** Loading the image into ~docker~
+
+There's not a whole lot to say about deploying containers that hasn't been well
+described elsewhere. Once the image has been generated it's simply a matter of
+piping it into ~docker load~ or ~podman load~, perhaps over an ssh connection:
+
+#+begin_src bash
+$ ssh host docker load < result
+#+end_src
+
+or alternatively with the full ~nix~ store path:
+
+#+begin_src bash
+$ ssh host docker load < /nix/store/i2lnbxj4kk6qqr427d4jpl9nnd2wxh7r-myme.no.tar.gz
+#+end_src
+
+It's even possible to pipe ~nix-build~ directly into ~load~:
+
+#+begin_src bash
+$ nix-build | ssh host docker load
+#+end_src
+
+** Restarting containers
+
+In order to start the new image I use ~docker-compose~ to recreate the new
+container and start it in the background:
+
+#+begin_src bash
+$ docker-compose up --force-recreate --build -d myme.no
+#+end_src
+
+And the site should be back up and running with the latest updates:
+
+#+begin_example
+$ docker ps
+CONTAINER ID  IMAGE    COMMAND                 CREATED        STATUS        PORTS   NAMES
+d15ee9606075  myme.no  "nginx -c /nix/store…"  3 minutes ago  Up 3 minutes  80/tcp  myme.no
+#+end_example
+
+
+* Conclusion
+
+Containerization is not reserved only for large-scale cloud services, and has
+become the preferred way for many to deploy even their personal web pages. Once
+a container is build, shipping it off as a stand-alone unit to one or several
+servers is a breeze. For small deployments using ~docker-compose~ it's also
+simple to ensure containers start up and run in the way you intend.
+
+Many write their ~Dockerfile~ without considering the fact that months or years
+down the line rebuilding the container might yield a different resulting image.
+The package manager used to fetch the container contents could return different
+versions of a package, file system differences might contain changed files, and
+so on.
+
+~Nix~ arguably resolves this through its simple dependency management and
+declarative language. Additionally its large ecosystem of packages, helpers
+functions and tools means you've got access to most of the software you'll ever
+need. Building containers with ~nix~ gets us closer to perfectly reproducible
+container builds without sacrificing compatibility or simplicity.
+
+All that's required is [[file:2020-01-26-nixos-for-development.org][a little knowledge of using nix]].
+
+* Footnotes
+
+[fn:1] Not really a decent argument as anybody compromising the server would
+most likely be able to cause all kinds of havoc.
