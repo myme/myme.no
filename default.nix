@@ -3,9 +3,9 @@
 let
   ssg = pkgs.callPackage ./ssg {};
   site = pkgs.callPackage ./site { inherit ssg; };
-  nginx = pkgs.callPackage ./nix/nginx.nix {
+  image = pkgs.callPackage ./nix/image.nix {
     imageName = "myme.no";
     nginxWebRoot = site;
   };
 
-in nginx
+in image
