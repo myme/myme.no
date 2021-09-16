@@ -4,7 +4,7 @@ Main blog on https://myme.no
 
 ## Building `myme.no`
 
-`cabal build`
+`nix-build`
 
 ## Building static pages
 
@@ -16,4 +16,4 @@ Main blog on https://myme.no
 
 ## Publishing
 
-`cabal run myme.no -- deploy`
+`docker load < result`
