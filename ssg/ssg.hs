@@ -104,7 +104,6 @@ main = hakyllWith config $ do
 config :: Configuration
 config = defaultConfiguration
   { destinationDirectory = "public"
-  , deployCommand = "rsync -Pavz --delete ./public deque:/data/myme.no"
   }
 
 postCtx :: Context String
