@@ -3,3 +3,6 @@ _cache
 public
 dist-newstyle
 .ghc.environment.*
+
+# nix-build
+result
