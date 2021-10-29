@@ -295,3 +295,58 @@ pre.sourceCode, pre.example {
     font-size: 80%;
     padding: 2px 5px;
 }
+
+/*
+ * Dark mode
+ */
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1E2029;
+        color: #e5e9f0;
+    }
+
+    pre.sourceCode, pre.example {
+        background-color: #3b4668;
+        color:  #f2f7ff;
+    }
+
+    code.sourceCode, .example code {
+        color: #f2f7ff;
+    }
+
+    .toc {
+        background-color: #3b4668;
+        color: #e5e9f0;
+    }
+
+    a {
+        color: #5ac5f2;
+    }
+
+    code {
+        background-color: #511827;
+        color: #fff6fa;
+    }
+
+    header, footer {
+        border-color: #a1a1b2;
+    }
+
+    nav a {
+        color: #a1a1b2;
+    }
+
+    .sourceCode .at { color: #ffae00; }
+    .sourceCode .cf { color: #319fdf; }
+    .sourceCode .co { color: #99aabb; }
+    .sourceCode .dt { color: #ff42fc; }
+    .sourceCode .dv { color: #ff42fc; }
+    .sourceCode .ex { color: #0fd537; }
+    .sourceCode .kw { color: #ff463d; }
+    .sourceCode .ot { color: #9ccdff; }
+    .sourceCode .op { color: #9ccdff; }
+    .sourceCode .pp { color: #9ccdff; }
+    .sourceCode .st { color: #0fd537; }
+    .sourceCode .va { color: #ff42fc; }
+}

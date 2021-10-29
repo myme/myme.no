@@ -1,5 +1,7 @@
 #+TITLE: TODO
 
+* DONE Dark theme
+CLOSED: [2021-10-29 Fri 19:56]
 * TODO Add a quick "About" section to Home page
 * TODO Write about myme.no :post:
 
