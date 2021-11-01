@@ -39,10 +39,10 @@
     --main-bg-dim: #a1a1b2;
     --main-fg: #e5e9f0;
     --main-fg-heavy: #f8f8f2;
-    --main-fg-dim: #888899;
+    --main-fg-dim: #a9a9b8;
     --main-link: #5ac5f2;
 
-    --well-bg: #3b4668;
+    --well-bg: #3b4252;
     --well-fg: #f2f7ff;
     --well-fg-dim: #e5e9f0;
 
@@ -70,10 +70,10 @@
         --main-bg-dim: #a1a1b2;
         --main-fg: #e5e9f0;
         --main-fg-heavy: #f8f8f2;
-        --main-fg-dim: #888899;
+        --main-fg-dim: #a9a9b8;
         --main-link: #5ac5f2;
 
-        --well-bg: #3b4668;
+        --well-bg: #3b4252;
         --well-fg: #f2f7ff;
         --well-fg-dim: #e5e9f0;
 
@@ -267,6 +267,7 @@ footer .social {
 a {
     color: var(--main-link);
     text-decoration: none;
+    transition: none !important;
 }
 
 a:hover {
@@ -364,7 +365,9 @@ pre.sourceCode, pre.example {
 .sourceCode .dv { color: var(--source-type-fg); }
 .sourceCode .ex { color: var(--source-expression-fg); }
 .sourceCode .kw { color: var(--source-keyword-fg); }
+.sourceCode .sc { color: var(--source-keyword-fg); }
 .sourceCode .st { color: var(--source-string-fg); }
+.sourceCode .vs { color: var(--source-string-fg); }
 .sourceCode .va { color: var(--source-variable-fg); }
 .sourceCode .cf { color: var(--source-default-fg); }
 .sourceCode .fu { color: var(--source-default-fg); }
