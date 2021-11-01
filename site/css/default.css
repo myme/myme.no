@@ -50,13 +50,13 @@
     --verbatim-fg: #fff6fa;
     --verbatim-fg-dim: #802c45;
 
-    --source-default-fg: #9ccdff;
+    --source-default-fg: #70b7ff;
     --source-comment-fg: #99aabb;
-    --source-keyword-fg: #ff463d;
-    --source-variable-fg: #ff42fc;
+    --source-keyword-fg: #ff8f8f;
+    --source-variable-fg: #ff81fd;
     --source-string-fg: #0fd537;
     --source-expression-fg: #0fd537;
-    --source-type-fg: #ff42fc;
+    --source-type-fg: #ff81fd;
     --source-attribute-fg: #ffae00;
 }
 
@@ -81,13 +81,13 @@
         --verbatim-fg: #fff6fa;
         --verbatim-fg-dim: #802c45;
 
-        --source-default-fg: #9ccdff;
+        --source-default-fg: #70b7ff;
         --source-comment-fg: #99aabb;
-        --source-keyword-fg: #ff463d;
-        --source-variable-fg: #ff42fc;
+        --source-keyword-fg: #ff8f8f;
+        --source-variable-fg: #ff81fd;
         --source-string-fg: #0fd537;
         --source-expression-fg: #0fd537;
-        --source-type-fg: #ff42fc;
+        --source-type-fg: #ff81fd;
         --source-attribute-fg: #ffae00;
     }
 }
