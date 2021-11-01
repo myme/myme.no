@@ -9,14 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
   themeBtn.classList.remove('hidden');
 
   function setThemeUIState() {
-    const themeState = localStorage.getItem('theme') || 'adjust';
+    const themeState = localStorage.getItem('theme') || 'auto';
     const icon = {
       light: 'sun',
       dark: 'moon',
-      adjust: 'adjust',
-    }[themeState];
+    }[themeState] || 'adjust';
+
     themeIcon.className = `fas fa-${icon}`;
-    if (themeState === 'adjust') {
+
+    if (themeState === 'auto') {
       delete root.dataset.scheme;
     } else {
       root.dataset.scheme = themeState;
@@ -25,11 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setThemeExplicitly() {
     const themeOrder = schemeMedia.matches
-      ? ['adjust', 'light', 'dark']
-      : ['adjust', 'dark', 'light'];
+      ? ['auto', 'light', 'dark']
+      : ['auto', 'dark', 'light'];
 
     const storedTheme = localStorage.getItem('theme');
-    const themeState = themeOrder.includes(storedTheme) ? storedTheme : 'adjust';
+    const themeState = themeOrder.includes(storedTheme) ? storedTheme : 'auto';
     const nextState = (() => {
       let current;
       do {
@@ -60,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ...getComputedStyle(document.body)
           .transitionDuration
           .split(',')
-          .map((x) => parseFloat(x) * (x.match(/s$/) ? 1000 : 1)));
+          .map((x) => parseFloat(x) * (x.match(/ms$/) ? 1 : 1000)));
       document.body.className = '';
       callback();
       await sleep(duration);

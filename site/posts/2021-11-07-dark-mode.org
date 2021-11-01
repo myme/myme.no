@@ -1,0 +1,419 @@
+---
+title: "Dark Mode"
+toc: 2
+---
+
+I do not typically visit [[https://myme.no][myme.no]][fn:1] that often besides the occasional time I
+need to look up some notes from [[./2019-07-01-nixos-into-the-deep-end.org][NixOS: Into the deep end]] or [[./2020-01-26-nixos-for-development.org][NixOS: For
+developers]]. I tend to setup my machines with a fairly dark appearance, often
+using [[https://draculatheme.com/][Dracula Theme]] or similar for my editor setup, terminal colors and so on.
+In fact I do this for ~GTK~ and ~KDE~, which means that ~Firefox~ also knows
+about my preference for a darker visual appearance. Quite many +most?+ websites
+do not take this into consideration though, and so I find myself using [[https://addons.mozilla.org/en-US/firefox/addon/darkreader/][Dark
+Reader]] a lot to have a more visual consistency across my internet browsing. Even
+[[https://myme.no][myme.no]] did not, until very recently, have a "dark mode". This post is about me
+fixing that!
+
+If ever there is a topic defining bikeshedding[fn:2] "color schemes" (or
+palettes) has to be it. In the context of desktop environments, text editors,
+terminal emulators and other GUI applications customization /start/ with the
+color scheme. A color scheme is perhaps the most elementary building block for
+an application theme, next to font selections, icon collections and geometric
+characteristics like rounded or sharp window corners, transparency and so on.
+
+In more recent years an increased awareness of accessibility has provided a more
+/functional/ justification for color variations as opposed to pure subjective
+aesthetics. By providing several carefully crafted color schemes and fonts face
+combinations a web site is not only able to accommodate a reader's personal
+preference, but it can also greatly improve the experience for visually impaired
+individuals who might struggle with the legibility of certain color combinations
+or contrast levels.
+
+[fn:1] Yes, this site!
+
+[fn:2] [[https://en.wikipedia.org/wiki/Law_of_triviality][See the "Law of triviality"]]
+
+* Accessibility
+
+My own experience with colors as an accessibility concern is quite limited. I do
+not have much of a visual impediment myself beyond being unable to use a
+computer for extended periods of time without my light prescription glasses.
+Neither was accessibility something I was purposely considering when wanting a
+"dark mode" for the site. Yet as I was researching around I did stumble on some
+resources and tools which I wanted to save for my future self or any reader whom
+might not be too familiar with this themselves.
+
+The [[https://www.w3.org/WAI/standards-guidelines/wcag/][Web Content Accessibility Guidelines]] (WCAG) define calculations to compute
+the [[https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio][contrast ratio]] between a font color against its background color. The
+minimum requirement (Level AA) of contrast is set to ~4.5~ for most regular
+text:
+
+#+begin_quote
+The visual presentation of text and images of text has a contrast ratio of at
+least ~4.5:1~.
+#+end_quote
+
+For larger or heavier fonts[fn:3] the contrast requirement is relaxed a bit, but
+shouldn't be below ~3:1~. For the /enhanced/ success criterion a contrast ration
+of ~7:1~ should be met.
+
+Using tools like [[https://contrastchecker.com/][Contrast Checker]] it is possible to experiment with various
+color combinations to see if your desired color combinations are considered
+accessible enough. The style browser in the developer tools of both ~Firefox~
+and ~Chrome~ (-ium and variants as well of course) include contrast information
+for ~color~ value of the selected element:
+
+#+ATTR_HTML: :style width: auto :alt Chromium color picker :title Chromium color picker
+[[../images/chromium-color-picker.png]]
+
+[fn:3] [[https://www.w3.org/TR/WCAG21/#dfn-large-scale][WCAG definition of large scale text]]
+
+* Operating system support
+
+Both desktop and mobile operating systems have acknowledged the need for
+providing high level controls over the visual expression of the OS GUI widget
+components. All major OSes, including iOS and Android as well as the main Linux
+Desktop Environments like Gnome and KDE, provide toggles for enabling "dark
+mode".
+
+Typically it's a simple toggle switch between two possible values of ~light~ and
+~dark~. Toggling the switch changes the default color scheme from the typical
+dark foreground on light background to a light-on-dark color scheme. A light
+foreground on a dark background will appear "darker" than the opposite, and
+hence is mainly referred to as a "dark mode".
+
+Due to being visually "darker" than the regular light modes, dark mode color
+schemes are often preferred in low-light environments. For the same reason
+"night mode" is often used to describe them. For users who enjoy reading through
+the news or browsing blogs at bedtime the bright light from white backgrounds
+can feel uncomfortable to the eyes.
+
+Applications are able too hook into the OS-level preference of "dark mode" and
+adjust the color scheme accordingly. Providing a dark variant of an app's color
+scheme not only caters to a user's general preference, it also helps smooth the
+transitions /between/ apps that all respect the setting, keeping a consistent
+level of perceived light emitted from the device screen.
+
+* Automatic color scheme switching
+
+I wanted a stylesheet for this site which could at least make automatic
+switching of color schemes based on the operating setting. Users who have
+configured their OS accordingly will now see a dark version of the site:
+
+[[../images/light-vs-dark.png]]
+
+I have not yet spent too much effort tweaking the palette to be WCAG compliant,
+but already I'm quite happy with the results.
+
+The first thing I had working was automatic selection of color scheme based on
+browser preference. In other words, no user controlled overrides to force the
+scheme to either ~light~ or ~dark~. For automatic switching ~CSS~ exposes
+primarily a [[https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme][media query]] to define rules to apply in the case of the operating
+system (or browser) prefers either a ~light~ or ~dark~ scheme:
+
+#+begin_src css
+@media (prefers-color-scheme: dark) {
+    /* Overrides ... */
+}
+#+end_src
+
+** ~CSS~ custom properties
+
+For the most part it's only color overrides that are needed when applying a dark
+mode scheme and for my use-case there are not really any other custom ~CSS~
+rules required.
+
+The simplest way to change out all color values associated with page elements is
+to use ~CSS~ custom properties. Custom properties can easily be overridden in
+selectors with [[https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity][higher specificity]], like the media query in the section above.
+Another benefit of ~CSS~ custom properties is that they provide semantic naming
+of values, which greatly improves the readability of the stylesheet in my
+opinion:
+
+#+begin_src css
+/* Light mode default colors */
+:root {
+    --main-bg: #ffffff;
+    --main-bg-dim: #ddddee;
+    --main-fg: #555566;
+    --main-fg-heavy: #333344;
+    --main-fg-dim: #888899;
+    --main-link: #0077aa;
+
+    /* ... and so on */
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --main-bg: #1e2029;
+        --main-bg-dim: #a1a1b2;
+        --main-fg: #e5e9f0;
+        --main-fg-heavy: #f8f8f2;
+        --main-fg-dim: #a9a9b8;
+        --main-link: #5ac5f2;
+
+        /* ... */
+    }
+}
+
+body {
+    background-color: var(--main-bg);
+    color: var(--main-fg);
+    /* ... */
+}
+#+end_src
+
+Custom properties in ~CSS~ are subject to the cascade and inherit their value
+from their parent. Properties are bound to the scope of the selector in which
+they're defined and so it's common practice to define them using the ~:root~
+pseudo-class selector to have them applied to the entire HTML document.
+
+* Manual color scheme switching
+
+Although it's nice to have a site that respects the users' preference for
+~light~ vs. ~dark~ mode as expressed by the browser, I find that it would also
+be interesting to investigate the possibility of a manual override. Perhaps
+something similar to the OS toggle button:
+
+#+ATTR_HTML: :style width: auto :alt Color scheme switcher :title Color scheme switcher
+[[../images/color-scheme-switcher.gif]]
+
+** ~CSS~ duplication
+
+With just the automatic rules all specializations of the dark scheme could be
+done within the ~@media~ query. For a manual override something in the document
+itself must change for the browser to know which style to apply. The site is
+statically generated and so I do not want any logic on the server side to
+determine this. The simplest solution client-side is to use ~JavaScript~ and
+store the preference field persisted in ~LocalStorage~.
+
+~JavaScript~ has to change /some/ attribute of the document to allow selectors
+to properly apply light and dark styles. In this case the ~JavaScript~ is adding
+a ~data-scheme~ attribute to the document root (~<html>~). Unfortunately though,
+I'm not aware of any way of composing the media query with selectors on the data
+attribute using vanilla ~CSS~ making some duplication unavoidable:
+
+#+begin_src css
+:root[data-scheme="dark"] {
+    --main-bg: #1e2029;
+    --main-bg-dim: #a1a1b2;
+    --main-fg: #e5e9f0;
+    --main-fg-heavy: #f8f8f2;
+    --main-fg-dim: #a9a9b8;
+
+    /* .. */
+}
+
+/*
+ ,* (Duplicate :-( ) media dark colors
+ ,*/
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-scheme="light"]) {
+        --main-bg: #1e2029;
+        --main-bg-dim: #a1a1b2;
+        --main-fg: #e5e9f0;
+        --main-fg-heavy: #f8f8f2;
+        --main-fg-dim: #a9a9b8;
+
+        /* .. */
+    }
+}
+#+end_src
+
+This is quite unfortunate, as I've already been bitten by forgetting to update
+color values in one of the two places the dark colors are defined. This can
+/somewhat/ be remedied by introducing yet another level of ~CSS~ custom property
+indirection. Also, throwing something like ~sass~ mixins on the problem would
+help reduce the duplication, but that would mean adding additional tools to the
+building of the site.
+
+** Dynamically changing color scheme
+
+For those who've already tried the manual switcher or who looked closely at the
+animation above would notice that the toggle switch has /three/ states, and not
+just two. One thing that can be a problem with user overrides is that it's often
+easy to forget that once a preference has been set, there's no way to return to
+the default behavior. I did not want to end up in a situation where users are
+unable to return to the default automatic switching behavior if they ever
+pressed the toggle button. For this reason the button is a three-state toggle
+where it cycles from ~auto~ to either ~light~ or ~dark~ then eventually back to
+~auto~.
+
+Depending on the browser scheme preference the order in which the cycle rotates
+through the schemes changes. If the media query returns that ~light~ is the
+preferred scheme then it makes sense for the next state to be the ~dark~ scheme.
+Conversely, if the media query detects a preferred scheme of ~dark~ then the
+next state should be the ~light~ scheme.
+
+Finally, the last state before the toggle loops around is the same scheme that
+is detected as the preferred. This is so that it's possible to "lock" the scheme
+to the same value as the media query detects, because this global preference
+might be changed at some later time while the user wishes to retain the specific
+scheme for the site.
+
+Here is the implementation of ~setThemeExplicitly()~ which drives the logic
+behind the toggle switch:
+
+#+begin_src js
+const schemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+
+function setThemeExplicitly() {
+  const themeOrder = schemeMedia.matches
+        ? ['auto', 'light', 'dark']
+        : ['auto', 'dark', 'light'];
+
+  const storedTheme = localStorage.getItem('theme');
+  const themeState = themeOrder.includes(storedTheme) ? storedTheme : 'auto';
+  const nextState = (() => {
+    let current;
+    do {
+      current = themeOrder.shift();
+      themeOrder.push(current);
+    } while (current !== themeState);
+    return themeOrder.shift();
+  })();
+
+  localStorage.setItem('theme', nextState);
+  setThemeUIState();
+}
+#+end_src
+
+Most of the logic is concerned with finding the next state based on which scheme
+is the preferred scheme matched by a ~matchMedia()~ query and whatever
+preference the user has explicitly set. When the next state has been determined
+it's also written to ~LocalStorage~ for persistence between page loads.
+
+** Retrieving user preference overrides from ~LocalStorage~
+
+On a new page load the ~JavaScript~ must query the ~LocalStorage~ to check if
+the user wants an override of the automatically detected scheme. Based on this
+the override button icons are set to match the current scheme and the
+~data-scheme~ attribute is set on the page root element. The following function
+is run on the [[https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event][DOMContentLoaded]] event:
+
+#+begin_src js
+function setThemeUIState() {
+  const themeState = localStorage.getItem('theme') || 'auto';
+  const icon = {
+    light: 'sun',
+    dark: 'moon',
+  }[themeState] || 'adjust';
+
+  themeIcon.className = `fas fa-${icon}`;
+
+  if (themeState === 'auto') {
+    delete root.dataset.scheme;
+  } else {
+    root.dataset.scheme = themeState;
+  }
+}
+#+end_src
+
+** Transitions
+
+Animating the transition between dark and light mode feels a lot easier on the
+eyes, even with a rather short animation duration. By defining a ~transition~
+property on most of the page elements the browser will automatically tween[fn:4]
+to the new color value:
+
+#+begin_src css
+body.transitions, body.transitions * {
+    transition:
+        color .5s linear,
+        background-color .5s linear;
+}
+#+end_src
+
+Although this transition rule works well once the page has loaded it does cause
+quite a bit of problems on the initial page load. When using the automatic
+scheme selection based on the media query from the last section there is no
+problem. Likewise there would have been no issue had the theme been determined
+server-side through the use of cookies or other session-related state.
+
+Client-side the browser will apply the default styles regardless until the
+~JavaScript~ code to read the ~LocalStorage~ and apply the overridden scheme
+gets to run. Once the ~JavaScript~ detects that the scheme should be switched it
+changes the ~data-~ attribute on the root element causing the colors to flip to
+the correct ones. With the transition rules enabled this transition will get
+animated which causes a rather sluggish and unpleasant experience while the page
+is being rendered.
+
+To avoid the transitions happening during the initial load, the transition class
+is removed from ~<body>~ temporarily. Another issue seems to be that if this
+class is added back too soon the transitions will come back into effect. After
+attempting several tricks, the one that seemed the /most/ stable (none of them
+really are) was to try to predict how long the transition animation would last.
+Then once this time has passed the class is added back to ~<body>~ to re-enable
+transitions.
+
+To do this as cleanly as possible, I've added a helper function:
+
+#+begin_src js
+withoutTransitions(setThemeUIState);
+#+end_src
+
+which looks like this:
+
+#+begin_src js
+async function withoutTransitions(callback) {
+  try {
+    const duration = Math.max(
+      ...getComputedStyle(document.body)
+        .transitionDuration
+        .split(',')
+        .map((x) => parseFloat(x) * (x.match(/ms$/) ? 1 : 1000)));
+    document.body.className = '';
+    callback();
+    await sleep(duration);
+  } finally {
+    document.body.className = 'transitions';
+  }
+}
+#+end_src
+
+~sleep()~ by the way is this amazingly useful little thing:
+
+#+begin_src js
+const sleep = (timeout) => new Promise((resolve) => {
+  setTimeout(resolve, timeout);
+});
+#+end_src
+
+Now what does this little abomination attempt to do?
+
+Let's first dissect the long-ish chain of transformations of the ~document.body~ styles:
+
+ 1. First ~getComputedStyle(document.body)~ retrieves all computed style properties
+    of the ~<body>~ element.
+ 2. The ~transitionDuration~ property is extracted from the set of styles.
+ 3. Split the transition duration values on comma using ~split(',')~.
+ 4. Each transition duration is then parsed for a floating point number duration
+    value and normalized to ~milliseconds~.
+
+Since ~CSS~ [[https://developer.mozilla.org/en-US/docs/Web/CSS/time][<time>]] supports two units, ~seconds~ and ~milliseconds~, and the
+~transitionDuration~ values aren't normalized to one of them when read, the
+final step converts ~second~ values into ~milliseconds~ through simple
+multiplication.
+
+The result of the chain of operations on ~transitionDuration~ is an ~Array~ of
+duration values. In order to get the biggest (longest) duration, the ~...~ splat
+operator is used to pass all the values to the ~Math.max()~ function which
+computes the largest value.
+
+[fn:4] [[https://en.wikipedia.org/wiki/Inbetweening][Inbetweening]]
+
+* Conclusion
+
+It's been very engaging to play around with color scheme support and to find all
+the quirks and strange behavior that makes such a seemingly trivial feature
+harder to get right than first expectations. It's not very appealing to have web
+sites that are unnecessary busy during load, and especially with big flickers
+between light and dark, as well as unnatural transitions.
+
+The implementation of manually switched schemes is by no means flawless and so
+it would be interesting to know how these kind of issues have been solved by
+others elsewhere.
+
+* Footnotes
