@@ -106,12 +106,6 @@ html {
     }
 }
 
-* {
-    transition:
-        color .5s linear,
-        background-color .5s linear;
-}
-
 body {
     background-color: var(--main-bg);
     box-sizing: border-box;
@@ -121,6 +115,12 @@ body {
     margin: auto;
     min-width: 25em;
     padding: 0 10px;
+}
+
+body.transitions * {
+    transition:
+        color .5s linear,
+        background-color .5s linear;
 }
 
 main {

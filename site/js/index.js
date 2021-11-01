@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   schemeMedia.addEventListener('change', () => { setThemeUIState(); });
+
+  document.body.className = '';
   setThemeUIState();
+  document.body.className = 'transitions';
 
   themeBtn.addEventListener('click', () => { setThemeExplicitly(); });
 });
