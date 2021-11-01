@@ -34,8 +34,38 @@
  * Dark colors
  */
 
+:root[data-scheme="dark"] {
+    --main-bg: #1e2029;
+    --main-bg-dim: #a1a1b2;
+    --main-fg: #e5e9f0;
+    --main-fg-heavy: #f8f8f2;
+    --main-fg-dim: #888899;
+    --main-link: #5ac5f2;
+
+    --well-bg: #3b4668;
+    --well-fg: #f2f7ff;
+    --well-fg-dim: #e5e9f0;
+
+    --verbatim-bg: #511827;
+    --verbatim-fg: #fff6fa;
+    --verbatim-fg-dim: #802c45;
+
+    --source-default-fg: #9ccdff;
+    --source-comment-fg: #99aabb;
+    --source-keyword-fg: #ff463d;
+    --source-variable-fg: #ff42fc;
+    --source-string-fg: #0fd537;
+    --source-expression-fg: #0fd537;
+    --source-type-fg: #ff42fc;
+    --source-attribute-fg: #ffae00;
+}
+
+/*
+ * (Duplicate :-( ) media dark colors
+ */
+
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-scheme="light"]) {
         --main-bg: #1e2029;
         --main-bg-dim: #a1a1b2;
         --main-fg: #e5e9f0;
@@ -62,6 +92,10 @@
     }
 }
 
+.hidden {
+    display: none;
+}
+
 html {
     font-size: 16px;
 }
@@ -81,6 +115,9 @@ body {
     margin: auto;
     min-width: 25em;
     padding: 0 10px;
+    transition:
+        color .5s linear,
+        background-color .5s linear;
 }
 
 main {
@@ -162,6 +199,19 @@ nav ul li {
 
 nav ul li a {
     margin-left: 12px;
+}
+
+nav button.theme {
+    background: none;
+    border: none;
+    color: var(--main-fg-dim);
+    margin-left: 1em;
+    padding: none;
+}
+
+nav button.theme:hover {
+    color: var(--main-fg);
+    cursor: pointer;
 }
 
 footer {
