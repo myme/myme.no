@@ -33,8 +33,9 @@ myme.no:
 #+end_src
 
 Making actual files accessible to the container allows for a very simple and
-straightforward way apply updates to the site content. Publishing a new post is
-as simple as a ~rsync~ command with the generated sources to the hosting server:
+straightforward way to apply updates to the site content. Publishing a new post is
+as simple as an ~rsync~ command with the generated sources to the hosting
+server:
 
 #+begin_src bash
 rsync -Pavz --delete ./public myme.no:/data/myme.no
