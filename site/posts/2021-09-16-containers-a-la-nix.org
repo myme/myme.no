@@ -325,6 +325,27 @@ CONTAINER ID  IMAGE    COMMAND                 CREATED        STATUS        PORT
 d15ee9606075  myme.no  "nginx -c /nix/store…"  3 minutes ago  Up 3 minutes  80/tcp  myme.no
 #+end_example
 
+** Pruning old images
+
+The ~docker load~ command replaces the existing ~myme.no~ image with a new one
+and renames the old one to the empty string. The old image is not deleted
+immediately, and over time these unused images accumulate and basically just
+waste space:
+
+#+begin_example
+REPOSITORY  TAG         IMAGE ID          CREATED           SIZE
+<none>      <none>      7dcc87219f07      51 years ago      61.4MB
+<none>      <none>      3b9a2d33e953      51 years ago      61.7MB
+<none>      <none>      953d1297b2e3      51 years ago      61.7MB
+<none>      <none>      c70831e55be9      51 years ago      61.7MB
+<none>      <none>      ec95e8f7d32e      51 years ago      61.7MB
+#+end_example
+
+In order to clean up, this simple command will do:
+
+#+begin_src bash
+$ docker image prune
+#+end_src
 
 * Conclusion
 
