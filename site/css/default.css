@@ -117,9 +117,9 @@ body {
     padding: 0 10px;
 }
 
-body.transitions * {
+body.transitions, body.transitions * {
     transition:
-        color .5s linear,
+        color .2s linear,
         background-color .5s linear;
 }
 

@@ -43,11 +43,35 @@ document.addEventListener('DOMContentLoaded', () => {
     setThemeUIState();
   }
 
+  const sleep = (timeout) => new Promise(resolve => {
+    setTimeout(resolve, timeout);
+  });
+
+  /**
+   * Invoke `callback` with transitions disabled.
+   *
+   * Attempts to compute the time a transition on <body> will take and
+   * re-enables transitions after that time. It does so by hackisly inspecting
+   * the transitionDelays set on the body element.
+   */
+  async function withoutTransitions(callback) {
+    try {
+      const duration = Math.max(
+        ...getComputedStyle(document.body)
+          .transitionDuration
+          .split(',')
+          .map((x) => parseFloat(x) * (x.match(/s$/) ? 1000 : 1)));
+      document.body.className = '';
+      callback();
+      await sleep(duration);
+    } finally {
+      document.body.className = 'transitions';
+    }
+  }
+
   schemeMedia.addEventListener('change', () => { setThemeUIState(); });
 
-  document.body.className = '';
-  setThemeUIState();
-  document.body.className = 'transitions';
+  withoutTransitions(setThemeUIState);
 
   themeBtn.addEventListener('click', () => { setThemeExplicitly(); });
 });
