@@ -3,16 +3,14 @@ title: "Dark Mode"
 toc: 2
 ---
 
-I do not typically visit [[https://myme.no][myme.no]][fn:1] that often besides the occasional time I
-need to look up some notes from [[./2019-07-01-nixos-into-the-deep-end.org][NixOS: Into the deep end]] or [[./2020-01-26-nixos-for-development.org][NixOS: For
-developers]]. I tend to setup my machines with a fairly dark appearance, often
-using [[https://draculatheme.com/][Dracula Theme]] or similar for my editor setup, terminal colors and so on.
-In fact I do this for ~GTK~ and ~KDE~, which means that ~Firefox~ also knows
-about my preference for a darker visual appearance. Quite many +most?+ websites
-do not take this into consideration though, and so I find myself using [[https://addons.mozilla.org/en-US/firefox/addon/darkreader/][Dark
-Reader]] a lot to have a more visual consistency across my internet browsing. Even
-[[https://myme.no][myme.no]] did not, until very recently, have a "dark mode". This post is about me
-fixing that!
+I tend to setup my machines with a fairly dark appearance, often using [[https://draculatheme.com/][Dracula
+Theme]] or similar for my editor setup, terminal colors and so on. In fact I do
+this for ~GTK~ and ~KDE~, which means that ~Firefox~ also knows about my
+preference for a darker visual appearance. Quite many +most?+ websites still do
+not take this into consideration and so I also find myself using [[https://addons.mozilla.org/en-US/firefox/addon/darkreader/][Dark Reader]] a
+lot to have more visual consistency across my internet browsing. Even
+[[https://myme.no][myme.no]][fn:1] did not, until very recently, have a "dark mode". This post is
+about me fixing that!
 
 If ever there is a topic defining bikeshedding[fn:2] "color schemes" (or
 palettes) has to be it. In the context of desktop environments, text editors,
@@ -23,11 +21,11 @@ characteristics like rounded or sharp window corners, transparency and so on.
 
 In more recent years an increased awareness of accessibility has provided a more
 /functional/ justification for color variations as opposed to pure subjective
-aesthetics. By providing several carefully crafted color schemes and fonts face
+aesthetics. By providing several carefully crafted color schemes and font face
 combinations a web site is not only able to accommodate a reader's personal
 preference, but it can also greatly improve the experience for visually impaired
-individuals who might struggle with the legibility of certain color combinations
-or contrast levels.
+individuals who might struggle with the legibility of certain color
+combinations, font sizes or contrast levels.
 
 [fn:1] Yes, this site!
 
@@ -37,16 +35,17 @@ or contrast levels.
 
 My own experience with colors as an accessibility concern is quite limited. I do
 not have much of a visual impediment myself beyond being unable to use a
-computer for extended periods of time without my light prescription glasses.
+computer for extended periods of time without my modest prescription glasses.
 Neither was accessibility something I was purposely considering when wanting a
 "dark mode" for the site. Yet as I was researching around I did stumble on some
 resources and tools which I wanted to save for my future self or any reader whom
 might not be too familiar with this themselves.
 
 The [[https://www.w3.org/WAI/standards-guidelines/wcag/][Web Content Accessibility Guidelines]] (WCAG) define calculations to compute
-the [[https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio][contrast ratio]] between a font color against its background color. The
-minimum requirement (Level AA) of contrast is set to ~4.5~ for most regular
-text:
+the [[https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio][contrast ratio]] between a font color against its background color, a
+heuristic for how distinguishable text of a certain color is when overlaid
+another background color. The minimum requirement (Level AA) of contrast is set
+to ~4.5~ for most regular text:
 
 #+begin_quote
 The visual presentation of text and images of text has a contrast ratio of at
@@ -61,20 +60,23 @@ Using tools like [[https://contrastchecker.com/][Contrast Checker]] it is possib
 color combinations to see if your desired color combinations are considered
 accessible enough. The style browser in the developer tools of both ~Firefox~
 and ~Chrome~ (-ium and variants as well of course) include contrast information
-for ~color~ value of the selected element:
+for the ~color~ value of the selected element:
 
 #+ATTR_HTML: :style width: auto :alt Chromium color picker :title Chromium color picker
 [[../images/chromium-color-picker.png]]
+
+I have not spent much effort tweaking the palette to be fully WCAG (enhanced)
+compliant, but already I'm quite happy with the results.
 
 [fn:3] [[https://www.w3.org/TR/WCAG21/#dfn-large-scale][WCAG definition of large scale text]]
 
 * Operating system support
 
 Both desktop and mobile operating systems have acknowledged the need for
-providing high level controls over the visual expression of the OS GUI widget
-components. All major OSes, including iOS and Android as well as the main Linux
-Desktop Environments like Gnome and KDE, provide toggles for enabling "dark
-mode".
+providing high level controls over the visual expression of the OS GUI
+components. All major OSes, including ~iOS~ and ~Android~ as well as the main
+~Linux~ Desktop Environments like ~Gnome~ and ~KDE~, provide toggles for
+enabling "dark mode" or themes with a dark appearance.
 
 Typically it's a simple toggle switch between two possible values of ~light~ and
 ~dark~. Toggling the switch changes the default color scheme from the typical
@@ -88,7 +90,7 @@ schemes are often preferred in low-light environments. For the same reason
 the news or browsing blogs at bedtime the bright light from white backgrounds
 can feel uncomfortable to the eyes.
 
-Applications are able too hook into the OS-level preference of "dark mode" and
+Applications are able to hook into the OS-level preference of "dark mode" and
 adjust the color scheme accordingly. Providing a dark variant of an app's color
 scheme not only caters to a user's general preference, it also helps smooth the
 transitions /between/ apps that all respect the setting, keeping a consistent
@@ -101,9 +103,6 @@ switching of color schemes based on the operating setting. Users who have
 configured their OS accordingly will now see a dark version of the site:
 
 [[../images/light-vs-dark.png]]
-
-I have not yet spent too much effort tweaking the palette to be WCAG compliant,
-but already I'm quite happy with the results.
 
 The first thing I had working was automatic selection of color scheme based on
 browser preference. In other words, no user controlled overrides to force the
@@ -123,8 +122,8 @@ For the most part it's only color overrides that are needed when applying a dark
 mode scheme and for my use-case there are not really any other custom ~CSS~
 rules required.
 
-The simplest way to change out all color values associated with page elements is
-to use ~CSS~ custom properties. Custom properties can easily be overridden in
+The simplest way to change all color values associated with page elements is to
+use ~CSS~ custom properties. Custom properties can easily be overridden in
 selectors with [[https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity][higher specificity]], like the media query in the section above.
 Another benefit of ~CSS~ custom properties is that they provide semantic naming
 of values, which greatly improves the readability of the stylesheet in my
@@ -176,14 +175,14 @@ Although it's nice to have a site that respects the users' preference for
 be interesting to investigate the possibility of a manual override. Perhaps
 something similar to the OS toggle button:
 
-#+ATTR_HTML: :style width: auto :alt Color scheme switcher :title Color scheme switcher
+#+ATTR_HTML: :style max-width: 500px :alt Color scheme switcher :title Color scheme switcher
 [[../images/color-scheme-switcher.gif]]
 
 ** ~CSS~ duplication
 
 With just the automatic rules all specializations of the dark scheme could be
 done within the ~@media~ query. For a manual override something in the document
-itself must change for the browser to know which style to apply. The site is
+itself must change for the browser to know which style to apply. This site is
 statically generated and so I do not want any logic on the server side to
 determine this. The simplest solution client-side is to use ~JavaScript~ and
 store the preference field persisted in ~LocalStorage~.
@@ -192,7 +191,7 @@ store the preference field persisted in ~LocalStorage~.
 to properly apply light and dark styles. In this case the ~JavaScript~ is adding
 a ~data-scheme~ attribute to the document root (~<html>~). Unfortunately though,
 I'm not aware of any way of composing the media query with selectors on the data
-attribute using vanilla ~CSS~ making some duplication unavoidable:
+attribute using vanilla ~CSS~ which makes some duplication unavoidable:
 
 #+begin_src css
 :root[data-scheme="dark"] {
@@ -285,7 +284,7 @@ is the preferred scheme matched by a ~matchMedia()~ query and whatever
 preference the user has explicitly set. When the next state has been determined
 it's also written to ~LocalStorage~ for persistence between page loads.
 
-** Retrieving user preference overrides from ~LocalStorage~
+** Apply manual overrides on page load
 
 On a new page load the ~JavaScript~ must query the ~LocalStorage~ to check if
 the user wants an override of the automatically detected scheme. Based on this
@@ -311,7 +310,7 @@ function setThemeUIState() {
 }
 #+end_src
 
-** Transitions
+** Flicker & transitions
 
 Animating the transition between dark and light mode feels a lot easier on the
 eyes, even with a rather short animation duration. By defining a ~transition~
@@ -336,41 +335,67 @@ Client-side the browser will apply the default styles regardless until the
 ~JavaScript~ code to read the ~LocalStorage~ and apply the overridden scheme
 gets to run. Once the ~JavaScript~ detects that the scheme should be switched it
 changes the ~data-~ attribute on the root element causing the colors to flip to
-the correct ones. With the transition rules enabled this transition will get
-animated which causes a rather sluggish and unpleasant experience while the page
-is being rendered.
+the correct ones. This causes an unpleasant flicker that's hard to avoid should
+the ~JavaScript~ on the site be evaluated slowly.
 
-To avoid the transitions happening during the initial load, the transition class
-is removed from ~<body>~ temporarily. Another issue seems to be that if this
-class is added back too soon the transitions will come back into effect. After
-attempting several tricks, the one that seemed the /most/ stable (none of them
-really are) was to try to predict how long the transition animation would last.
-Then once this time has passed the class is added back to ~<body>~ to re-enable
-transitions.
+Even worse is with the transition rules enabled the colors changing from the
+default to the selected scheme will trigger an animation. This causes a very
+sluggish and unpleasant experience of transitioning colors while the page is
+being rendered. Can't have that.
 
-To do this as cleanly as possible, I've added a helper function:
+To avoid this issue entirely it's possible to serve the original document
+without a ~transitions~ class on the ~<body>~ element and add it at some point
+later from ~JavaScript~. The downside is that transitions won't be enabled for
+users without ~JavaScript~, which might not be much of a loss as the only way
+for them to trigger a scheme change would be through the browser's preferred
+scheme. This is typically done from a modal or settings screen which means the
+user isn't actively looking at the document to notice the transition (or lack
+thereof) in the first place.
+
+[fn:4] [[https://en.wikipedia.org/wiki/Inbetweening][Inbetweening]]
+
+** The +wrong+ long way
+
+I first went down the rabbit hole of trying to have transitions enabled by
+default, disable them from ~JavaScript~ by removing the ~transitions~ class from
+~<body>~ during load, then add it back again later. This caused a bunch of
+trouble.
+
+Firstly, when should the class be added back?
+
+I'm often seeing the transition effect while running the development server and
+it seems that if the class is added back too soon the transitions will come back
+into effect. Or it could be that ~DOM~ changes aren't happening strictly in the order
+of the code. For all I know it might be browser issues.
+
+While I did test various approaches, one fun one in particular which seemed to
+work decently was to try to calculate at which time the transition /would/ have
+finished, and add back the ~transitions~ class at that point.
+
+This uses a somewhat horrible helper function which creates a temporary element
+with transitions enabled simply to read the ~style~ property from ~JavaScript~,
+parse it and wait for the largest transition amount of time to re-apply
+transitions:
 
 #+begin_src js
-withoutTransitions(setThemeUIState);
-#+end_src
+(async function waitToEnableTransitions() {
+  const el = document.createElement('div');
+  el.className = 'transitions';
+  document.body.appendChild(el);
 
-which looks like this:
-
-#+begin_src js
-async function withoutTransitions(callback) {
   try {
     const duration = Math.max(
-      ...getComputedStyle(document.body)
+      ...getComputedStyle(el)
         .transitionDuration
         .split(',')
         .map((x) => parseFloat(x) * (x.match(/ms$/) ? 1 : 1000)));
-    document.body.className = '';
-    callback();
+
     await sleep(duration);
   } finally {
+    document.body.removeChild(el);
     document.body.className = 'transitions';
   }
-}
+})();
 #+end_src
 
 ~sleep()~ by the way is this amazingly useful little thing:
@@ -381,16 +406,18 @@ const sleep = (timeout) => new Promise((resolve) => {
 });
 #+end_src
 
-Now what does this little abomination attempt to do?
+Now what does this abomination attempt to do?
 
-Let's first dissect the long-ish chain of transformations of the ~document.body~ styles:
-
- 1. First ~getComputedStyle(document.body)~ retrieves all computed style properties
-    of the ~<body>~ element.
- 2. The ~transitionDuration~ property is extracted from the set of styles.
- 3. Split the transition duration values on comma using ~split(',')~.
- 4. Each transition duration is then parsed for a floating point number duration
+ 1. Create and insert a temporary ~<div>~ element into the document.
+ 2. Find all computed style properties of the element through
+    ~getComputedStyle(el)~.
+ 3. The ~transitionDuration~ property is extracted from the set of styles.
+ 4. Split the transition duration values on comma using ~split(',')~.
+ 5. Each transition duration is then parsed for a floating point number duration
     value and normalized to ~milliseconds~.
+ 6. Find the largest value with ~Math.max()~.
+ 7. Sleep for the ~duration~ before applying transitions and removing the
+    temporary element.
 
 Since ~CSS~ [[https://developer.mozilla.org/en-US/docs/Web/CSS/time][<time>]] supports two units, ~seconds~ and ~milliseconds~, and the
 ~transitionDuration~ values aren't normalized to one of them when read, the
@@ -402,7 +429,41 @@ duration values. In order to get the biggest (longest) duration, the ~...~ splat
 operator is used to pass all the values to the ~Math.max()~ function which
 computes the largest value.
 
-[fn:4] [[https://en.wikipedia.org/wiki/Inbetweening][Inbetweening]]
+The reason the element has to be /in/ the document before getting the transition
+values is that any non-visible element will have empty transition values,
+causing the computed ~duration~ to simply be ~0~.
+
+** The right way?
+
+Instead of /disabling/ transitions when we don't want them we could try to
+/enable/ them when we do. For this to work the ~transitions~ class must be added
+back whenever the color scheme will change. This can happen in on of two ways:
+
+ 1. The browser preferred scheme changes.
+ 2. The users presses the toggle switch.
+
+Fortunately the browser provides us with events for both of these cases, and
+here is the code:
+
+#+begin_src js
+const schemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+const themeBtn = document.querySelector('button.scheme');
+
+schemeMedia.addEventListener('change', () => {
+  document.body.className = 'transitions';
+  setThemeUIState();
+});
+setThemeUIState();
+
+themeBtn.addEventListener('click', () => {
+  document.body.className = 'transitions';
+  setThemeExplicitly();
+});
+#+end_src
+
+The first even listener is hooked up to the ~change~ event of the ~matchMedia~
+query. The second is of course a regular button ~click~ event. Undeniably it's
+quite lot easier to reason about this code and it serves the purpose well.
 
 * Conclusion
 
@@ -412,8 +473,8 @@ harder to get right than first expectations. It's not very appealing to have web
 sites that are unnecessary busy during load, and especially with big flickers
 between light and dark, as well as unnatural transitions.
 
-The implementation of manually switched schemes is by no means flawless and so
-it would be interesting to know how these kind of issues have been solved by
-others elsewhere.
+The implementation of manually switched schemes with transitions is by no means
+flawless and so it would be interesting to know how these kind of issues have
+been solved by others elsewhere.
 
 * Footnotes
