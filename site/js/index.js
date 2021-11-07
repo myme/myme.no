@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const root = document.querySelector(':root');
   const schemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
-  const themeBtn = document.querySelector('button.theme');
+  const themeBtn = document.querySelector('button.scheme');
   const themeIcon = themeBtn.querySelector('i');
 
   themeBtn.classList.remove('hidden');
@@ -44,35 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
     setThemeUIState();
   }
 
-  const sleep = (timeout) => new Promise(resolve => {
-    setTimeout(resolve, timeout);
+  schemeMedia.addEventListener('change', () => {
+    document.body.className = 'transitions';
+    setThemeUIState();
   });
+  setThemeUIState();
 
-  /**
-   * Invoke `callback` with transitions disabled.
-   *
-   * Attempts to compute the time a transition on <body> will take and
-   * re-enables transitions after that time. It does so by hackisly inspecting
-   * the transitionDelays set on the body element.
-   */
-  async function withoutTransitions(callback) {
-    try {
-      const duration = Math.max(
-        ...getComputedStyle(document.body)
-          .transitionDuration
-          .split(',')
-          .map((x) => parseFloat(x) * (x.match(/ms$/) ? 1 : 1000)));
-      document.body.className = '';
-      callback();
-      await sleep(duration);
-    } finally {
-      document.body.className = 'transitions';
-    }
-  }
-
-  schemeMedia.addEventListener('change', () => { setThemeUIState(); });
-
-  withoutTransitions(setThemeUIState);
-
-  themeBtn.addEventListener('click', () => { setThemeExplicitly(); });
+  themeBtn.addEventListener('click', () => {
+    document.body.className = 'transitions';
+    setThemeExplicitly();
+  });
 });

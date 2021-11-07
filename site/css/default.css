@@ -204,15 +204,16 @@ nav ul li a {
     margin-left: 12px;
 }
 
-nav button.theme {
+nav button.scheme {
     background: none;
     border: none;
     color: var(--main-fg-dim);
     margin-left: 1em;
+    outline: none;
     padding: none;
 }
 
-nav button.theme:hover {
+nav button.scheme:hover {
     color: var(--main-fg);
     cursor: pointer;
 }
