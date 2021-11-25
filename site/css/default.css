@@ -13,6 +13,9 @@
     --well-bg: #f0f9fc;
     --well-fg: #336699;
 
+    --shadow-bg: #bbbbbb;
+    --img-opacity: 1;
+
     --verbatim-bg:#fff6fa;
     --verbatim-fg: #d05070;
     --verbatim-fg-dim: #ffcada;
@@ -46,6 +49,9 @@
     --well-fg: #f2f7ff;
     --well-fg-dim: #e5e9f0;
 
+    --shadow-bg: #222222;
+    --img-opacity: 0.8;
+
     --verbatim-bg: #511827;
     --verbatim-fg: #fff6fa;
     --verbatim-fg-dim: #802c45;
@@ -76,6 +82,9 @@
         --well-bg: #3b4252;
         --well-fg: #f2f7ff;
         --well-fg-dim: #e5e9f0;
+
+        --shadow-bg: #222222;
+        --img-opacity: 0.8;
 
         --verbatim-bg: #511827;
         --verbatim-fg: #fff6fa;
@@ -131,6 +140,17 @@ blockquote {
     border-left: 0.2em solid var(--verbatim-fg-dim);
     padding-left: 1em;
     margin-left: 2em;
+}
+
+img {
+    box-shadow: 0px 0px 10px 0px var(--shadow-bg);
+    border-radius: 5px;
+    opacity: var(--img-opacity);
+    transition: opacity 1s linear;
+}
+
+img:hover {
+    opacity: 1;
 }
 
 img.home-image {
