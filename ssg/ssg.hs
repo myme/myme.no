@@ -3,7 +3,7 @@
 import           Control.Monad
 import           Hakyll hiding (fromList)
 import           System.FilePath
-import           Text.HTML.TagSoup (Tag(..), Attribute)
+import           Text.HTML.TagSoup (Tag(..))
 import qualified Text.Pandoc as Pandoc
 import           Text.Pandoc.Builder
 import           Text.Pandoc.Options
@@ -39,7 +39,7 @@ postCompiler = do
 -- be an embedded video HTML element.
 convertVideoLinks :: [Tag String] -> [Tag String]
 convertVideoLinks (TagOpen "a" attrs : TagText txt : TagClose "a" : rest) =
-  case videoUrl attrs of
+  case videoUrl of
     Just url ->
       TagOpen "video" (("src", url) : defVideoAttrs) :
       TagClose "video" :
@@ -47,7 +47,7 @@ convertVideoLinks (TagOpen "a" attrs : TagText txt : TagClose "a" : rest) =
     _ -> TagOpen "a" attrs : TagText txt : TagClose "a" : convertVideoLinks rest
   where
     defVideoAttrs = [("autoplay", ""), ("controls", ""), ("loop", "")]
-    videoUrl attrs = case splitExtension <$> lookup "href" attrs of
+    videoUrl = case splitExtension <$> lookup "href" attrs of
       Just (path, ".webm") -> Just $ path <> ".webm"
       _ -> Nothing
 convertVideoLinks (tag : rest) = tag : convertVideoLinks rest
