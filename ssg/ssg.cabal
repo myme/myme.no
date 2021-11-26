@@ -10,6 +10,7 @@ executable ssg
                   , hakyll
                   , pandoc
                   , pandoc-types
+                  , tagsoup
   ghc-options:      -Wall
                     -threaded
                     -rtsopts

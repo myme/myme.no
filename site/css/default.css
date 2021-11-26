@@ -142,7 +142,7 @@ blockquote {
     margin-left: 2em;
 }
 
-img {
+img, video {
     box-shadow: 0px 0px 10px 0px var(--shadow-bg);
     border-radius: 5px;
     opacity: var(--img-opacity);
@@ -172,7 +172,7 @@ p iframe {
     width: 280px;
 }
 
-p img {
+p img, p video {
     width: 95%;
 }
 
@@ -359,7 +359,7 @@ p {
     line-height: 1.4em;
 }
 
-p img, p iframe {
+p img, p iframe, p video {
     display: block;
     margin: 0 auto;
     margin-top: 3rem;

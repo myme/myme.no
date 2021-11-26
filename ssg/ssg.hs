@@ -3,6 +3,7 @@
 import           Control.Monad
 import           Hakyll hiding (fromList)
 import           System.FilePath
+import           Text.HTML.TagSoup (Tag(..), Attribute)
 import qualified Text.Pandoc as Pandoc
 import           Text.Pandoc.Builder
 import           Text.Pandoc.Options
@@ -12,6 +13,7 @@ import           Text.Read (readMaybe)
 frontpagePosts :: Int
 frontpagePosts = 20
 
+-- | Compiler for each blog post page
 postCompiler :: Compiler (Item String)
 postCompiler = do
   ident <- getUnderlying
@@ -24,12 +26,32 @@ postCompiler = do
           , writerTemplate = Just tocTemplate
           }
       pandoc = pandocCompilerWith defaultHakyllReaderOptions
-  fmap (withUrls rewriteOrgUrl . demoteHeaders) <$> pandoc writerOpts
+  fmap (withTagList convertVideoLinks . withUrls rewriteOrgUrl . demoteHeaders) <$> pandoc writerOpts
   where
     rewriteOrgUrl url = maybe url (`addExtension` ".html") (stripExtension ".org" url)
     tocTemplate = either error id $ either (error . show) id $
       Pandoc.runPure $ Pandoc.runWithDefaultPartials $
       Pandoc.compileTemplate "" "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
+
+-- | Convert links to videos to <video> HTML elements
+--
+-- Pandoc rewrites all org links to <a> tags. For video files this should rather
+-- be an embedded video HTML element.
+convertVideoLinks :: [Tag String] -> [Tag String]
+convertVideoLinks (TagOpen "a" attrs : TagText txt : TagClose "a" : rest) =
+  case videoUrl attrs of
+    Just url ->
+      TagOpen "video" (("src", url) : defVideoAttrs) :
+      TagClose "video" :
+      convertVideoLinks rest
+    _ -> TagOpen "a" attrs : TagText txt : TagClose "a" : convertVideoLinks rest
+  where
+    defVideoAttrs = [("autoplay", ""), ("controls", ""), ("loop", "")]
+    videoUrl attrs = case splitExtension <$> lookup "href" attrs of
+      Just (path, ".webm") -> Just $ path <> ".webm"
+      _ -> Nothing
+convertVideoLinks (tag : rest) = tag : convertVideoLinks rest
+convertVideoLinks [] = []
 
 main :: IO ()
 main = hakyllWith config $ do
