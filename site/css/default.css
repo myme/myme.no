@@ -143,7 +143,7 @@ blockquote {
 }
 
 img, video {
-    box-shadow: 0px 0px 10px 0px var(--shadow-bg);
+    box-shadow: 0px 0px 10px 0px #22222266;
     border-radius: 5px;
     opacity: var(--img-opacity);
     transition: opacity .5s linear;
@@ -153,17 +153,28 @@ img:hover {
     opacity: 1;
 }
 
-img.home-image {
+img.home-banner {
+    width: 100%;
+}
+
+img.home-avatar {
     float: right;
     margin: 10px;
     width: 8em;
     height: 8em;
+    position: relative;
+    top: -80px;
+    border: 3px solid #d2b8bd;
+    border-radius: 100%;
+    box-shadow: 0px 0px 10px 0px var(--);
+    opacity: 1;
 }
 
 @media (max-width: 35em) {
-    img.home-image {
+    img.home-avatar {
         width: 3.5em;
         height: 3.5em;
+        top: -45px;
     }
 }
 
@@ -188,7 +199,6 @@ p img, p video {
 }
 
 header {
-    border-bottom: 1px solid var(--main-bg-dim);
     text-align: right;
 }
 
