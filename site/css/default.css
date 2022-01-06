@@ -133,7 +133,7 @@ body.transitions, body.transitions * {
 }
 
 main {
-    overflow: auto;
+    overflow: visible;
 }
 
 blockquote {
