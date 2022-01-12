@@ -6,14 +6,22 @@ Here's a list of more or less useful tools that I've created over the years.
 This is just a selection of stuff I have hosted on ~GitHub~. In no particular
 order:
 
-*** [[https://github.com/myme/nixon][nixon]] (Haskell)
-
-Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
-
 *** [[https://github.com/myme/dotfiles][dotfiles]]
 
 These are my dotfiles. There are many like them, but these ones are mine. I
 take my dotfiles very seriously, as any professional programmer should.
+
+*** [[https://github.com/myme/nixon][nixon]] (Haskell)
+
+Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
+
+*** [[https://github.com/myme/xchg][xchg]] (JavaScript + Haskell)
+
+Exchange stuff (text) between things (browsers) using ~WebRTC~.
+
+*** [[https://github.com/myme/aoc][Advent of Code]] (Haskell + Rust)
+
+Solutions for various years of [[https://adventofcode.com/][Advent of Code]].
 
 *** [[https://github.com/myme/piddif][Piddif]] (Haskell)
 
@@ -23,17 +31,16 @@ from a browser. Created because I *know* how to style ~HTML~ using ~CSS~, and I
 
 *** [[https://github.com/cisco-ce/jsxapi][JSXAPI]] (JavaScript)
 
-JavaScript language binding library for Cisco's CE Telepresence endpoints.
+JavaScript language binding library for Cisco's Webex collaboration devices.
 Proprietary software turned open-source. In "widespread" use.
 
 *** [[https://github.com/myme/annodate][Annodate]] (Haskell)
 
 A tiny, simple *nix tool to prepend (customizable) timestamps to input streams.
 
-*** [[https://github.com/myme/eeep][eeep]] (JavaScript)
+*** [[https://github.com/myme/Snake][Snake]] (C)
 
-A tiny, pretty silly, and not so robust little tool to get IP information from a
-*nix system.
+Stupid ~C~ (with ~ncurses~) implementation of the everhungry Snake game.
 
 *** [[https://github.com/myme/elvis][Elvis]] (JavaScript)
 
