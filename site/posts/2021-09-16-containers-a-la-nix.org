@@ -1,5 +1,5 @@
 ---
-title: Containers a la Nix
+title: "NixOS: Containers a la Nix"
 toc: 1
 ---
 
