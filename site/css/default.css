@@ -443,9 +443,17 @@ pre.sourceCode, pre.example {
 
 .note {
     font-style: italic;
-    background-color: var(--well-bg);
+    background: none;
     font-size: 0.9rem;
     padding: 0.2rem 0.7rem;
     margin-top: 2rem;
     margin-bottom: 2rem;
+    border: 0.1rem solid var(--well-bg);
+    border-left: 0.5rem solid var(--well-bg);
+}
+
+.note > :first-child::before {
+    content: "Note:";
+    display: block;
+    margin-bottom: 1rem;
 }
