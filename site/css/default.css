@@ -12,6 +12,7 @@
 
     --well-bg: #f0f9fc;
     --well-fg: #336699;
+    --note-border: #d7edf4;
 
     --shadow-bg: #bbbbbb;
     --img-opacity: 1;
@@ -48,6 +49,7 @@
     --well-bg: #3b4252;
     --well-fg: #f2f7ff;
     --well-fg-dim: #e5e9f0;
+    --note-border: #3b4252;
 
     --shadow-bg: #222222;
     --img-opacity: 0.8;
@@ -82,6 +84,7 @@
         --well-bg: #3b4252;
         --well-fg: #f2f7ff;
         --well-fg-dim: #e5e9f0;
+        --note-border: #3b4252;
 
         --shadow-bg: #222222;
         --img-opacity: 0.8;
@@ -448,8 +451,8 @@ pre.sourceCode, pre.example {
     padding: 0.2rem 0.7rem;
     margin-top: 2rem;
     margin-bottom: 2rem;
-    border: 0.1rem solid var(--well-bg);
-    border-left: 0.5rem solid var(--well-bg);
+    border: 0.1rem solid var(--note-border);
+    border-left-width: 0.5rem;
 }
 
 .note > :first-child::before {
