@@ -1315,8 +1315,12 @@ type checking, code reloading, editor and shell integration is getting close to
 an ideal for me at this point. It's the sum of great technologies spread across
 multiple language barriers all neatly combined with the power of ~nix~.
 
-Got any thoughts or comments on this post? Tweet me a me a message at
-[[https://twitter.com/ubermyme][twitter.com/ubermyme]]
+
+Got any thoughts or comments on this post? Tweet me a me a reply:
+
+#+begin_export html
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">New post: The Ultimate Dev Environment? <a href="https://twitter.com/hashtag/nix?src=hash&amp;ref_src=twsrc%5Etfw">#nix</a> <a href="https://twitter.com/nixos_org?ref_src=twsrc%5Etfw">@nixos_org</a> <a href="https://t.co/Nz22Y9j7MX">https://t.co/Nz22Y9j7MX</a></p>&mdash; Martin Myrseth (@ubermyme) <a href="https://twitter.com/ubermyme/status/1482839450761760770?ref_src=twsrc%5Etfw">January 16, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+#+end_export
 
 [fn:7] With the exception of fetching non-nix dependencies.
 

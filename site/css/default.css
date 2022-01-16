@@ -460,3 +460,8 @@ pre.sourceCode, pre.example {
     display: block;
     margin-bottom: 1rem;
 }
+
+.twitter-tweet {
+    margin-left: auto;
+    margin-right: auto;
+}
