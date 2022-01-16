@@ -347,7 +347,7 @@ ul {
     list-style-type: ' — ';
 }
 
-code, pre {
+code, pre, .note {
     border-radius: 0.2em;
 }
 
@@ -394,7 +394,7 @@ pre.sourceCode, pre.example {
     background-color: var(--well-bg);
     font-size: 0.9em;
     overflow: auto;
-    padding: 10px;
+    padding: 0.7rem;
     margin-top: 2rem;
     margin-bottom: 2rem;
 }
@@ -439,4 +439,13 @@ pre.sourceCode, pre.example {
     color: var(--main-fg);
     font-size: 80%;
     padding: 2px 5px;
+}
+
+.note {
+    font-style: italic;
+    background-color: var(--well-bg);
+    font-size: 0.9rem;
+    padding: 0.2rem 0.7rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
