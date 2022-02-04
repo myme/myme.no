@@ -1,11 +1,9 @@
-{ pkgs ? import ./nix/nixpkgs.nix {} }:
-
-let
-  ssg = pkgs.callPackage ./ssg {};
-  site = pkgs.callPackage ./site { inherit ssg; };
-  image = pkgs.callPackage ./nix/image.nix {
+{ callPackage }:
+rec {
+  ssg = callPackage ./ssg {};
+  site = callPackage ./site { inherit ssg; };
+  image = callPackage ./image.nix {
     imageName = "myme.no";
     nginxWebRoot = site;
   };
-
-in image
+}
