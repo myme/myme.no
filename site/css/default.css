@@ -430,6 +430,10 @@ pre.sourceCode, pre.example {
     line-height: 1em;
 }
 
+del {
+    text-decoration-thickness: 2px;
+}
+
 .TODO {
     background-color: var(--todo-bg);
     color: var(--todo-fg);
