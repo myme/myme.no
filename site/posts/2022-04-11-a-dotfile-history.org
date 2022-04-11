@@ -1,0 +1,361 @@
+---
+title: A Dotfile History
+toc: 2
+---
+
+Much has changed since [[file:2019-01-28-dotfiles.org][I made a brief post]] about my dotfiles and which tools I
+use, but my fondness for managed dotfiles has not changed. Being able to track
+the changes I make to setup on one machine /greatly/ reduces the complexity of
+setting up new ones or apply the changes to the other machines that I use.
+
+This post started as a sub-section of a more elaborate post describing to how to
+manage full system configurations using ~nix flakes~. However, as I continued
+writing I realized that what was intended as a slight digressions grew out of
+proportions and would probably be better as an individual post entirely.
+
+I respect that not everyone cares about how I managed dotfiles in the past, but
+I'm sure most people have a turbulent relationship with dotfiles in one way or
+another so the following post might be interesting to you. In any case, I write
+this mostly for myself to remember.
+
+* Primordial soup, aka rotfiles
+
+In my early days of ~Linux~ I'm fairly certain I didn't have any management of
+dotfiles at all. The first memory I have of any kind of "dotfile curation" was a
+~.vimrc~ copied between myself and a few friends. I definitely did not use any
+form of version control. No application to manage or install configurations. No
+consideration regarding which version or even which /applications/ were
+installed on a machine nor any means of /upgrading/ existing applications and
+configurations.
+
+Configuration files were left to rot or forgotten on decommissioned machines and
+through the means of "customization" Darwinism only the most fit[fn:1] tweaks
+would stand a chance of surviving. While without sensible tracking and diffing,
+useful changes to configuration files on one system would easily be forgotten
+and eventually lost.
+
+[fn:1] [[https://en.wikipedia.org/wiki/Fitness_(biology)][Fitness (biology)]]
+
+* Missing links: ~git init $HOME~
+
+One of the first attempts I remember of keeping my dotfiles on a leash was to
+turn my user home directory into a ~git~ repository. By this I mean to simply
+~git init~ inside of ~$HOME~. At the time it must have felt like the greatest
+idea ever, but it quickly turns out there are a bunch of issues with this
+approach. Most of which I no longer remember, but I imagine just the fact that
+any ~git~ related tool (like a ~bash~ prompt status) used under ~$HOME~ will
+/always/ detect that it's running in /some/ ~git~ worktree would suck quite bad.
+Similarly, without smart use of e.g. ~excludes~ there will always be a bunch of
+untracked files in the worktree.
+
+It must have felt promising then to stumble over the [[https://news.ycombinator.com/item?id=11070797][Ask HN: What do you use to
+manage dotfiles?]] post over at the orange site. The [[https://news.ycombinator.com/item?id=11071754][top-rated comment]] details how
+to rather use a /bare/ git repository somewhere under ~$HOME~ and defining a
+shell alias setting the ~--git-dir~ and ~--work-tree~ to point to the bare repo
+and ~$HOME~ respectively:
+
+#+begin_src bash
+git init --bare $HOME/.myconf
+alias config='/usr/bin/git --git-dir=$HOME/.myconf/ --work-tree=$HOME'
+config config status.showUntrackedFiles no
+#+end_src
+
+The date of the Hacker News thread /(February 10th, 2016)/ suspiciously
+coincides with [[https://github.com/myme/dotfiles/commit/61a3f80babec8c1339391462590dafe7ff30fe7f][the first commit]] of my [[https://github.com/myme/dotfiles][dotfiles repo]] that I still have to this
+date[fn:2]:
+
+#+begin_example
+commit 61a3f80babec8c1339391462590dafe7ff30fe7f
+Author: Martin Myrseth <mm@myme.no>
+Date:   Wed Feb 10 11:59:23 2016 +0100
+
+    Inital import of tuple
+#+end_example
+
+[[https://github.com/myme/dotfiles/blob/61a3f80babec8c1339391462590dafe7ff30fe7f/.zshrc#L45][From the ~.zshrc~]] of that commit:
+
+#+begin_src bash
+alias conf="GIT_DIR=~/.dotfiles GIT_WORK_TREE=~ git"
+#+end_src
+
+I don't think I was very impressed by this workflow because [[https://github.com/myme/dotfiles/commit/6b0faf6][less than a year
+later]] I seem to have made the decision to switch setup again (without a mention
+as to why):
+
+#+begin_example
+commit 6b0faf6ced6b20669fb3bab8b68617e94ea3ffb9
+Author: Martin Myrseth <mm@myme.no>
+Date:   Wed Dec 21 10:53:02 2016 +0100
+
+    Switch to a GNU Stow based setup
+#+end_example
+
+[fn:2] I seriously hope that I had /some/ sort of tracking prior to this commit,
+because 2016 is really not that long ago. Let's assume I filed some sort of
+configuration bankruptcy at that point and started a repo from scratch.
+
+* Link farming: The (GNU) stown age
+
+As the commit message above hints at I made the decision to stop having ~git~
+mess about with files in my user home and use a more specialized tool the job.
+[[https://www.gnu.org/software/stow/][GNU stow]] is a general purpose "link farm" manager which merges and replicates
+distinct directory structures in a single location using symbolic links. In fact
+it's actually quite similar to how complete ~nix~ profiles are built from
+merging together the build outputs of many smaller ~nix~ packages using
+symbolic links.
+
+This is quite useful for dotfiles management as the symbolic links allow for all
+the configurations to be stored in a git repository in an arbitrary location on
+disk, but then installed into ~$HOME~. At the same time the symbolic links
+ensure that changes made to files /under/ ~$HOME~ are reflected back into the
+repository.
+
+One thing that I think makes the ~Stow~ approach superior to the bare ~git~ repo
+approach is that ~Stow~ can manage sub-parts of the configurations
+independently. It's relatively easy to exclude or remove unwanted sections of
+the configurations simply by /not/ installing them or using ~Stow~'s remove
+action. ~git~ on the other hand would see such a removal as a file deletion
+forcing either keeping a dirty local configuration state or having to create
+dedicated branches for host configurations[fn:3].
+
+One of the downsides of ~Stow~ is that it forces the directory structure in the
+source location to match how it's supposed to end up in the destination
+location. This can put unwanted restrictions on the structure of a configuration
+repository. Additionally, since ~Stow~ only manages files and directory
+structures it does not provide much help in building and managing /applications/
+(this is a major selling-point for e.g. ~Home Manager~, as we'll get to).
+
+In order to ensure that the applications (and plugins) that I use were available
+I resorted to a combination of ~git submodules~:
+
+#+begin_src bash
+❯ git submodule
+-21063bcd924bd8efb65eb36b2fe12ffd6ed1b6a5 bash/.bash/bash-git-prompt
++c7753adbb301dcb647dc96d182c28b228551890e emacs/.emacs.d (v2.0-14235-gc7753adbb)
+-f0fe79dd3bb4b782ad6040c970b4bfc818729f05 fzf/apps/fzf
+-d049fdfeef422933912c66245a50904ee98f86d0 haskell/apps/haskell-ide-engine
+-2f9947b7b966a0da31528f987bee3bf274c4ae82 i3/apps/i3-gnome
+-909900a553443beb75ee47f7354da26b43a2c1b6 shell/apps/gogh
+ 26d9ace1b47f4591b2afdf333442a498311b6ace tmux/.tmux/plugins/tpm (v3.0.0-45-g26d9ace)
+#+end_src
+
+and a ~Makefile~:
+
+#+begin_src makefile
+APT := sudo apt
+
+emacs:
+	$(APT) install build-essential mu4e isync
+	$(APT) build-dep emacs25
+	(cd ~/apps/emacs && ./autogen.sh && ./configure && make -j)
+	./install emacs
+
+# https://fontawesome.com/v4.7.0
+fonts:
+	wget https://fontawesome.com/v4.7.0/assets/font-awesome-4.7.0.zip -P /tmp
+	xdg-open /tmp/font-awesome-4.7.0.zip
+
+i3:
+	$(APT) install i3 i3blocks compton rofi gnome-flashback gnome-power-manager gnome-screensaver feh session-shortcuts
+	sudo make -C i3/apps/i3-gnome install
+
+haskell:
+	$(APT) install haskell-stack
+	stack upgrade
+	stack install hindent hlint
+
+python:
+	$(APT) install virtualenv virtualenvwrapper
+
+term:
+	wget -O gogh https://git.io/vQgMr && chmod +x gogh && ./gogh && rm gogh
+
+.PHONY: all emacs fonts haskell i3 python term
+#+end_src
+
+I shudder looking back at this "crap", but to be honest things could probably
+have been much worse. At least with a ~Makefile~ there /is/ a place listing
+which packages and processes /likely/ were run on a machine. I say "likely"
+because there's no guarantee all commends were ever run.
+
+Of course there are a number of obvious flaws here:
+
+Building ~emacs~ from source this way requires system-wide installation of
+~emacs~'s build dependencies. There were a bunch of auxiliary applications to
+ensure ~i3~ ran the way I wanted, kept "miles" away from the ~i3~ configuration.
+Installing ~Haskell~ and ~Python~ tools /system-wide/ with ~apt~, while having a
+much more manually download process for fonts and theme manager applications.
+Perhaps most of all there seems to be very little cohesion between applications
+and their associated configurations, as well as no consistent tracking of
+installed content. Cleanup must have been a pain (or I never did).
+
+[fn:3] I do manage my hosts and configurations using branches regardless.
+However, less differences between ~git~ branches makes porting configurations
+between hosts much easier.
+
+* The Age of Enlightenment: NixOS
+
+Fate eventually lead me to [[file:2019-07-01-nixos-into-the-deep-end.org][install NixOS]] on my first couple of machines back
+in 2019. And for a while I stuck with my ~stow~ based dotfile setup.
+
+There's really not a whole lot of configuration necessary to have a fully
+functional ~NixOS~ installation. The defaults are often enough to get a machine
+running, with the exception of some hardware or network configuration. In fact,
+I found the ~NixOS~ text-based installation flow is so surprisingly simple I
+fear people run a risk of gaining unfounded[fn:4] confidence early on in their first
+~NixOS~ encounter.
+
+According to the [[https://search.nixos.org/options][NixOS options search]] ~NixOS~ has thousands of options. Not only
+has ~NixOS~ the appeal of reproducibility and declarative configuration, but
+every part of a system configuration can be tweaked and molded into whichever
+shape.
+
+However, I suspect for the majority of people who venture into the world of
+~NixOS~ and who do not have a pre-existing experience with ~nix~ start off by
+only managing /system/ configurations declaratively using
+~/etc/nixos/configuration.nix~. There's no obvious way for newcomers to include
+their user profiles and everything else under ~$HOME~ in the global system
+~NixOS~ configuration.
+
+Even when using ~NixOS~ it's easy to miss out of the /full/ advantage of using
+~nix~ through and through. I assume many newbies (like myself at that point)
+start by managing ~$USER~ apps imperatively using ~nix-env~. Then eventually
+thinking that this is weirdly inconsistent with the declarative ~nixos-rebuild~
+workflow. I turned to the [[https://nixos.org/manual/nixpkgs/stable/#sec-declarative-package-management][Declarative Package Management]] section of the [[https://nixos.org/manual/nixpkgs/stable/][nixpkgs
+manual]]:
+
+#+begin_src nix
+# Put something like this into ~/.config/nixpkgs/config.nix
+{
+  packageOverrides = pkgs: with pkgs; {
+    myPackages = pkgs.buildEnv {
+      name = "my-packages";
+      paths = [
+        aspell
+        bc
+        coreutils
+        gdb
+        ffmpeg
+        nixUnstable
+        emscripten
+        jq
+        nox
+        silver-searcher
+      ];
+    };
+  };
+}
+#+end_src
+
+This would allow installing everything using ~nix-env -iA nixpkgs.myPackages~,
+which surely felt a whole lot better. It's a nice complement to the ~stow~ based
+approach providing a means of installing /applications/. This means I couldn't
+yet purge ~Stow~ from my setup as it was responsible for providing the configs
+of all the apps I might choose to install. Perhaps worse is the fact that there
+are scary impurities of using ~packageOverrides~ (and global ~overlays~) that I
+won't elaborate on now.
+
+[fn:4] Using ~NixOS~ merely as a /consumer/ of packages is actually very
+straight forward in many cases. The learning curve quickly steepens once you
+start looking into packaging and building your own software with ~nix~.
+
+* The Industrial Age: Home manager
+
+It's inevitable for anybody who survive long enough in the ~NixOS~ world to
+encounter [[https://github.com/nix-community/home-manager][Home Manager]]. The ~README.md~ states:
+
+#+begin_quote
+This project provides a basic system for managing a user environment using the
+~Nix~ package manager together with the ~Nix~ libraries found in ~Nixpkgs~. It
+allows declarative configuration of user specific (non global) packages and
+dotfiles.
+#+end_quote
+
+~Home Manager~ reuses the same concepts and conventions found in the ~NixOS~
+configurations to create a way to manage user profiles and dotfiles in pretty
+much the same declarative way. Not only does ~Home Manager~ provide a
+/framework/ for building such configurations, but also curates and exposes
+modules for a [[https://nix-community.github.io/home-manager/options.html][multitude of options]] for many well-known applications and
+services.
+
+One major shift of switching over to ~Home Manager~ is that not only does it
+generate /configuration/ files, it also ensures all the required /software/ for
+the given configuration is built. This is /huge/! With every approach I've used
+up to this point executables had to be installed separately from configurations.
+This could easily lead to inconsistencies between application versions and their
+respective configurations. ~Home Manager~ ensures that applications and
+configurations stay in sync through community effort.
+
+I was skeptical at first to what I felt was handing over control of all
+configurations to pre-written "templates", so I didn't immediately jump on the
+band wagon. However, I eventually made the switch and quickly realized which
+superior solution to dotfile management it is. Furthermore, not only did it make
+my ~NixOS~ machines configuration better, it also works well on non-~NixOS~
+machines greatly simplifying the configuration management across all the
+machines I use.
+
+#+begin_example
+commit 2ed03a3abd85fa35a2f9ab47ded79d1dce9b3826
+Author: Martin Øinæs Myrseth <myrseth@gmail.com>
+Date:   Fri Dec 6 15:32:20 2019 +0100
+
+    nix: Add home.nix
+
+    Initial commit of Home Manager
+#+end_example
+
+At this point I had a fairly automated and reproducible setup. My ~NixOS~
+configuration was managing all system setup, then separately invoking ~Home
+Manager~ to generate my ~$USER~ configuration. Life was good, and has been good
+for a long time. In fact so good that I didn't really see the flaw with this
+setup:
+
+#+begin_quote
+Hey yo! I know you like your config and all, but you know, it's still not like
+managed as a /single/ declarative unit.
+#+end_quote
+
+Aw, poop... You're right.
+
+Re-provisioning a new or existing machine to match a certain configuration still
+requires a /combination/ of commands for updates in addition to some first-time
+initial setup of e.g. ~Home Manager~. Without up-to-date documentation this is
+bound to be non-reproducible and can easily lead to some pain.
+
+* The Next +Ice+ Snowflake Age
+
+What we want is a machine configuration where pretty much /everything/ is
+declaratively defined in a single ~nix~ configuration hierarchy. ~Home Manager~
+has a ~NixOS~ module, which allows it to be /integrated/ into the build of
+~NixOS~ generations. This removes the disconnect between system and user
+settings.
+
+One remaining issue is that typically such a setup relies on ~nix~ channels to
+determine the specific version of [[https://github.com/NixOS/nixpkgs][nixpkgs]] being used to build the current
+~NixOS~ generation. Channels are designed to be moving targets and which means
+that a configuration that built or ran successfully at some point can break in
+the future if the channel has been updated.
+
+This non-determinism is one of the problems that [[https://www.tweag.io/blog/2020-05-25-flakes/][flakes]] tries to address. For
+the last year or so I've increasingly adopted ~flakes~ into my workflow and have
+really begun to enjoy the benefits they bring. Locking down software project
+inputs is done by /default/ and with less ceremony than earlier, which ensures I
+won't forget to [[https://nixos.wiki/wiki/FAQ/Pinning_Nixpkgs][pin]] manually.
+
+So...
+
+By combining the ~Home Manager~ module for ~NixOS~ and integrating everything
+into a ~flake~ I've eventually reached the point where pretty much everything
+required to get my machines up and running is handled through a single build
+step. Not only that, by using ~git~ to track configuration history and ~flakes~
+pinning dependencies I can be much more certain that configurations that have
+worked in the past will continue to work in the future. This is great for
+rolling back experimental updates. Furthermore, with an automatically pinned
+configuration there's much less hassle to follow the rolling release of ~NixOS~
+unstable. Should stuff break, it's just a matter of rolling back and sitting
+quietly for a little while.
+
+I feel it's a very exciting setup and would like to dive into the details, but
+those are saved for another post... Stay tuned!
+
+* Footnotes
