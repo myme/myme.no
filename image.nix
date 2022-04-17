@@ -1,4 +1,5 @@
 { dockerTools
+, lib
 , nginx
 , runCommand
 , symlinkJoin
@@ -10,6 +11,7 @@
 }:
 
 let
+  feedCorsConf = lib.readFile ./feed-cors.conf;
   nginxConf = writeText "nginx.conf" ''
     user nobody nobody;
     daemon off;
@@ -24,6 +26,7 @@ let
         index index.html;
         location / {
           root ${nginxWebRoot};
+          ${feedCorsConf}
         }
       }
     }
