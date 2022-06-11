@@ -14,7 +14,9 @@
         myme-site = parent.callPackage ./. { };
       });
 
-      defaultPackage.${system} = pkgs.myme-site.image;
+      packages.${system} = pkgs.myme-site;
+
+      defaultPackage.${system} = self.packages.${system}.image;
 
       devShell.${system} = pkgs.haskellPackages.shellFor {
         packages = ps: [ ssg ];
