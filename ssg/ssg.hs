@@ -33,6 +33,15 @@ postCompiler = do
       Pandoc.runPure $ Pandoc.runWithDefaultPartials $
       Pandoc.compileTemplate "" "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
 
+-- | Returns true for any post which is not a preview
+--
+-- Useful for hiding experimental posts from the frontpage, posts & feed.xml.
+-- Posts are still built and accessible, but only through direct link.
+postIsNotPreview :: Item String -> Compiler Bool
+postIsNotPreview item = do
+  preview <- getMetadataField (itemIdentifier item) "preview"
+  pure (preview /= Just "true")
+
 -- | Convert links to videos to <video> HTML elements
 --
 -- Pandoc rewrites all org links to <a> tags. For video files this should rather
@@ -78,7 +87,10 @@ main = hakyllWith config $ do
     create ["posts.html"] $ do
       route idRoute
       compile $ do
-        posts <- recentFirst =<< loadAll "posts/*"
+        posts <-
+          loadAll "posts/*" >>=
+          filterM postIsNotPreview >>=
+          recentFirst
         let postsCtx =
               constField "title" "Posts" <>
               listField "posts" postCtx (return posts) <>
@@ -101,19 +113,25 @@ main = hakyllWith config $ do
     create ["feed.xml"] $ do
       route idRoute
       compile $ do
-        posts <- recentFirst =<< loadAllSnapshots "posts/*" "content"
+        publicPosts <-
+          loadAllSnapshots "posts/*" "content" >>=
+          filterM postIsNotPreview >>=
+          recentFirst
         let feedCtx = postCtx <> bodyField "description"
-        renderRss feedConfig feedCtx posts
+        renderRss feedConfig feedCtx publicPosts
 
     match "index.html" $ do
       route idRoute
       compile $ do
-        latestPosts <- take frontpagePosts <$> (recentFirst =<< loadAllSnapshots "posts/*" "content")
+        publicPosts <-
+          loadAllSnapshots "posts/*" "content" >>=
+          filterM postIsNotPreview >>=
+          recentFirst
         projects <- loadSnapshotBody "projects.org" "headers"
         let indexCtx =
               constField "title" "Home" <>
               constField "projects" projects <>
-              listField "posts" postCtx (return latestPosts) <>
+              listField "posts" postCtx (pure $ take frontpagePosts publicPosts) <>
               defaultContext
 
         getResourceBody
