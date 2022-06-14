@@ -1,0 +1,1016 @@
+---
+title: "NixOS: Confederation"
+toc: 2
+---
+
+In [[file:2022-04-11-a-dotfile-history.org][the previous post]] I took a look back on my dotfiles journey through the last
+decade or so. That post started as a preface to this one, but grew to the point
+where it deserved a post of its own.
+
+As I've journeyed deeper into the world of ~NixOS~ I have realized that there
+were some major issues with the way I managed machine configurations. What I'm
+presenting here is the outcome of that cleanup work. Now I have something I'm
+quite happy with and I rounded off the last post by saying:
+
+#+begin_quote
+I feel it's a very exciting setup and would like to dive into the details, but
+those are saved for another post... Stay tuned!
+#+end_quote
+
+The triggering moment for when I finally decided to refresh my system
+configurations turned out to be [[https://twitter.com/mitchellh/status/1452721115009191938][this tweet]] from Mitchell Hashimoto, which again
+led me to his [[https://www.youtube.com/watch?v=ubDMLoWz76U&t=42s][YouTube video]] demonstrating his ~macOS~ virtual machine setup.
+Since I've recently been [[file:2022-01-16-nixos-the-ultimate-dev-environment.org][investing more time and effort]] into flakes and combined
+with an increasing annoyance of the state of my system configuration it was the
+perfect timing to start basing configurations fully on [[https://www.tweag.io/blog/2020-05-25-flakes/][nix flakes]]. To begin with
+I started copying pretty the same things Mitchell was doing, but I quickly
+started digging more into how others were building ~NixOS~ from ~flakes~ (see
+"Note:" section below). I have since borrowed whichever tricks and methods I
+found neat or useful, and so I've gathered inspiration from quite a few sources
+in the end.
+
+The title of the post is obviously a word play on "configuration" and
+"federation". I've gone through the process of uniting together the various bits
+and pieces of a previously unstructured configurations repository into something
+which feels much more consistent, not just as a source tree, but also the
+machine states it generates. Components can be shared across various deployments
+and architectures, yet configurable to accommodate for special needs. With
+higher guarantees for reproducibility the configurations are now also much more
+robust.
+
+#+begin_note
+I only started experimenting with this setup not too long ago and so I consider
+it highly immature still.
+
+Neither am I a pioneer in this space by any means and there are other
+configurations much more mature than this personal experiment of mine. Here are
+a notable few of the ones I've come across so far:
+
+ - [[https://github.com/divnix/devos][devos]] by DivNix, elaborate configuration "framework".
+ - [[https://github.com/hlissner/dotfiles][hlissner/dotfiles]] by Henrik Lissner (of [[https://github.com/hlissner/doom-emacs][~Doom Emacs~]]).
+ - [[https://github.com/utdemir/dotfiles][utdemir/dotfiles]] by Utku Demir.
+ - [[https://github.com/gytis-ivaskevicius/flake-utils-plus][gytis-ivaskevicius/flake-utils-plus]] & [[https://github.com/gytis-ivaskevicius/nixfiles][gytis-ivaskevicius/nixfiles]].
+ - [[https://github.com/Mic92/dotfiles][Mic92/dotfiles]]
+
+The [[https://github.com/divnix/devos#shoulders][~devos~ README.md]] also lists the "Shoulders" upon which it's built. Go check
+it out for more inspiration!
+
+I should also note that if you, the reader, feels as if I'm reinventing the
+great stuff the projects above already solve, you're absolutely right! One of my
+goals with this migration has been to further deepen my knowledge of ~NixOS~
+machine configuration, usage of the ~nix~ language and ~flakes~. And I'm bound
+to make a bunch of silly mistakes people have made before me of course, but
+therein lies some of the fun!
+#+end_note
+
+* The flake
+
+Let's gets started by jumping straight in to the action by looking at the [[https://github.com/myme/dotfiles/blob/0014937dd90f947f1c72a1e430db9e2c5dacbee4/flake.nix][flake.nix]].
+
+#+begin_note
+This post will assume some familiarity with ~nix flakes~. I suggest reading up
+some of the following resources to get your bearings on the basics:
+
+- [[file:2022-01-16-nixos-the-ultimate-dev-environment.org][myme.no - NixOS: The Ultimate Dev Environment?]]
+- [[https://xeiaso.net/blog/nix-flakes-1-2022-02-21][xeiaso.net/blog - Nix Flakes: an Introduction]] (Check out the full ~Nix
+  Flakes~ ongoing series)
+- [[https://www.tweag.io/blog/2020-05-25-flakes/][tweag.io/blog - Nix Flakes, Part 1: An introduction and tutorial]]
+#+end_note
+
+The ~flake.nix~ is included as follows in its entirety, it's not too long:
+
+#+begin_src nix
+{
+  description = "myme's NixOS configuration with flakes";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixos-wsl.url = "github:nix-community/NixOS-WSL";
+    flake-utils.url = "github:numtide/flake-utils";
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    home-manager = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    doomemacs = {
+      url = "github:doomemacs/doomemacs";
+      flake = false;
+    };
+    i3ws.url = "github:myme/i3ws";
+    annodate.url = "github:myme/annodate";
+    nixon.url = "github:myme/nixon";
+    wallpapers = {
+      url = "gitlab:myme/wallpapers";
+      flake = false;
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, home-manager, ... }@inputs:
+    let
+      system = "x86_64-linux";
+      overlays = [
+        inputs.agenix.overlay
+        inputs.i3ws.overlay
+        inputs.annodate.overlay
+        inputs.nixon.overlay
+        self.overlay
+      ];
+      lib = nixpkgs.lib.extend (final: prev:
+        import ./lib {
+          inherit home-manager;
+          lib = final;
+        });
+    in {
+      overlay = import ./overlay.nix {
+        inherit lib home-manager;
+        inherit (inputs) doomemacs wallpapers;
+      };
+
+      # NixOS machines
+      nixosConfigurations = lib.myme.allProfiles ./machines (name: file:
+        lib.myme.makeNixOS name file { inherit inputs system overlays; });
+
+      # Non-NixOS machines (Fedora, WSL, ++)
+      homeConfigurations = lib.myme.nixos2hm {
+        inherit (self) nixosConfigurations;
+        inherit overlays system;
+      };
+    } // flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = import nixpkgs { inherit system overlays; };
+      in {
+        # All packages under pkgs.myme.apps from the overlay
+        packages = pkgs.myme.apps;
+
+        devShells = {
+          # Default dev shell (used by direnv)
+          default = pkgs.mkShell { buildInputs = with pkgs; [ agenix ]; };
+
+          # For hacking on XMonad
+          xmonad = pkgs.mkShell {
+            buildInputs = with pkgs;
+              [ (ghc.withPackages (ps: with ps; [ xmonad xmonad-contrib ])) ];
+          };
+        };
+      });
+}
+#+end_src
+
+And as seen by ~nix~:
+
+#+begin_example
+❯ nix flake show .
+git+file:///home/myme/code/dotfiles?ref=refs%2fheads%2fmain&rev=37e5dccd614bfb4b6e369697e7c285327ef59668
+├───devShell
+│   └───x86_64-linux: development environment 'nix-shell'
+├───homeConfigurations: unknown
+├───nixosConfigurations
+│   ├───Tuple: NixOS configuration
+│   ├───map: NixOS configuration
+│   ├───nuckie: NixOS configuration
+│   ├───qemu-server: NixOS configuration
+│   ├───qemu-vm: NixOS configuration
+│   └───vmware: NixOS configuration
+├───overlay: Nixpkgs overlay
+└───packages
+    └───x86_64-linux
+        └───git-sync: package 'git-sync-0d0s33l2..hhjz'
+#+end_example
+
+I try to keep the ~flake.nix~ "high level" and easy to navigate. So I factor out
+unnecessary details into helper functions and ~nix~ expressions that typically
+gets placed into ~./lib~.
+
+** Inputs
+
+Everything under ~inputs~ are the /inputs/ (aka. dependencies) of the
+configuration flake. To ensure reproducibility all inputs are locked in the
+[[https://github.com/myme/dotfiles/blob/d57fc7a4e98d96688b000ccbd3e9349c66a3afd3/flake.lock][flake.lock]] file which is managed by ~nix~ commands, but is also added as a ~git~
+file to track its history of changes.
+
+The ~inputs~ typically list other ~nix flakes~ that have a similar structure to
+the one from my dotfiles repo. The ~<input>.url~ field is resolved using [[https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-registry.html][nix
+registry]] symbolic identifiers and we can also tell ~nix~ that an input is /not/
+a ~flake~ by using ~<input>.flake = false~. This lets a ~flake~ track and pin
+for instance /any/ ~git~ repository, which is very convenient. In my case I use
+that for tracking [[https://github.com/doomemacs/doomemacs][Doom Emacs]] and my wallpaper repo.
+
+** Outputs
+
+The ~outputs~ (more interestingly that the ~inputs~) list the various
+derivations, configurations and environments that the ~flake~ can generate. In
+this case it's the following:
+
+ - A ~nix~ overlay
+ - A set of ~x86-64~ packages
+ - NixOS configurations
+ - [[https://github.com/nix-community/home-manager][Home Manager]] user profiles
+ - A development environment
+
+The ~outputs~ section starts with the parameter list, or perhaps more correctly
+the destructuring of the input attribute set. ~Flake~ outputs should define a
+function which is applied to the attribute set of ~flake~ inputs. Only a few of
+the inputs are bound in the function parameter list since ~@inputs~ is used to
+pass on all the inputs to helper functions later on.
+
+#+begin_src nix
+  outputs = { self, nixpkgs, flake-utils, home-manager, ... }@inputs:
+#+end_src
+
+** Nixpkgs and overlays
+
+After the parameters come a few local variables: ~system~, ~overlays~ and ~pkgs~.
+
+#+begin_src nix
+    let
+      system = "x86_64-linux";
+      overlays = [
+        inputs.agenix.overlay
+        inputs.i3ws.overlay
+        inputs.annodate.overlay
+        inputs.nixon.overlay
+        self.overlay
+      ];
+      pkgs = import nixpkgs {
+        inherit system overlays;
+      };
+#+end_src
+
+The ~system~ is hard-coded to ~x86-64~[fn:1] and used to instantiate ~pkgs~ from
+the ~nixpkgs~ input. In the "pure" world of ~flakes~ the ~system~ argument to
+~nixpkgs~ cannot be deferred from the running system and must always be
+provided. The last one is ~overlays~ which is just a list of all the ~nix~
+overlays in use. Most overlays come from the other input flakes, but it also
+includes its own overlay from ~self.overlay~:
+
+#+begin_src nix
+      overlay = import ./overlay.nix {
+        inherit home-manager;
+        inherit (inputs) doom-emacs wallpapers;
+      };
+#+end_src
+
+The overlay of the ~flake~ just adds library functions, apps and packages that
+are bundled along with the dotfiles. This makes them available to the NixOS
+configurations and Home Manager profiles as well as possible to export using:
+
+#+begin_src nix
+      # All packages under pkgs.myme.apps from the overlay
+      packages = pkgs.myme.apps;
+#+end_src
+
+[fn:1] For the time being I don't have any interesting machines that run on
+anything other than ~x86-64~. This is why I haven't made the ~flake~ map over
+other system architectures, although that's a very trivial fix to make should
+the need arise.
+
+** NixOS & Home Manager
+
+I find that the next part of the ~flake.nix~ is quite interesting. This is the
+~NixOS~ configurations and ~Home Manager~ user profiles generated from my
+dotfiles:
+
+#+begin_src nix
+      # NixOS machines
+      nixosConfigurations = pkgs.myme.lib.allProfiles ./machines (name: file:
+        pkgs.myme.lib.makeNixOS name file {
+          inherit inputs system overlays;
+        });
+
+      # Non-NixOS machines (Fedora, WSL, ++)
+      homeConfigurations = pkgs.myme.lib.nixos2hm {
+        inherit overlays system nixosConfigurations;
+      };
+#+end_src
+
+This makes use of a couple of (home grown) library functions that automatically
+generate host/machine configurations and associated user profiles from files on
+disk. Instead of enumerating all machines in the ~flake.nix~ there is an
+~allNixFiles~ function that finds files and directories under ~./machines/~ and
+treats them as individual host configurations:
+
+#+begin_src nix
+{ lib }:
+
+dir:
+
+let
+  isNixFile = { name, type }: type == "directory" || lib.strings.hasSuffix ".nix" name;
+
+in builtins.map (x: x.name) (builtins.filter isNixFile
+  (lib.mapAttrsToList (name: type: { inherit name type; })
+    (builtins.readDir dir)))
+#+end_src
+
+Host names are inferred from the basename of each directory entry under ~./machines/~:
+
+#+begin_example
+❯ tree machines/
+machines/
+├── map.nix
+├── nuckie.nix
+├── qemu-server.nix
+├── qemu-vm.nix
+├── Tuple.nix
+└── vmware.nix
+#+end_example
+
+#+begin_note
+This lists only the /public/ part of my dotfiles and does not show an example of
+a "directory" based host configuration. Basically that's similar to the
+top-level ones except defined as a directory with a ~default.nix~ and possibly
+auxiliary files.
+#+end_note
+
+The ~nixos2hm~ function extracts user profiles from all the ~NixOS~ machine
+configurations, exposing the ~Home Manager~ profiles for all users on all
+machines. This is particularly useful for non-~NixOS~ environments so I can
+reuse "global" ~NixOS~ configurations even though I don't build a complete
+~NixOS~ system profile. As a more concrete example, I use the machine ~role~
+configuration to determine whether or not the machine should have graphical
+tools installed or not. By defining a "mock" ~NixOS~ machine for these machines
+the ~Home Manager~ part of the configuration can still depend on the ~NixOS~
+configurations and make decisions based on the values:
+
+#+begin_src nix
+{ home-manager, lib }:
+
+{ overlays, system, nixosConfigurations }:
+
+let
+  removeHostname = str: builtins.head (builtins.split "@" str);
+  userAtHostConfig = { host, config }: (
+    lib.mapAttrsToList
+      (username: hmConfig: {
+        name = "${username}@${host}";
+        value = hmConfig.home;
+      })
+      config.home-manager.users
+  );
+
+in with builtins; (listToAttrs (concatMap userAtHostConfig
+  (lib.mapAttrsToList (host: config: {
+    inherit host;
+    inherit (config) config;
+  }) nixosConfigurations)))
+#+end_src
+
+Since ~nix flake show~ only lists ~homeConfiguration~ as "unknown" we can use
+the ~nix repl~ to list all user profiles pulled from the machine configurations:
+
+#+begin_example
+❯ nix repl
+Welcome to Nix 2.9.0pre20220530_af23d38. Type :? for help.
+
+nix-repl> :lf .
+Added 13 variables.
+
+nix-repl> builtins.attrNames homeConfigurations
+[
+  "myme@Tuple"
+  "myme@map"
+  "myme@nuckie"
+  "myme@vmware"
+  "nixos@qemu-server"
+  "nixos@qemu-vm"
+  "nixos@vmware"
+  "user@qemu-server"
+]
+#+end_example
+
+** Development shell
+
+Finally there is the ~devShells~. Flakes can define multiple shell development
+environments. The ~Haskell~ toolchain involved with hacking on ~xmonad~ is quite
+heavy, so I keep that in a separate shell environment called ~xmonad~ that's not
+used by default. In the default shell I currently only expose [[https://github.com/ryantm/agenix][agenix]] which I use
+to manage the small set of secrets (aka. semi-sensitive data).
+
+#+begin_src nix
+        devShells = {
+          # Default dev shell (used by direnv)
+          default = pkgs.mkShell { buildInputs = with pkgs; [ agenix ]; };
+
+          # For hacking on XMonad
+          xmonad = pkgs.mkShell {
+            buildInputs = with pkgs;
+              [ (ghc.withPackages (ps: with ps; [ xmonad xmonad-contrib ])) ];
+          };
+        };
+#+end_src
+
+* Machines
+
+The configurations I push to [[https://github.com/myme/dotfiles][github.com/myme/dotfiles]] is of course not the whole
+truth of the configurations I have for machines. Traditionally I've been keeping
+various machine configurations off in separate host branches. Each branch with a
+set of tweaks specific for that machines only. These tweaks are mostly mutually
+exclusive since that's the whole point of not propagating it back to the shared
+~main~ branch:
+
+#+ATTR_HTML: :style max-width: 500px :alt "dotfiles git branches" :title "dotfiles git branches"
+[[file:../images/dotfiles-git-graph.png]]
+
+My workflow has been to make changes to a machine and try it out for anything
+from a couple of seconds to weeks or even months. Changes that are useful for
+other machines are rebased to the beginning of the "host branch" and the ~main~
+branch is updated by a simple fast-forward to the rebased commit. All other host
+branches are then rebased in turn on top of the ~main~ branch. Ideally the set
+of tweaks should be few to minimize general configuration differences between
+machines as well as reducing the hassle of conflicts while rebasing.
+
+The boilerplate of setting up a configuration for each machine is done with the
+[[https://github.com/myme/dotfiles/blob/5ed40879b3ec360f6ac3184775cab7e2c0377225/lib/makeNixOS.nix][makeNixOS]] function:
+
+#+begin_src nix
+name: machineFile: { inputs, overlays, system }:
+
+let
+  inherit (inputs) self agenix home-manager nixpkgs nixos-wsl;
+
+in nixpkgs.lib.nixosSystem {
+  inherit system;
+  modules = [
+    ../system
+    ../users/root.nix
+    agenix.nixosModule
+    nixos-wsl.nixosModules.wsl
+    home-manager.nixosModules.home-manager
+    machineFile
+    {
+      # Hostname
+      networking.hostName = name;
+
+      # Let 'nixos-version --json' know about the Git revision
+      # of this flake.
+      system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
+
+      # Nix + nixpkgs
+      nix.registry.nixpkgs.flake = nixpkgs;  # Pin flake nixpkgs
+      nixpkgs.overlays = overlays;
+    }
+  ];
+}
+#+end_src
+
+It includes several upstream ~NixOS~ modules that are pulled in as ~flake~
+inputs: ~nixos-wsl~, ~home-manger~ and ~agenix~. The ~./system~ directory
+contains most of the defaults for a machine as well as custom ~NixOS~
+configurations that mostly serve as high-level feature management for each
+machine:
+
+#+begin_src nix
+  options.myme.machine = {
+    name = lib.mkOption {
+      type = lib.types.str;
+      default = "nixos";
+      description = "Machine name";
+    };
+    role = lib.mkOption {
+      type = lib.types.enum [ "desktop" "laptop" "server" ];
+      default = "desktop";
+      description = "Machine type";
+    };
+    flavor = lib.mkOption {
+      type = lib.types.enum [ "nixos" "generic" "wsl" ];
+      default = "nixos";
+      description = "Linux flavor";
+    };
+  };
+#+end_src
+
+The ~name~ is obviously used to give the machine a hostname, and so on.
+
+The ~role~ determines if it's a headless server machine, a ~laptop~ that
+requires e.g. battery and power management, or a ~desktop~ computer.
+
+The ~flavor~ is used to specify the ~Linux~ flavor of the installation. Is this
+a ~NixOS~ machine, a "generic" Linux like ~Ubuntu~ or ~Arch~, or ~WSL~.
+
+** Generic config
+
+Each machine configuration follow a pretty similar setup. The following is the
+configuration for [[https://github.com/myme/dotfiles/blob/5ed40879b3ec360f6ac3184775cab7e2c0377225/machines/map.nix][map]], a ~WSL~ installation running on a Microsoft Surface
+tablet:
+
+#+begin_src nix
+#
+# `map` is a Windows 11 machine and this configuration is for WSL on that host.
+#
+# Graphical apps are supported, but unfortunately not GL, see:
+#
+#   https://github.com/guibou/nixGL/issues/69
+#
+
+{ config, pkgs, ... }: {
+  myme.machine = {
+    role = "desktop";
+    flavor = "wsl";
+    highDPI = false;
+    user = {
+      name = "myme";
+
+      # This maps to the `users.users.myme` NixOS config
+      config = {
+        isNormalUser = true;
+        initialPassword = "nixos";
+        extraGroups = [ "wheel" "networkmanager" ];
+        openssh.authorizedKeys.keys = [];
+      };
+
+      # This maps to the `home-manager.users.myme` NixOS (HM module) config
+      profile = {
+        imports = [
+          ../home-manager
+        ];
+
+        config = {
+          home.packages = with pkgs; [
+            mosh
+          ];
+
+          programs = {
+            # SSH agent
+            keychain = {
+              enable = true;
+              keys = [ "id_ed25519" ];
+            };
+
+            ssh = {
+              enable = true;
+              includes = [
+                config.age.secrets.ssh.path
+              ];
+            };
+          };
+
+          myme.dev.haskell = {
+            enable = true;
+            lsp = false;
+          };
+        };
+      };
+    };
+  };
+
+  age.secrets.ssh = {
+    file = ./../secrets/ssh.age;
+    owner = config.myme.machine.user.name;
+  };
+}
+#+end_src
+
+Most of the configuration goes into the ~myme.machine~ configuration. This is
+because it also contains the ~home-manager~ configuration for each machine under
+~myme.machine.user.profile~ which is mapped directly to the [[https://nix-community.github.io/home-manager/options.html][home-manager
+configuration options]].
+
+** On hardware
+
+I have a couple of machines running regular ~NixOS~ on hardware. My main work
+computer is a ~Lenovo P1~ laptop and the configuration for it is not currently
+public. However, one useful part of its configuration is the use of
+[[https://github.com/NixOS/nixos-hardware][nixos-hardware]] which is added as a flake input and provides useful
+configurations for the Lenovo P1's quirks:
+
+#+begin_src nix
+  imports = [
+    inputs.nixos-hardware.nixosModules.common-gpu-nvidia
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p1
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
+    ./hardware.nix
+  ];
+#+end_src
+
+...and don't get me started on the ~nvidia~ graphics of that machine:
+
+#+begin_src nix
+    # NVidia - 😭
+    hardware.nvidia = {
+      package = config.boot.kernelPackages.nvidiaPackages.beta;
+      modesetting.enable = true;
+      powerManagement = {
+        enable = true;
+        finegrained = true;
+      };
+    };
+    services.xserver.displayManager.sessionCommands = ''
+      ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0 modesetting
+    '';
+#+end_src
+
+#+begin_export html
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">So... if you&#39;re not particularly careful, you might screw up and order a dual graphics laptop (with nvidia). Next thing you know you&#39;re knee deep in X config/driver hell 😭<a href="https://twitter.com/hashtag/fml?src=hash&amp;ref_src=twsrc%5Etfw">#fml</a><a href="https://t.co/tD0bxniErY">https://t.co/tD0bxniErY</a></p>&mdash; Martin Myrseth (@ubermyme) <a href="https://twitter.com/ubermyme/status/1506928847488438273?ref_src=twsrc%5Etfw">March 24, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+#+end_export
+
+The ~X~ server still craps itself when adding/removing external displays, so
+it's not a very desirable setup for hot-desking at the moment. Besides the
+regrets of picking out a ~nvidia~-based laptop, I'm quite happy with the power
+and screen of the P1 in general though.
+
+I also have an [[https://github.com/myme/dotfiles/blob/5ed40879b3ec360f6ac3184775cab7e2c0377225/machines/nuckie.nix][Intel NUC]] that I use for [[file:2021-11-25-nixos-home-assistant.org][home automation]] which runs ~NixOS~
+directly on hardware. It's not a graphical installation and there's not really
+much more interesting to say about it.
+
+** VMWare
+
+My daily driver in the days of home office is an AMD Ryzen desktop computer
+running Windows on the metal. It's the same computer I use for home studio music
+production and most of the relevant music editing software I use is mostly
+~macos~ and ~Windows~ only. I expect there would be quite a bit of suffering
+jumping onto Linux-based music production, and so I haven't justified spending
+time on it.
+
+Since the machine is powerful enough for my needs I don't have any trouble doing
+most of my work in ~VMWare~ virtual machine and have been doing so for several
+years. There's not much interesting to say regarding the ~VMWare~-specifics in
+my ~NixOS~ setup, besides perhaps the guest tools:
+
+#+begin_src nix
+    # VM
+    virtualisation.vmware.guest.enable = true;
+#+end_src
+
+** WSL
+
+I've been making more and more use of [[https://docs.microsoft.com/en-us/windows/wsl/][Windows Subsystem for Linux v2]] over the
+past months. Thanks to the excellent [[https://github.com/nix-community/NixOS-WSL][NixOS-WSL]] project I'm now able to run a
+pretty much complete ~NixOS~ installation on my Windows machines.
+
+#+begin_note
+To learn more about how you can run ~NixOS~ on ~WSL~ check out Xe's post [[https://xeiaso.net/blog/nix-flakes-4-wsl-2022-05-01][Nix
+Flakes on WSL]].
+#+end_note
+
+[[https://github.com/myme/dotfiles/blob/5ed40879b3ec360f6ac3184775cab7e2c0377225/system/default.nix#L77][My configuration]] enables the [[https://github.com/nix-community/NixOS-WSL][NixOS-WSL]] configurations if the machine has a Linux
+flavor of ~wsl~:
+
+#+begin_src nix
+    (lib.mkIf (config.myme.machine.flavor == "wsl") {
+      wsl = {
+        enable = true;
+        automountPath = "/mnt";
+        defaultUser = config.myme.machine.user.name;
+      };
+    })
+#+end_src
+
+For ~WSL~ I also don't include the ~boot~ and some ~networking~ parts of the
+configuration:
+
+#+begin_src nix
+    # Disable boot + networking for WSL
+    (lib.mkIf (config.myme.machine.flavor != "wsl") {
+      # Boot
+      boot.loader.systemd-boot.enable = true;
+      boot.loader.systemd-boot.configurationLimit = 30;
+      boot.loader.efi.canTouchEfiVariables = true;
+      boot.kernelPackages = pkgs.linuxPackages_latest;
+
+      # Network
+      networking.networkmanager.enable = true;
+      networking.firewall.enable = true;
+    })
+#+end_src
+
+** QEmu
+
+Even with the atomic rollbacks that ~NixOS~ provides it can be convenient to
+occasionally try out experimental configurations in a controlled environment
+such as a virtual machine. I'm already relying on ~VMWare~ or ~VirtualBox~ for
+some hosts and could of course use those virtualizers to test out configuration.
+
+However, ~NixOS~ provides a very convenient sub-command to build ~QEmu~ virtual
+machines through ~nixos-rebuild build-vm~. Through clever mounts of the host's
+~nix~ store the guest gets access to a read-only version of it. Also with the
+performance ~KVM~ provides it's a /very/ quick and lightweight way to [[https://github.com/myme/dotfiles/blob/0014937dd90f947f1c72a1e430db9e2c5dacbee4/machines/qemu-vm.nix][spin up a
+configuration]]:
+
+#+begin_src nix
+# QEmu
+#
+# Full graphical NixOS setup on QEmu.
+#
+
+{ config, lib, pkgs, ... }: {
+  myme.machine = {
+    role = "desktop";
+    flavor = "nixos";
+    user = {
+      name = "nixos";
+
+      # This maps to the `users.users.nixos` NixOS config
+      config = {
+        isNormalUser = true;
+        initialPassword = "nixos";
+        extraGroups = [ "wheel" ];
+      };
+
+      # This maps to the `home-manager.users.nixos` NixOS (HM module) config
+      profile = {
+        imports = [
+          ../home-manager
+        ];
+
+        config = {
+          myme.wm = {
+            enable = true;
+            variant = "xmonad";
+            conky = false;
+            polybar.monitor = "Virtual-1";
+          };
+        };
+      };
+    };
+  };
+
+  # Security
+  security.sudo.wheelNeedsPassword = false;
+}
+#+end_src
+
+From my dotfiles repo such a configuration can be built and run using:
+
+#+begin_src bash
+nixos-rebuild build-vm --flake .#qemu-vm
+./result/bin/run-qemu-vm-vm
+#+end_src
+
+Bringing ~NixOS~ to life inside ~QEmu~ running in ~NixOS~ in ~WSL~ (yo dawg, I
+heard you like virtualization):
+
+[[file:../images/nixos-in-qemu-in-wsl.png]]
+
+** Raspberry PI
+
+I have a ~Raspberry PI~ that I've momentarily relieved from service as its
+purpose being a [[file:2021-11-25-nixos-home-assistant.org][home automation driver]] has been replaced by a ~NUC~. I intend to
+bootstrap the PI with NixOS at some point, but it's not really on the top of my
+personal backlog. It would be a fun exercise though as it would allow me to test
+some other architectures for NixOS.
+
+Should I end up doing this I'll try to make sure I'll write about it and add a
+link to it here.
+
+* Configuration
+
+The ~Home Manager~ configuration entry point is [[https://github.com/myme/dotfiles/blob/0014937dd90f947f1c72a1e430db9e2c5dacbee4/home-manager/default.nix][home-manager/default.nix]] and
+should be familiar to those who've already used ~Home Manager~:
+
+#+begin_src nix
+{ lib, pkgs, ... }: {
+  imports = [
+    ./barrier.nix
+    ./dev.nix
+    ./emacs
+    ./git.nix
+    ./irc.nix
+    ./nixon.nix
+    ./spotify.nix
+    ./tmux.nix
+    ./vim.nix
+    ./wm
+  ];
+
+  config = {
+    # ...
+  };
+}
+#+end_src
+
+I'm slowly but surely trying to move to a structure where the ~./home-manager~
+directory and configurations are the same for all machines, but controlled
+through custom high-level configurations. This in an attempt to try to minimize
+the differences between machines. The alternative would be to include ~Home
+Manager~ configuration modules into each machine configuration, which does lead
+to more boilerplate and repetition.
+
+I don't really want to go into deeper details regarding how I structure my ~Home
+Manager~ stuff, because I don't really think it's unique in any way. Going
+in-depth sounds like a topic for a dedicated future post.
+
+** Secrets
+
+I honestly don't have many things I consider secrets in my configurations at the
+moment. However, since I'm trying to move more and more common configurations
+into my ~main~ dotfiles branch I do want to hide some configurations, like
+~~/.ssh/config~ hosts and whatnot.
+
+I've found [[https://github.com/ryantm/agenix][agenix]] to be simple enough for my needs so far. For my use-case I use
+~ssh~ key infrastructure to encrypt secrets to each machine's host key for ~sshd~.
+
+~agenix~ needs a (by default) ~./secrets.nix~ file containing the keys
+associated with each encrypted secrets file:
+
+#+begin_src nix
+let
+  hostKeys = {
+    map =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILaNxtQ37YaiXRXx+Ff3sPEbzsjA2i934r0Bl+eXVh3P root@map";
+    tuple =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMhSCm/KiFfhkTcLaza/GFrpPVEzIFhALxM6gBmNK3Gi root@Tuple";
+  };
+
+  userKeys = {
+    map =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII1Qsv8MA+cyu7n+4H1kpbVrAmOosJJxjPWAdl08YDvL myme@map";
+    tuple =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH+9tnNlMesGrK/lDvycgzyS4pPrsGqcGQP6yLCsr/LN myme@Tuple";
+  };
+
+in {
+  # Files to manage - used by the agenix cli to encrypt/decrypt
+  "./secrets/ssh.age".publicKeys =
+    [ hostKeys.map hostKeys.tuple userKeys.map userKeys.tuple ];
+}
+#+end_src
+
+The ~agenix~ command line tool can the be used to edit the secrets file (it's
+available through the default ~devShell~, remember?):
+
+#+begin_src bash
+agenix -e ./secrets/ssh.age
+#+end_src
+
+For each machine the secrets file must have a corresponding entry in the ~NixOS~
+configuration:
+
+#+begin_src nix
+  age.secrets.ssh = {
+    file = ./../secrets/ssh.age;
+    owner = config.myme.machine.user.name;
+  };
+#+end_src
+
+The secrets can then be included from the ~~/.ssh/config~ by referencing e.g.
+the ~path~ attribute, like so:
+
+#+begin_src nix
+myme.machine.user.profile.config.programs = {
+  ssh = {
+    enable = true;
+    includes = [
+      config.age.secrets.ssh.path
+    ];
+  };
+};
+#+end_src
+
+The ~ssh.includes~ attribute then resolves to the following line in the ~~/.ssh/config~ file:
+
+#+begin_example
+Include /run/agenix/ssh
+#+end_example
+
+~agenix~ will then ensure that files are decrypted using each machine's ~sshd~
+host key and the content made available through files under ~/run/agenix~.
+
+** In the ~repl~
+
+One thing that I find quite useful (and also quite amazing) is using the ~nix
+repl~ to browse through ~nixpkgs~ and ~flakes~. This is a great way to explore
+the properties of derivations and other ~nix~ expressions. I can't get over how
+awesome it is to do exactly that with your ~NixOS~ configuration as well.
+
+When loading the ~dotfiles flake~ into the ~nix repl~ I can browse the various
+~nixosConfiguration~ and ~homeConfigurations~ as well as build individual apps
+and programs. This is great to explore a system configuration to learn or
+validate that it's configured correctly. And it's not restricted to the
+configuration for the current system, but all systems specified in the current
+~flake~.
+
+As an example, I was debugging why the ~X~ server didn't want to start properly
+in the ~qemu-vm~ example configuration. I realized I had to have a look at some
+of the generated files for the user's home directory. Instead of tweaking
+configurations, rebuilding and booting the VM, I could simply load up the ~repl~
+and build the user's ~home-files~, a part of the ~NixOS~ configuration provided
+by the ~Home Manager~'s ~NixOS~ module. The built derivation contains all the
+dotfiles that will be symlinked into the user's home directory, which can be
+easily inspected:
+
+#+ATTR_HTML: :alt "NixOS configuration in nix repl" :title "NixOS configuration in nix repl"
+[[file:../images/nixos-config-in-nix-repl.webm]]
+
+I should note that you don't /need/ the ~repl~ to build sub-parts of a ~NixOS~
+like this. The tab completion and interactive navigation of the ~repl~ makes
+exploration a lot more seamless.
+
+* Controlled updates
+
+One of the most empowering benefits of automatic version locking/pinning is how
+easy it makes working with unstable software "channels"[fn:2]. Personally the
+main reason it's a hassle to base machine configurations on unstable upstreams
+is when things break exactly because of upstream updates. It can be immensely
+frustrating when anything from a simple configuration to the whole system stops
+working because of an uncontrolled software update.
+
+Having controlled and atomic rollbacks fixes part of this problem as it gets you
+back to a working state and ~NixOS~ have been having this for a long time.
+Having complete control of /when/ to upgrade fixes most of the remaining issues.
+An unstable upstream is only as unstable as the new features that come in, so
+by ensuring that upstream updates don't automatically trickle down to your
+system the system state for a locked version should remain the same. For example
+if your system is working well under a specific version of ~nixos-unstable~ it
+is stable for you and should remain so until you decide to pull in new changes.
+
+Whereas ~nix channels~ traditionally have been updated globally either on the
+system or user level, ~flake~ inputs are locked to specific versions for each
+individual project. Firstly, this means that no global command affect how
+individual ~nix flake~ projects manage their dependencies. Furthermore, a
+~flake~ can easily track unstable upstreams as it simply locks down that
+upstream to a specific version ignoring new changes to the upstream and only on
+the user's request will it update that lock information. This happens primarily
+due to two things:
+
+ 1. The user changes a flake input ~url~.
+ 2. The user runs ~nix flake lock --update-input <input>~.
+
+[fn:2] Not talking about ~nix channels~ here.
+
+** Updating inputs
+
+#+begin_src bash
+$ nix flake lock --update-input nixpkgs
+#+end_src
+
+And similarly for a non-flake input:
+
+#+begin_src bash
+$ nix flake lock --update-input doomemacs
+#+end_src
+
+** Remote updates
+
+I mentioned I have both a ~NUC~ and a ~RaspberryPi~, which aren't the most
+powerful computers. I have experimented a bit with using my desktop computer to
+build the ~NixOS~ configuration for the ~NUC~. It worked well enough once I
+started getting grips on the binary cache signature checks of ~nix~. I did end
+up with some unusable derivations that were synced over and that I weren't able
+to properly remove. One of the key parts (no pun intended) was to set the
+[[https://github.com/myme/dotfiles/blob/0014937dd90f947f1c72a1e430db9e2c5dacbee4/machines/nuckie.nix#L26][binaryCachePublicKeys]] to include that of the host that built the configuration:
+
+#+begin_src nix
+  nix.binaryCachePublicKeys = [
+    "tuple:RLwVT0X7XUres7PkgkMLgsMfWhbHP0PYIfQmqJ2M6Ac="
+  ];
+#+end_src
+
+I definitely see a lot of potential of doing remote builds using ~nix~. Tools
+like [[https://github.com/NixOS/nixops][NixOps]] have been around for a while, but I have yet to really give it a
+spin. Alternatively, there are other options like [[https://github.com/serokell/deploy-rs][serokell/deploy-rs]] which seem
+to integrate even nicer with ~flakes~.
+
+* Bootstrapping
+
+The majority of time spent managing ~NixOS~ running on general purpose machines
+is done through changing configurations and then invoking ~nixos-rebuild~ to
+apply it. This, of course, depends on the system already /running/ NixOS.
+
+I had some big plans making sure that bootstrapping new machines with ~NixOS~
+would be a breeze with proper automation. Due to a couple of reasons I haven't
+been able to deliver on this promise to myself yet.
+
+In the interim I've first of all not really (re-)installed machines all that
+much - and for the few times it's happened I've used a plain ~NixOS~
+installation medium and pretty much installed machines [[file:2019-07-01-nixos-into-the-deep-end.org][the way I've always done]].
+
+Then, once a machine is running ~NixOS~ I copy the ~flake~ template from
+whichever machine is the most similar and tweak it to my specific needs.
+
+I have done some experimentation with scripting the installation process and
+managed to get it working quite well for any machine running a live-ISO version
+of NixOS. It requires a running system with an open ~SSH~ port. Then the
+~bootstrap/copy.sh~ script uses ~rsync~ to copy over the configuration.
+
+The scripts can be found under [[https://github.com/myme/dotfiles/tree/0014937dd90f947f1c72a1e430db9e2c5dacbee4/bootstrap][./bootstrap]] in the dotfiles repo, but aren't
+really very configurable making them neither very impressive nor useful.
+
+There are obviously things to improve when it comes to the bootstrapping of new
+machines. It's somewhat less rewarding work because there's often quite a long
+time between each time I /actually/ need to setup a new machine from scratch.
+However, with the structure of the dotfiles settling down for now I might find
+some motivation to eventually improve that too. Perhaps it could be fun to
+combine it with something like [[https://github.com/serokell/deploy-rs][serokell/deploy-rs]]. I don't know...
+
+* Rounding off
+
+I'm very happy I started on this next chapter of the never-ending journey of
+configuration management. I had to make quite a few changes and updates to have
+things fit into this next-generation solution. Regardless of this, most of the
+actual configurations and setup have been preserved from the previous non-flakes
+~NixOS~ setup and non-NixOS, standalone ~Home Manager~ approach. I believe it's
+good to be making these kind of incremental changes, not worrying about getting
+everything "right" or "perfect" the first time around, but rather have most
+things /working/ along the way.
+
+As always, I don't expect I'll ever be done, but another configuration milestone
+reached. Fun was had, and so it was time to share my experience of migrating to
+a fully ~flakes~ based ~NixOS~ configuration across all machines.
+
+[[https://twitter.com/ubermyme][Let me know]] if you also decide to take the plunge!
+
+Thanks to [[https://twitter.com/evenbrenden][@evenbrenden]] for proof-reading.
+
+* Footnotes
