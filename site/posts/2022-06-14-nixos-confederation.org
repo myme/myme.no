@@ -23,7 +23,7 @@ led me to his [[https://www.youtube.com/watch?v=ubDMLoWz76U&t=42s][YouTube video
 Since I've recently been [[file:2022-01-16-nixos-the-ultimate-dev-environment.org][investing more time and effort]] into flakes and combined
 with an increasing annoyance of the state of my system configuration it was the
 perfect timing to start basing configurations fully on [[https://www.tweag.io/blog/2020-05-25-flakes/][nix flakes]]. To begin with
-I started copying pretty the same things Mitchell was doing, but I quickly
+I started copying pretty much the same things Mitchell was doing, but I quickly
 started digging more into how others were building ~NixOS~ from ~flakes~ (see
 "Note:" section below). I have since borrowed whichever tricks and methods I
 found neat or useful, and so I've gathered inspiration from quite a few sources
