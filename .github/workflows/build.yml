@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "master" ]
     
+env:
+  tarball_name: myme.no.tar.gz
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,12 +22,12 @@ jobs:
         name: myme
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Build Docker image
-      run: nix build -o myme.no.tar.gz
+      run: nix build -o ${{ env.tarball_name }}
     - name: Archive Docker Image
       uses: actions/upload-artifact@v3
       with:
         name: docker-image
-        path: result
+        path: ${{ env.tarball_name }}
       
   push:
     needs: [build]
@@ -44,6 +47,6 @@ jobs:
       -
         name: Push image to Docker Hub
         run: |
-          docker load < myme.no.tar.gz
+          docker load < ${{ env.tarball_name }}
           docker tag myme.no:latest myme/myme.no:latest
           docker push myme/myme.no:latest
