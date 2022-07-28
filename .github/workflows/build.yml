@@ -36,5 +36,5 @@ jobs:
     -
       name: Push image to Docker Hub
       run: |
-        docker load < result
+        sudo docker load < result
         docker push myme.no:latest
