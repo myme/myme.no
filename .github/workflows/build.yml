@@ -32,7 +32,7 @@ jobs:
   push:
     needs: [build]
     runs-on: ubuntu-latest
-    # if: github.event == 'push'
+    if: github.event == 'push'
     steps:
       - name: Download Docker Image
         uses: actions/download-artifact@v3
