@@ -4,13 +4,17 @@ Main blog on https://myme.no
 
 ## Build `myme.no` Docker image
 
-`nix build`
+```sh
+nix build
+```
 
 Note: Development is intended to use `nix flakes`.
 
 ## Build static site only
 
-`nix build .#site`
+```sh
+nix build .#site
+```
 
 ## Writing posts (& frontend work)
 
