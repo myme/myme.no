@@ -19,7 +19,7 @@ jobs:
         name: myme
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Build Docker image
-      run: nix build
+      run: nix build -o myme.no.tar.gz
     - name: Archive Docker Image
       uses: actions/upload-artifact@v3
       with:
@@ -44,6 +44,6 @@ jobs:
       -
         name: Push image to Docker Hub
         run: |
-          docker load < result
+          docker load < myme.no.tar.gz
           docker tag myme.no:latest myme/myme.no:latest
           docker push myme/myme.no:latest
