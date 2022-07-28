@@ -2,18 +2,30 @@
 
 Main blog on https://myme.no
 
-## Building `myme.no`
+## Build `myme.no` Docker image
 
-`nix-build`
+`nix build`
 
-## Building static pages
+Note: Development is intended to use `nix flakes`.
 
-`cabal run myme.no -- build`
+## Build static site only
 
-## Run development server
+`nix build .#site`
 
-`cabal run myme.no -- watch`
+## Writing posts (& frontend work)
 
-## Publishing
+```sh
+nix develop
+cd site
+ssg watch
+# hack hack hack
+```
 
-`docker load < result`
+## Working on the static site generator
+
+```sh
+nix develop .#ssg
+cd ssg
+# hack hack hack
+```
+

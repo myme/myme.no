@@ -18,14 +18,23 @@
 
       defaultPackage.${system} = self.packages.${system}.image;
 
-      devShell.${system} = pkgs.haskellPackages.shellFor {
-        packages = ps: [ ssg ];
-        buildInputs = with pkgs.haskellPackages; [
-          cabal-install
-          ghcid
-          hlint
-          ssg
-        ];
+      devShells.${system} = {
+        # Development shell for the webpage (./site)
+        site = pkgs.mkShell {
+          buildInputs = [ ssg ];
+        };
+
+        # Development shell for the static site genrator (./ssg)
+        ssg = pkgs.haskellPackages.shellFor {
+          packages = ps: [ ssg ];
+          buildInputs = with pkgs.haskellPackages; [
+            cabal-install
+            ghcid
+            hlint
+          ];
+        };
       };
+
+      devShell.${system} = self.devShells.${system}.site;
     };
 }
