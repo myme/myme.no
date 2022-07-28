@@ -1,9 +1,11 @@
-name: "Build"
+name: "Build & Push to Docker Hub"
+
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,15 +20,30 @@ jobs:
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Build Docker image
       run: nix build
-    -
-      name: Login to Docker Hub
-      uses: docker/login-action@v1
+    - name: Archive Docker Image
+      uses: actions/upload-artifact@v3
       with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-    -
-      name: Push image to Docker Hub
-      run: |
-        docker load < result
-        docker tag myme.no:latest myme/myme.no:latest
-        docker push myme/myme.no:latest
+        name: docker-image
+        path: result
+      
+  push:
+    needs: [build]
+    runs-on: ubuntu-latest
+    # if: github.event == 'push'
+    steps:
+      - name: Download Docker Image
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      -
+        name: Push image to Docker Hub
+        run: |
+          docker load < result
+          docker tag myme.no:latest myme/myme.no:latest
+          docker push myme/myme.no:latest
