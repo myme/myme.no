@@ -36,6 +36,7 @@ jobs:
     - name: Build Static Site
       run: |
         nix build .#site
+        # Fix nix permissions (https://github.com/actions/deploy-pages/issues/58)
         cp --recursive --dereference --no-preserve=mode,ownership result public
     - name: Setup Pages
       uses: actions/configure-pages@v2
