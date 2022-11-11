@@ -338,6 +338,12 @@ a:hover {
 h1, h2, h3, h4, h5, h6 {
     text-align: start;
     font-weight: 500;
+    position: relative;
+}
+
+h2::before, h3::before, h4::before {
+    color: var(--note-border);
+    position: absolute;
 }
 
 h1 {
@@ -350,8 +356,28 @@ h2 {
     margin-bottom: 20px;
 }
 
+h2::before {
+    content: "#";
+    left: -1.5rem;
+    top: 0.25rem;
+}
+
 h3 {
     font-size: 1.2em;
+}
+
+h3::before {
+    content: "##";
+    left: -2rem;
+}
+
+h4::before {
+    content: "###";
+    left: -3rem;
+}
+
+.toc h2::before, .toc h3::before {
+    display: none;
 }
 
 strong {
@@ -413,7 +439,7 @@ article .header {
     font-style: italic;
 }
 
-pre.sourceCode, pre.example {
+pre.conf, pre.sourceCode, pre.example {
     background-color: var(--well-bg);
     font-size: 0.9em;
     overflow: auto;
@@ -452,7 +478,7 @@ code a:hover {
     text-decoration: none;
 }
 
-code.sourceCode, .example code {
+code.sourceCode, .conf code, .example code {
     background-color: inherit;
     color: var(--well-fg);
     padding: 0;
