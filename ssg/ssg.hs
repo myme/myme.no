@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import           Control.Monad
-import           Hakyll hiding (fromList)
-import           System.FilePath
-import           Text.HTML.TagSoup (Tag(..))
+import Control.Monad
+import Data.List (isInfixOf)
+import Hakyll hiding (fromList)
+import System.FilePath
+import Text.HTML.TagSoup (Tag (..))
 import qualified Text.Pandoc as Pandoc
-import           Text.Pandoc.Builder
-import           Text.Pandoc.Options
-import           Text.Pandoc.Walk
-import           Text.Read (readMaybe)
+import Text.Pandoc.Builder
+import Text.Pandoc.Options
+import Text.Pandoc.Walk
+import Text.Read (readMaybe)
 
 frontpagePosts :: Int
 frontpagePosts = 20
@@ -28,10 +29,15 @@ postCompiler = do
       pandoc = pandocCompilerWith defaultHakyllReaderOptions
   fmap (withTagList convertVideoLinks . withUrls rewriteOrgUrl . demoteHeaders) <$> pandoc writerOpts
   where
-    rewriteOrgUrl url = maybe url (`addExtension` ".html") (stripExtension ".org" url)
     tocTemplate = either error id $ either (error . show) id $
       Pandoc.runPure $ Pandoc.runWithDefaultPartials $
       Pandoc.compileTemplate "" "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
+
+-- | Rewrite URLs to (local) .org files to .html.
+rewriteOrgUrl :: String -> String
+rewriteOrgUrl url
+  | not ("://" `isInfixOf` url) = maybe url (`addExtension` ".html") (stripExtension ".org" url)
+  | otherwise = url
 
 -- | Returns true for any post which is not a preview
 --
