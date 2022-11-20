@@ -1,0 +1,435 @@
+---
+title: "NixOS: On Raspberry Pi 3B"
+toc: 2
+preview: true
+---
+
+
+Hardware come and hardware go. About one year ago I [[file:2021-11-25-nixos-home-assistant.org][moved my Home Manager setup]]
+from a ~Raspberry PI 3 Model B~ to an ~Intel NUC Core i3~. After that migration
+my poor Raspberry Pi has been laying on a shelf, collecting dust.
+
+Even a decommissioned Raspberry Pi could have some utility running on the home
+network. With some time to spare, last weekend seemed like [[https://mastodon.social/@myme/109361279550675260][the weekend for
+building RPi images]]. To get going quickly it's possible to download [[https://hydra.nixos.org/job/nixos/release-22.05/nixos.sd_image.aarch64-linux][pre-built
+NixOS SD card images]] from [[https://hydra.nixos.org][Hydra]]. Guaranteed to save me a lot of time, that was
+naturally not the path I chose. I wanted to build the image and machine
+configuration myself, because why not[fn:1].
+
+[fn:1] Actually there is a great benefit in building SD images yourself. As the
+post later goes on to explain, it's possible to build your entire ~NixOS~
+configuration and flash it to an SD card from a much more powerful computer.
+This allows to sidestep any building or installation process on the resource
+limited Raspberry Pi.
+
+* Building
+
+The configuration required to build a ~NixOS~ SD card image for the Raspberry Pi
+turned out to be really short and sweet. Here's a minimal ~nixosConfigurations~
+entry where a system configuration includes the necessary module to build SD
+card ISO images:
+
+#+begin_src nix
+{
+  description = "NixOS Raspberry Pi configuration flake";
+  outputs = { self, nixpkgs }: {
+    nixosConfigurations.rpi = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+        { config.system.stateVersion = "21.11"; }
+      ];
+    };
+  };
+}
+#+end_src
+
+#+begin_note
+I pretty much exclusively use ~nix flakes~ these days. The configuration above,
+as its description hints at, is a flake. This doesn't mean that building ~NixOS~
+for Raspberry Pi cannot be done without flakes. I will only include flake
+instructions in this post because I haven't tried the alternatives.
+
+I included a "crash course", if you will, in flakes in [[file:2022-01-16-nixos-the-ultimate-dev-environment.org::*Nix Flakes][NixOS: The Ultimate Dev
+Environment?]], but there are several [[https://www.tweag.io/blog/2020-05-25-flakes/][introductions to flakes]] popping up in
+[[https://xeiaso.net/blog/series/nix-flakes][blogs]] and [[https://nixos.wiki/wiki/Flakes][wikis]].
+#+end_note
+
+In fact, these days I frequently find things I would assume to be "tricky",
+"advanced" or "hacky" on other distros to be really elegant on ~NixOS~. I've
+come to conclude that not only is ~NixOS~ awesome because of how its
+declarative, pure and composable nature result in highly reproducible builds and
+configurations, but more often than not people have managed to hide complex
+tasks behind elegant abstractions. I'm sure it's a combination of the
+environment enabling and encouraging the smart people working on ~NixOS~ to
+easily build simple interfaces.
+
+And on the flip side of that, [[file:2020-01-26-nixos-for-development.org::*Arrested development][I have full sympathy]] for all beginners to ~nix~,
+clawing their way up the rocky cliff towards the fabled lighthouse of hope of
+eternal declarative reproducible software bliss.
+
+** The SD image attribute path
+
+The SD card image derivation can be found under the following property in the
+flake configuration hierarchy:
+
+#+begin_src nix
+nixosConfigurations.rpi.config.system.build.sdImage
+#+end_src
+
+While creating this configuration is trivial, chances are building it is not as
+simple as invoking:
+
+#+begin_src bash
+nix build .#nixosConfigurations.rpi.config.system.build.sdImage
+#+end_src
+
+Most likely - depending on your build machine's architecture - ~nix~ will greet
+you with an error message similar to the following[fn:2]:
+
+#+begin_example
+error: a 'aarch64-linux' with features {} is required to build
+    '/nix/store/m9l1cvifh44nl7fscp7mjbl7qv88478g-stage-2-init.sh.drv',
+    but I am a 'x86_64-linux' with features {benchmark, big-parallel, kvm, nixos-test}
+#+end_example
+
+[fn:2] Newlines added for readability.
+
+** Cross-compiling
+
+#+begin_note
+This section reached a dead end for the time being. Skip on to [[#registering-qemu-emulation-as-a-binfmt-wrapper][the next section]]
+if this isn't relevant to you.
+#+end_note
+
+The Raspberry Pi 3 is an ~ARM~ chip, requiring binaries targeting ~aarch64~. As
+with the full SD image ~NixOS Hydra~ builds ~nixpkgs~ for ~aarch64-linux~ (and
+Apple ~aarch64-darwin~). The binary cache on [[https://cache.nixos.org][cache.nixos.org]] helps greatly
+speeding up the image generation as most stock derivations would be already
+built.
+
+I use ~x86_64~ machines exclusively (besides this one R-Pi). This poses the
+challenge of cross-compilation if I want to build the R-Pi SD card image. There
+are several options listed on [[https://nixos.wiki/wiki/NixOS_on_ARM#Build_your_own_image_natively][the NixOS wiki's ARM section]] for how to "natively"
+build the images.
+
+The NixOS Wiki has a brief section on how to do native cross compilation setting
+~nixpkgs.crossSystem.system~ to ~aarch64-linux~. The ~nixpkgs~ sources for
+~crossSystem~ states themselves, this is kind of a nonsensical settings. Why?
+Because (pure, as in isolated builds) cross-compilation requires at least /two/
+(or three) system architectures:
+
+ 1. The build host's architecture, on which the toolchain is built and run.
+ 2. The host machine's architecture, which is the target binary format of the
+    build process and where the binaries will eventually run.
+ 3. The target machine's architecture, which is more related to toolchain build
+    and compatibility.
+
+Given this, the following snippet from the ~NixOS~ Wiki seems to be outdated and
+didn't really work all that well:
+
+#+begin_src nix
+{ ... }: {
+  nixpkgs.crossSystem.system = "aarch64-linux";
+}
+#+end_src
+
+The resulting toolchain did not seem to provide proper ~NixOS~-style wrapped
+binaries and several toolchain paths (like typical system includes) and linker
+paths were broken.
+
+Particularly, with flakes, the build (local) machine architecture shouldn't be
+inferred from the system for the sake of purity. Rather, what seemed to have a
+lot more success in kicking off the (native) cross-compilation build of the SD
+card image was the following ~nixpkgs~ settings:
+
+#+begin_src nix
+{ ... }: {
+  nixpkgs.buildPlatform.system = "x86_64-linux";
+  nixpkgs.hostPlatform.system = "aarch64-linux";
+}
+#+end_src
+
+This resulted in better cache hits from the NixOS cache and many packages
+started building, saturating my machine's CPUs with parallel builds. Sweet!
+
+Unfortunately, while the cross-compilation of the ~aarch64~ Linux kernel purred
+away through the build, the simultaneous build of ~samba~ failed due to missing
+headers. I did spent a wee bit of time trying to figure out why the ~#ifdef~
+including ~crypt.h~ was set when ~waf~ listed it as missing in the configure
+step, but eventually I didn't want to spend more time than necessary on this yak
+shave:
+
+#+begin_example
+error: builder for '/nix/store/khs4kyxqa7gkd6wvg467d6a5s084zb7p-samba-aarch64-unknown-linux-gnu-4.15.9.drv' failed with exit code 1;
+       last 10 log lines:
+       > [2095/3718] Compiling libcli/named_pipe_auth/npa_tstream.c
+       > In file included from ../../lib/talloc/pytalloc_util.c:25:
+       > ../../lib/replace/replace.h:885:10: fatal error: crypt.h: No such file or directory
+       >   885 | #include <crypt.h>
+       >       |          ^~~~~~~~~
+       > compilation terminated.
+       >
+       > Waf: Leaving directory `/build/samba-4.15.9/bin/default'
+       > Build failed
+       >  -> task in 'pytalloc-util.cpython-310-aarch64-linux-gnu.objlist' failed with exit status 1 (run with -v to display more information)
+       For full logs, run 'nix log /nix/store/khs4kyxqa7gkd6wvg467d6a5s084zb7p-samba-aarch64-unknown-linux-gnu-4.15.9.drv'.
+#+end_example
+
+In the end the native cross-compilation was looking promising, but at the end of
+the day I left it at that.
+
+** Registering ~QEmu~ emulation as a ~binfmt~ wrapper
+
+As an alternative to native cross-compilation it's also possible to compile for
+~aarch64~ registering ~QEmu~ emulation as a ~binfmt~ wrapper. This can easily be
+done by adding this single definition to the build machine's ~NixOS~
+configuration:
+
+#+begin_src nix
+{
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+}
+#+end_src
+
+After a ~nixos-rebuild test~ the local machine should now be able to run
+binaries built for ~aarch64~ and thus the tools required to build the ~NixOS~
+configuration for the R-Pi SD images. I've tested this from both native ~NixOS~
+on ~x86_64~ and on ~NixOS~ running in ~WSL~. Both worked great.
+
+Now, one of the reasons for investing some effort into native cross-compilation
+is that emulation is significantly slower than any native counterpart. As part
+of my configuration I have e.g. some [[../projects.html][Haskell utlities]] that require compilation.
+~Haskell~ isn't exactly known for its ludicrous compilation speeds and
+overlooking the emulated ~GHC~ grind through each source file was like watching
+paint dry.
+
+** Customization
+
+The image build from the configurations already shown will not contain any
+customizations. It would be a stock ~NixOS~ image, identical to the installers
+built by [[https://hydra.nixos.org/][Hydra]].
+
+Wouldn't it be great if we could customize the configuration and have that
+configuration be what we flash to the SD card without having to do any further
+~nixos-rebuild~ commands after booting the R-Pi?
+
+But of course, we're talking about ~NixOS~ here after all! Here's an incomplete
+example configuration illustrating various "configuration points" within the
+flake structure. The R-Pi image is basically nothing more special than a regular
+~NixOS~ configuration, and thus it's possible to pull in any existing ~NixOS~
+configuration or module into this config:
+
+#+begin_src nix
+{
+  description = "NixOS Raspberry Pi configuration flake";
+  outputs = { self, nixpkgs }: {
+    nixosConfigurations.rpi = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        # SD card image
+        "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+
+        # Additional NixOS modules, like Home Manager or personal modules
+        home-manager.nixosModules.home-manager
+        ./some/presonal/module.nix
+
+        # Inline configuration here
+        ({ ... }: {
+          config = {
+            # ...like <hostname>
+            networking.hostName = "bringebær-pai";
+            system.stateVersion = "21.11";
+          };
+        })
+      ];
+    };
+  };
+}
+#+end_src
+
+In the case of my dotfiles I do have [[https://github.com/myme/dotfiles/blob/0177caaff52fe66adae6829871c861be6c894c1d/lib/makeNixOS.nix][some abstractions]] over
+~nixpkgs.lib.nixosSystem~ which builds configurations with some default modules
+based on my dotfile repository structure. I gave a walkthrough of this
+configuration in my previous post: [[file:2022-06-14-nixos-confederation.org][NixOS: Confederation]].
+
+** Compression
+
+By default, the SD image ~ISO~ is compressed using ~zst~. This is a reasonable
+default as it saves a significant amount of disk space:
+
+#+begin_example
+nix-repl> :lf .
+Added 8 variables.
+
+nix-repl> :p nixosConfigurations.rpi.config.system.build.sdImage.compressImage
+true
+#+end_example
+
+The image can be decompressed using the following command:
+
+#+begin_src sh
+$ nix shell nixpkgs#zstd -c unzstd -o nixos.img ./result/sd-image/<name>.img.zst
+#+end_src
+
+** No compression
+
+With all my customizations and additional tools the image size is considerably
+bigger than the default. Expect that compressing the resulting ~.img~ using
+~zst~ takes quite a bit of time. Since I was intending on only building the SD
+image once, I skipped the ~zstd~ by setting
+~config.system.build.sdImage.compressImage = false~:
+
+#+begin_src nix
+{
+  description = "NixOS Raspberry Pi configuration flake";
+  outputs = { self, nixpkgs }: {
+    nixosConfigurations.rpi = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+        {
+          config = {
+            system = {
+              # Disable zstd compression
+              build.sdImage.compressImage = false;
+              stateVersion = "22.11";
+            };
+          };
+        }
+      ];
+    };
+  };
+}
+#+end_src
+
+#+begin_note
+If you're building many of these configurations with slight changes keep in mind
+that each build will result in a complete new ~ISO~ image in the ~nix store~.
+This will quickly exhaust your disk, so either keep compression ~on~ or make
+sure to ~nix-collect-garbage~ on occasion.
+#+end_note
+
+In the end, surely enough, the SD image was built and ready to be flashed onto a
+real SD card. Without concern of stripping down to bare minimums, my image
+containing all my headless customizations and tools take close to ~9GB~ of disk
+space. A minimal installation ends up somewhere around ~2.5GB~.
+
+#+begin_src sh
+❯ ls -lh result/sd-image/
+total 8.7G
+-r--r--r-- 1 root root 8.7G Jan  1  1970 nixos-sd-image-22.11.20221031.d40fea9-aarch64-linux.img
+#+end_src
+
+* Flashing the SD card
+
+After plugging the SD card into the build machine there are several ways to
+figure out which device it ends up being assigned. Personally I just use ~dmesg~
+or ~dmesg --follow~ for this, which provides some fairly obvious output:
+
+#+begin_example
+[1514026.420241] mmc0: new ultra high speed SDR50 SDHC card at address e624
+[1514026.420557] mmcblk0: mmc0:e624 AALCD 29.7 GiB
+[1514026.425039]  mmcblk0: p1 p2
+#+end_example
+
+This means that the SD card device to use in the following commands would be
+~/dev/mmcblk0~.
+
+#+begin_note
+It's important to be 100% sure to find the correct device. Using the ~dd~
+command it's notoriously simple to start copying bytes over to the wrong device
+and rendering it useless, as a poor coworker of mine once had the displeasure of
+experiencing.
+#+end_note
+
+One alternative to ~dmesg~ is to use ~lsblk~, for which I don't currently have
+any example output containing the SD card:
+
+#+begin_example
+❯ lsblk
+NAME           MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
+nvme0n1        259:0    0 476.9G  0 disk
+├─nvme0n1p1    259:1    0   511M  0 part  /boot
+└─nvme0n1p2    259:2    0 476.4G  0 part
+  └─root       254:0    0 476.4G  0 crypt
+    ├─vg-swap  254:1    0    16G  0 lvm   [SWAP]
+    └─vg-nixos 254:2    0 460.4G  0 lvm   /nix/store
+                                          /
+#+end_example
+
+Having gathered all pieces of information it should now be time to copy over the
+image to the SD card device. This can be done using the ~dd~ command, specifying
+the SD card image as the ~if~ (input file) and the device path as the ~of~
+(output file).
+
+#+begin_src sh
+sudo dd \
+    if=result/sd-image/nixos-sd-image-22.11.20221031.d40fea9-aarch64-linux.img \
+    of=/dev/mmcblk0 \
+    status=progress \
+    bs=4M
+#+end_src
+
+* Booting
+
+** Power issues
+
+The ~NixOS~ wiki warns about [[https://nixos.wiki/wiki/NixOS_on_ARM/Raspberry_Pi_3#Power_issues][power issues]] related specifically to the R-Pi 3:
+
+#+begin_quote
+Especially with the power-hungry Raspberry Pi 3, it is important to have a
+sufficient enough power supply or weirdness may happen.
+#+end_quote
+
+And surely enough, /weirdness/ ensued.
+
+I don't quite remember what I used to drive the R-Pi previously, but this time
+around I was using some regular USB adapters I had laying around. The R-Pi
+seemed to start up exactly as it should and once I had the SD image ready I was
+presented with the ~NixOS~ boot process and all seemed well so power being an
+issue wasn't in my mind at this point.
+
+However, at some point during "Stage 2" of the boot process, everything went
+black and the R-Pi eventually entered a cyclic boot. This seemed to consistently
+happen right when the kernel changes or updates the framebuffer (or whatever
+happens with that regular boot-time "flicker"). For the first couple of reboots
+I thought I might have mistakenly setup an X server on my image, and now the X
+server was causing some panic or whatever right when it was starting. So
+naturally my first though was that I had somehow messed up the image and it was
+corrupt in one way or another. To eliminate personal fuckups my first attempt at
+fixing this issue was to double check that one of the pre-built images managed
+to get me to the login prompt.
+
+No such luck.
+
+The same blackout then reboot happened in exactly the same way with the
+pre-built SD image. At this point I had spent quite a bit of time on getting to
+this point and was feeling tired. Building images, flashing SD cards and booting
+R-Pis has a much bigger feedback loop than your regular TDD cycle and not
+knowing which wild goose to chase killed my spirit to push on. It's better take
+a break!
+
+A few days passed, but I eventually felt revigorated and came back with a fresh
+mind. I started by re-reading the ~NixOS~ Wiki on Raspberry Pi, and surely
+enough I was reminded of the importance of providing the R-Pi with sufficient,
+stable power.
+
+Switching out the random USB adapter with something capable of consistently
+serving up to 2As of 5V seemed to get me to the long awaited login prompt on
+~tty1~.
+
+Great success! However, logging in I did not see my familiar [[https://starship.rs/][starship]] prompt,
+but rather a more stock ~bash~ prompt reminding me that I pulled all my configs
+from the SD image to rule out any personal settings messing up the boot process.
+
+After another few iterations of rebuilding and reflashing the SD card -
+eventually growing the image to a (not so modest) 9 GB from the stripped down
+2.5 GB of the plain image - I was able to log in to a system that felt like
+~$HOME~.
+
+* Rounding off
+
+Now I just need to find something to use this aging R-Pi for!
+
+* Footnotes
