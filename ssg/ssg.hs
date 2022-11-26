@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
 
 import Control.Monad
-import Data.List (isInfixOf)
+import Data.Char (toLower)
+import Data.List (isInfixOf, isPrefixOf)
 import Hakyll hiding (fromList)
 import System.FilePath
 import Text.HTML.TagSoup (Tag (..))
@@ -10,6 +12,7 @@ import Text.Pandoc.Builder
 import Text.Pandoc.Options
 import Text.Pandoc.Walk
 import Text.Read (readMaybe)
+import Data.Function ((&))
 
 frontpagePosts :: Int
 frontpagePosts = 20
@@ -36,8 +39,27 @@ postCompiler = do
 -- | Rewrite URLs to (local) .org files to .html.
 rewriteOrgUrl :: String -> String
 rewriteOrgUrl url
-  | not ("://" `isInfixOf` url) = maybe url (`addExtension` ".html") (stripExtension ".org" url)
+  | not ("://" `isInfixOf` url) =
+      split "::" url & \case
+        [] -> url
+        [u] -> orgToHtml u
+        (u : section : _) -> orgToHtml u <> toAnchor section
   | otherwise = url
+  where
+    orgToHtml u = maybe u (`addExtension` ".html") (stripExtension ".org" u)
+
+split :: String -> String -> [String]
+split delim = split' [] []
+  where
+    split' accum strings [] = reverse (reverse accum : strings)
+    split' accum strings i@(c : rest)
+      | delim `isPrefixOf` i = split' [] (reverse accum : strings) (drop (length delim) i)
+      | otherwise = split' (c : accum) strings rest
+
+toAnchor :: String -> String
+toAnchor = \case
+  ('*' : rest) -> '#' : map (\case ' ' -> '-'; x -> toLower x) rest
+  input -> input
 
 -- | Returns true for any post which is not a preview
 --
