@@ -1,7 +1,6 @@
 ---
 title: "NixOS: On Raspberry Pi 3B"
 toc: 2
-preview: true
 ---
 
 
@@ -24,6 +23,11 @@ limited Raspberry Pi.
 
 * Building
 
+The Raspberry Pi is quite a limited system when it comes to computing resources
+and you don't really want to find yourself building much to any software on it
+natively. Instead it would be great to save some grief by building the
+configuration on a more powerful machine.
+
 The configuration required to build a ~NixOS~ SD card image for the Raspberry Pi
 turned out to be really short and sweet. Here's a minimal ~nixosConfigurations~
 entry where a system configuration includes the necessary module to build SD
@@ -37,7 +41,7 @@ card ISO images:
       system = "aarch64-linux";
       modules = [
         "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-        { config.system.stateVersion = "21.11"; }
+        { config.system.stateVersion = "22.05"; }
       ];
     };
   };
@@ -239,7 +243,7 @@ configuration or module into this config:
           config = {
             # ...like <hostname>
             networking.hostName = "bringebær-pai";
-            system.stateVersion = "21.11";
+            system.stateVersion = "22.05";
           };
         })
       ];
@@ -253,10 +257,10 @@ In the case of my dotfiles I do have [[https://github.com/myme/dotfiles/blob/017
 based on my dotfile repository structure. I gave a walkthrough of this
 configuration in my previous post: [[file:2022-06-14-nixos-confederation.org][NixOS: Confederation]].
 
-** Compression
+** C.mpr.ss..n
 
-By default, the SD image ~ISO~ is compressed using ~zst~. This is a reasonable
-default as it saves a significant amount of disk space:
+By default, the SD image ~ISO~ is /compressed/ using ~zstd~. This is a
+reasonable default as it saves a significant amount of disk space:
 
 #+begin_example
 nix-repl> :lf .
@@ -276,7 +280,7 @@ $ nix shell nixpkgs#zstd -c unzstd -o nixos.img ./result/sd-image/<name>.img.zst
 
 With all my customizations and additional tools the image size is considerably
 bigger than the default. Expect that compressing the resulting ~.img~ using
-~zst~ takes quite a bit of time. Since I was intending on only building the SD
+~zstd~ takes quite a bit of time. Since I was intending on only building the SD
 image once, I skipped the ~zstd~ by setting
 ~config.system.build.sdImage.compressImage = false~:
 
@@ -293,7 +297,10 @@ image once, I skipped the ~zstd~ by setting
             system = {
               # Disable zstd compression
               build.sdImage.compressImage = false;
-              stateVersion = "22.11";
+
+              # ... other configs
+
+              stateVersion = "22.05";
             };
           };
         }
@@ -310,10 +317,10 @@ This will quickly exhaust your disk, so either keep compression ~on~ or make
 sure to ~nix-collect-garbage~ on occasion.
 #+end_note
 
-In the end, surely enough, the SD image was built and ready to be flashed onto a
-real SD card. Without concern of stripping down to bare minimums, my image
-containing all my headless customizations and tools take close to ~9GB~ of disk
-space. A minimal installation ends up somewhere around ~2.5GB~.
+Surely enough, in the end the SD image was built and ready to be flashed onto a
+real SD card. Without concern of stripping down the configuration to bare
+minimums my image containing all my headless customizations and tools take close
+to ~9GB~ of disk space. A minimal installation ends up somewhere around ~2.5GB~.
 
 #+begin_src sh
 ❯ ls -lh result/sd-image/
@@ -384,31 +391,31 @@ sufficient enough power supply or weirdness may happen.
 
 And surely enough, /weirdness/ ensued.
 
-I don't quite remember what I used to drive the R-Pi previously, but this time
+I don't quite remember what I used to power the R-Pi previously, but this time
 around I was using some regular USB adapters I had laying around. The R-Pi
 seemed to start up exactly as it should and once I had the SD image ready I was
-presented with the ~NixOS~ boot process and all seemed well so power being an
+presented with the ~NixOS~ boot process and all seemed well. Power being an
 issue wasn't in my mind at this point.
 
 However, at some point during "Stage 2" of the boot process, everything went
 black and the R-Pi eventually entered a cyclic boot. This seemed to consistently
-happen right when the kernel changes or updates the framebuffer (or whatever
-happens with that regular boot-time "flicker"). For the first couple of reboots
-I thought I might have mistakenly setup an X server on my image, and now the X
-server was causing some panic or whatever right when it was starting. So
-naturally my first though was that I had somehow messed up the image and it was
-corrupt in one way or another. To eliminate personal fuckups my first attempt at
-fixing this issue was to double check that one of the pre-built images managed
-to get me to the login prompt.
+happen right when the kernel changes or updates the framebuffer resolution
+and/or fonts (or whatever happens with that regular boot-time "flicker"). For
+the first couple of reboots I thought I might have mistakenly setup an X server
+on my image, and now the X server was causing some panic or whatever right when
+it was starting. Naturally my first though was that I had somehow messed up the
+image and it was corrupt in one way or another. To eliminate personal fuckups my
+first attempt at fixing this issue was to double check that one of the pre-built
+images managed to get me to the login prompt.
 
 No such luck.
 
 The same blackout then reboot happened in exactly the same way with the
-pre-built SD image. At this point I had spent quite a bit of time on getting to
-this point and was feeling tired. Building images, flashing SD cards and booting
-R-Pis has a much bigger feedback loop than your regular TDD cycle and not
-knowing which wild goose to chase killed my spirit to push on. It's better take
-a break!
+pre-built SD image. At this point I had spent quite a bit of time on this
+project and was feeling tired. Building images, flashing SD cards and booting
+Raspberry Pis has a long feedback loop, particularly with large images and slow
+SD card bandwidths. Not knowing which wild goose to chase it killed my spirit to
+push on. Better take a break!
 
 A few days passed, but I eventually felt revigorated and came back with a fresh
 mind. I started by re-reading the ~NixOS~ Wiki on Raspberry Pi, and surely
@@ -416,7 +423,7 @@ enough I was reminded of the importance of providing the R-Pi with sufficient,
 stable power.
 
 Switching out the random USB adapter with something capable of consistently
-serving up to 2As of 5V seemed to get me to the long awaited login prompt on
+serving up to ~2A~ of ~5V~ seemed to get me to the long awaited login prompt on
 ~tty1~.
 
 Great success! However, logging in I did not see my familiar [[https://starship.rs/][starship]] prompt,
@@ -424,12 +431,180 @@ but rather a more stock ~bash~ prompt reminding me that I pulled all my configs
 from the SD image to rule out any personal settings messing up the boot process.
 
 After another few iterations of rebuilding and reflashing the SD card -
-eventually growing the image to a (not so modest) 9 GB from the stripped down
-2.5 GB of the plain image - I was able to log in to a system that felt like
+eventually growing the image to a (not so modest) ~9 GB~ from the stripped down
+~2.5 GB~ of the plain image - I was able to log in to a system that felt like
 ~$HOME~.
+
+[[file:../images/nixos-on-raspberry-pi3.png]]
+
+* Remote deployment
+
+Building the SD card image with all our customizations and tweaks saved us a ton
+of time. Once the R-Pi is up running we can't keep re-flashing the SD card
+whenever we want to update our software. It's of course possible copy over the
+configuration to the R-Pi, ~ssh~ in and issue ~nixos-rebuild switch~ there, but
+building my configuration itself the Raspberry Pi wouldn't have finished by
+Christmas.
+
+It's much more desirable to keep using remote building and rather copy over all
+the /store paths/ required for the new NixOS generation over to the R-Pi once
+they're built. There are a few hurdles to overcome first before making that a
+reality.
+
+** Generating ~nix~ cache keys
+
+In order for remote systems to accept derivations built on other machines they
+have to be signed in the ~nix store~ of the build machine or through the ~nix~
+cache server. Generating a key is quite simple, following the steps on
+[[https://nixos.wiki/wiki/Distributed_build#Using_remote_builders_as_substituters][Distributed build]] or [[https://nixos.wiki/wiki/Binary_Cache][Binary Cache]] over at the [[https://nixos.wiki/wiki][NixOS Wiki]]:
+
+#+begin_example
+$ nix-store --generate-binary-cache-key builder-name cache-priv-key.pem cache-pub-key.pem
+#+end_example
+
+#+begin_note
+This is using the "legacy"[fn:3] ~nix-store~ command. There might be an entry
+into cache key generation using ~nix store~ or similar, but I have neither
+looked nor stumbled over it.
+#+end_note
+
+Most people who've used ~nix~ for any significant time should be familiar with
+seeing pre-built store paths pulled down from [[https://cache.nixos.org][cache.nixos.org]]. It's also
+possible to use other caches (substitutors) like [[https://cachix.org][cachix]] or serving up a ~nix
+store~ directly from the local machine using e.g. [[https://github.com/edolstra/nix-serve][nix-serve]] (or any of its many
+compatible clones).
+
+As a security mechanism ~nix~ doesn't allow using pre-built store paths from
+random hosts. To ensure that a path has been built by a trusted remote ~nix~
+allows signing store paths. By default, ~nix~ is configured to trust the key
+used by [[https://hydra.nixos.org][Hydra]]:
+
+#+begin_example
+❯ grep trusted-public-keys /etc/nix/nix.conf
+trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+#+end_example
+
+It's possible to have ~nix~ sign all store paths that are built locally using a
+given private key. This can be done by adding the private key to
+~/etc/nix/nix.conf~:
+
+#+begin_example
+secret-key-files <path-to-key>.pem
+#+end_example
+
+It's also possible to sign all existing store paths after the fact:
+
+#+begin_example
+$ nix store sign --all --key-file cache-priv-key.pem
+#+end_example
+
+Instead of explicitly signing store paths on the local machine it's possible
+(and perhaps preferable) to sign the store paths when they are served through
+servers like ~nix-serve~. In which case you shouldn't invoke the command above
+or add the ~secret-key-files~ to ~/etc/nix/nix.conf~.
+
+[fn:3]  Not really legacy, but I've been using the ~nix~ command for so long
+it's starting to feel a lot like it.
+
+** 🚀 ~deploy-rs~
+
+I haven't been doing much of my own ~nix~ caching outside of simple experiments
+and using the [[https://github.com/cachix/cachix-action][cachix-action]] in GitHub workflows. The tool I chose to use for
+this was [[https://github.com/serokell/deploy-rs][deploy-rs]]. It allows checking, building and deploying ~NixOS~
+configurations to remote systems while also having some nice bells and whistles
+like automatic rollback on failure.
+
+#+begin_src nix
+{
+  description = "NixOS Raspberry Pi configuration flake";
+
+  inputs = {
+    # Add deploy-rs as Flake input from GitHub
+    deploy-rs.url = "github:serokell/deploy-rs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+  };
+
+  outputs = { self, deploy-rs, nixpkgs }: {
+    nixosConfigurations.rpi = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        # NixOS config
+        # ...
+      ];
+    };
+
+    # deploy-rs node configuration
+    deploy.nodes.rpi = {
+      hostname = "192.168.1.7";
+      profiles.system = {
+        sshUser = "myme";
+        sshOpts = [ "-t" ];
+        magicRollback = false;
+        path =
+          deploy-rs.lib.aarch64-linux.activate.nixos
+            self.nixosConfigurations.rpi;
+        user = "root";
+      };
+    };
+  };
+}
+#+end_src
+
+#+begin_note
+I currently have disabled the ~magicRollback~ and require some additional ~ssh~
+options in order for ~sudo~ to work well remotely on the R-Pi. There might be
+ways around this, but I haven't really spent much time on it.
+#+end_note
+
+Once the ~deploy-rs~ configuration is in place the time has come for testing our
+first remote deployment. First we need to tell ~deploy-rs~ about our cache key
+before we can start the actual deploy step. This is just defining a ~LOCAL_KEY~
+environment variable. Then running ~deploy~ with either zero arguments (defaults
+to all defined nodes) or with a ~flake~ path to a specific node:
+
+#+begin_example
+$ export LOCAL_KEY=/var/nix/cache-priv-key.pem
+$ deploy .#rpi
+#+end_example
+
+[[file:../images/nixos-raspberry-pi3-deploy-rs.png]]
+
+** For generations to come!
+
+Once the ~deploy-rs~ deployment succeeds it's possible to list the NixOS
+generations on the R-Pi to see that we're indeed able to activate new
+generations remotely.
+
+[[file:../images/nixos-raspberry-pi3-generations.png]]
+
+#+begin_note
+See how the first generation running directly from the built SD image is from
+~POSIX~ epoch.
+#+end_note
 
 * Rounding off
 
+So, what did we do?
+
+ 1. Configured our build host to emulate ~aarch64~ for building binaries for the
+    Raspberry Pi.
+ 2. Added our ~NixOS~ customizations to the minimal Raspberry Pi SD card
+    configuration.
+ 3. Built the SD card image and copied it over to a physical card.
+ 4. Booted the Raspberry Pi (with sufficient power) into a batteries included
+    ~NixOS~ installation.
+ 5. Set up our build machine with a ~nix store~ cache key.
+ 6. Configured ~deploy-rs~ with our Raspberry Pi as a node.
+ 7. Successfully deployed ~NixOS~ to the Raspberry Pi 🚀
+
+There are probably tons of things I can improve with this process, but at least
+it's at the point where this is working smoothly.
+
 Now I just need to find something to use this aging R-Pi for!
+
+#+begin_note
+I'd like to thank [[https://mastodon.social/@martiert][@martiert]] for keeping his [[https://github.com/martiert/nixos-config][NixOS configurations repo]] publicly
+available for inspiration and little tricks that got this all working for me.
+#+end_note
 
 * Footnotes
