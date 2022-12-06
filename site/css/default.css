@@ -350,7 +350,7 @@ ul {
     list-style-type: ' — ';
 }
 
-code, pre, .note {
+code, pre, .edit, .note {
     border-radius: 0.2em;
 }
 
@@ -448,7 +448,7 @@ del {
     padding: 2px 5px;
 }
 
-.note {
+.edit, .note {
     clear: both;
     font-style: italic;
     background: none;
@@ -458,6 +458,12 @@ del {
     margin-bottom: 2rem;
     border: 0.1rem solid var(--note-border);
     border-left-width: 0.5rem;
+}
+
+.edit > :first-child::before {
+    content: "Edit:";
+    display: block;
+    margin-bottom: 1rem;
 }
 
 .note > :first-child::before {

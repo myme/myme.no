@@ -754,6 +754,12 @@ some other architectures for NixOS.
 Should I end up doing this I'll try to make sure I'll write about it and add a
 link to it here.
 
+#+begin_edit
+The [[file:2022-12-01-nixos-on-raspberrypi.org][NixOS: On Raspberry Pi 3B]] post is now available!
+
+2022-12-06
+#+end_edit
+
 * Configuration
 
 The ~Home Manager~ configuration entry point is [[https://github.com/myme/dotfiles/blob/0014937dd90f947f1c72a1e430db9e2c5dacbee4/home-manager/default.nix][home-manager/default.nix]] and
