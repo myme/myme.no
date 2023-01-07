@@ -11,7 +11,7 @@ order:
 These are my dotfiles. There are many like them, but these ones are mine. I
 take my dotfiles very seriously, as any professional programmer should.
 
-*** [[https://myme.no][myme.no]]
+*** [[https://github.com/myme/myme.no][myme.no]]
 
 The source code for this very website. A statically generated site using [[https://jaspervdj.be/hakyll/][Hakyll]]
 to generate the static assets and [[https://nixos.org/][Nix]] for building.
