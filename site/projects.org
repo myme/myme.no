@@ -15,7 +15,7 @@ take my dotfiles very seriously, as any professional programmer should.
 
 Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
 
-*** [[https://github.com/myme/xchg][xchg]] (JavaScript + Haskell)
+*** [[https://github.com/myme/rtcp][rtcp]] (JavaScript + Haskell)
 
 Exchange stuff (text) between things (browsers) using ~WebRTC~.
 
