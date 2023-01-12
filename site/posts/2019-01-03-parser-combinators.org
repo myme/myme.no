@@ -1,6 +1,7 @@
 ---
 title: Parser combinators
 toc: 2
+tags: Haskell
 ---
 
 #+PROPERTY: header-args:haskell :tangle ../src/Parser.hs

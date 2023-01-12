@@ -1,5 +1,6 @@
 ---
 title: We're all Doomed!
+tags: Emacs
 ---
 
 Just a quickie!

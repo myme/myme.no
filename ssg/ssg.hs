@@ -2,12 +2,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Control.Monad
-import Data.Char (toLower)
+import qualified Data.Char as Char
 import Data.Function ((&))
 import Data.List (isInfixOf, isPrefixOf)
 import Hakyll hiding (fromList)
 import System.FilePath
 import Text.HTML.TagSoup (Tag (..))
+import Text.Blaze ((!))
+import qualified Text.Blaze.Html5 as H
+import qualified Text.Blaze.Html5.Attributes as A
 import qualified Text.Pandoc as Pandoc
 import Text.Pandoc.Builder
 import Text.Pandoc.Options
@@ -16,6 +19,9 @@ import Text.Read (readMaybe)
 
 frontpagePosts :: Int
 frontpagePosts = 20
+
+toLower :: Functor f => f Char.Char -> f Char.Char
+toLower = fmap Char.toLower
 
 -- | Compiler for each blog post page
 postCompiler :: Compiler (Item String)
@@ -62,7 +68,7 @@ split delim = split' [] []
 
 toAnchor :: String -> String
 toAnchor = \case
-  ('*' : rest) -> '#' : map (\case ' ' -> '-'; x -> toLower x) rest
+  ('*' : rest) -> '#' : map (\case ' ' -> '-'; x -> Char.toLower x) rest
   input -> input
 
 -- | Returns true for any post which is not a preview
@@ -108,15 +114,24 @@ main = hakyllWith config $ do
     route idRoute
     compile compressCssCompiler
 
+  tags <- buildTags "posts/*" (fromCapture "tags/*.html" . toLower)
+
+  -- Individual posts
   match "posts/*" $ do
     route $ setExtension "html"
-    compile $
+    compile $ do
+      let
+        renderLink _ Nothing = Nothing
+        renderLink tag (Just url) = Just $
+          H.li $ H.a ! A.href (H.toValue ("/" <> url)) $ H.toHtml tag
+        tagsCtx = tagsFieldWith getTags renderLink mconcat "tags" tags
       postCompiler
-        >>= loadAndApplyTemplate "templates/post.html" postCtx
+        >>= loadAndApplyTemplate "templates/post.html" (tagsCtx <> postCtx)
         >>= saveSnapshot "content"
         >>= loadAndApplyTemplate "templates/default.html" postCtx
         >>= relativizeUrls
 
+  -- Full posts listing
   create ["posts.html"] $ do
     route idRoute
     compile $ do
@@ -126,6 +141,21 @@ main = hakyllWith config $ do
           >>= recentFirst
       let postsCtx =
             constField "title" "Posts"
+              <> listField "posts" postCtx (return posts)
+              <> defaultContext
+
+      makeItem ""
+        >>= loadAndApplyTemplate "templates/posts.html" postsCtx
+        >>= loadAndApplyTemplate "templates/default.html" postsCtx
+        >>= relativizeUrls
+
+  -- Individual tag pages
+  tagsRules tags $ \tagStr tagsPattern -> do
+    route idRoute
+    compile $ do
+      posts <- loadAll tagsPattern >>= filterM postIsNotPreview >>= recentFirst
+      let postsCtx =
+            constField "title" tagStr
               <> listField "posts" postCtx (return posts)
               <> defaultContext
 

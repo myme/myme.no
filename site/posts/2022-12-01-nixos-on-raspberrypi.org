@@ -1,6 +1,7 @@
 ---
 title: "NixOS: On Raspberry Pi 3B"
 toc: 2
+tags: NixOS
 ---
 
 

@@ -1,6 +1,7 @@
 ---
 title: "NixOS: Containers a la Nix"
 toc: 1
+tags: Docker, NixOS
 ---
 
 I don't really have much interest in maintaining a complex personal home page.

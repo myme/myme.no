@@ -1,6 +1,7 @@
 ---
 title: "NixOS: The Ultimate Dev Environment?"
 toc: 3
+tags: NixOS
 ---
 
 This post is another in an unstructured series of ~nix~ and ~NixOS~ related

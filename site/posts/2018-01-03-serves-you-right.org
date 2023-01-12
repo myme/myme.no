@@ -1,5 +1,6 @@
 ---
 title: Serves you right!
+tags: Docker
 ---
 
 A new post for a new year! I spent my [[file:2017-12-24-move-to-spacemacs.org][previous post]] advocating =Spacemacs= after

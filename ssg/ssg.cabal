@@ -6,6 +6,8 @@ cabal-version:      >= 1.10
 executable ssg
   main-is:          ssg.hs
   build-depends:    base
+                  , blaze-html
+                  , blaze-markup
                   , filepath
                   , hakyll
                   , pandoc

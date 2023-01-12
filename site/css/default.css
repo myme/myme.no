@@ -350,6 +350,20 @@ ul {
     list-style-type: ' — ';
 }
 
+ul.tags {
+    list-style: none;
+    padding: 0;
+}
+
+ul.tags li {
+    display: inline-block;
+    margin-left: 0.5em;
+}
+
+ul.tags li:first-child {
+    margin-left: 0;
+}
+
 code, pre, .edit, .note {
     border-radius: 0.2em;
 }

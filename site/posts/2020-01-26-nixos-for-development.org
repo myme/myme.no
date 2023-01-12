@@ -1,6 +1,7 @@
 ---
 title: "NixOS: For developers"
 toc: 2
+tags: NixOS
 ---
 
 After [[file:2019-07-01-nixos-into-the-deep-end.org][my brief introduction]] to ~NixOS~ and the process of installing it, I

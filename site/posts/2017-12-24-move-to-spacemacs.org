@@ -1,5 +1,6 @@
 ---
 title: I wanna go to spaaaace!
+tags: Emacs
 ---
 
 I figured I'd start off with a couple of articles about the technology I

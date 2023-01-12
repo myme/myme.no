@@ -1,5 +1,6 @@
 ---
 title: "Functional fallback fallout"
+tags: Haskell
 ---
 
 One thing I've always found fiddly with programming is managing optional

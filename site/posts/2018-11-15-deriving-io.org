@@ -1,6 +1,7 @@
 ---
 title: "Deriving :: IO"
 toc: 2
+tags: Haskell
 ---
 
 #+PROPERTY: header-args:haskell :tangle yes :comments org

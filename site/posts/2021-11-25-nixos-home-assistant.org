@@ -1,6 +1,7 @@
 ---
 title: "NixOS: Headless Home Assistant VM"
 toc: 1
+tags: NixOS
 ---
 
 This post is based off the notes I made while setting up [[https://www.home-assistant.io/][Home Assistant]] in a

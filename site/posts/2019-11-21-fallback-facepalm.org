@@ -1,5 +1,6 @@
 ---
 title: "Functional fallback facepalm"
+tags: Haskell
 ---
 
 In [[file:2019-11-03-fallback-fallout.org][the last post]] I vented some frustration with handling potentially failing and

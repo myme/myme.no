@@ -1,6 +1,7 @@
 ---
 title: A Dotfile History
 toc: 2
+tags: Dotfiles
 ---
 
 Much has changed since [[file:2019-01-28-dotfiles.org][I made a brief post]] about my dotfiles and which tools I

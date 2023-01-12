@@ -1,6 +1,7 @@
 ---
 title: "Dark Mode"
 toc: 2
+tags: Web
 ---
 
 I tend to setup my machines with a fairly dark appearance, often using [[https://draculatheme.com/][Dracula
