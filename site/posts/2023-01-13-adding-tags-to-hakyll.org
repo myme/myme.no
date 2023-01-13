@@ -1,0 +1,164 @@
+---
+title: Adding tags to Hakyll
+toc: 1
+tags: Haskell, Web
+---
+
+I've been building this site statically using [[https://jaspervdj.be/hakyll/][Hakyll]] [[file:2017-12-21-hello-world.org][since the beginning]] and I
+haven't found any significant reason to move off it yet. I figured that since
+there are [[file:/tags/nixos.html][some topics]] that keeps repeating I wanted to start tagging my posts.
+~Hakyll~ supports tags out of the box and with some help from [[https://alan.leung.work/blog/post/adding-tags-to-hakyll/][this post]] it
+didn't take me too long to get a decent initial implementation in place.
+
+* Adding tags to posts
+
+~Hakell~ allows defining some metadata for each post. In this metadata it's
+trivial to add a new ~tags~ key, which should define a list of comma-separated
+tags:
+
+#+begin_example
+---
+title: This is some post
+tags: NixOS, Haskell, ...
+---
+#+end_example
+
+Once all posts have been tagged it's all about letting ~Hakyll~ know what to do
+with them.
+
+* Finding tags
+
+First off ~Hakyll~ needs to know from which files to lookup tags (all posts) and
+where to place the /output/ of each tag list. For this ~Hakyll~ provides the
+~buildTags~ function:
+
+#+begin_src haskell
+λ: :i buildTags
+buildTags ::
+  MonadMetadata m => Pattern -> (String -> Identifier) -> m Tags
+        -- Defined in ‘Hakyll.Web.Tags’
+#+end_src
+
+In my static site generator ([[https://github.com/myme/myme.no/blob/f7d7c2047687f87cb6f113dd136e6190e10cfc1a/ssg/ssg.hs][ssg]]) I apply it to the following arguments:
+
+#+begin_src haskell
+main = do
+  -- snip snip
+  tags <- buildTags "posts/*" (fromCapture "tags/*.html" . toLower)
+#+end_src
+
+Basically this means for all files under ~./posts~ and generate files for each
+tag under ~./tags~. A personal preference of mine is to have the file names be
+lower case, so each tag is converted to lower case for the file name only.
+
+* Generating tag post lists
+
+~Hakyll~ can generate one static page for each tag found. The posts are found,
+filtered based on visibility and sorted before the tags file is rendered with
+the same template as the "all posts" listing:
+
+#+begin_src haskell
+  tagsRules tags $ \tagStr tagsPattern -> do
+    route idRoute
+    compile $ do
+      posts <- loadAll tagsPattern >>= filterM postIsNotPreview >>= recentFirst
+      let postsCtx =
+            constField "title" tagStr
+              <> listField "posts" postCtx (return posts)
+              <> defaultContext
+
+      makeItem ""
+        >>= loadAndApplyTemplate "templates/posts.html" postsCtx
+        >>= loadAndApplyTemplate "templates/default.html" postsCtx
+        >>= relativizeUrls
+#+end_src
+
+* Navigating to tags list
+
+At this point ~Hakyll~ will build ~tags/*.html~ pages containing all posts with
+the given tags. However, there's no way to /find/ these pages through
+navigation. In order to make each listing of topics defined by a tag reachable I
+could choose to have a good old "tag cloud" overview page, using something like
+~renderTagCloud~. To start off though I settled on just adding a list of tags to
+each post, which allows the user to click into similar posts.
+
+~Hakyll~ has various functions for rendering tags into ~HTML~ where the simplest
+is ~tagsField~:
+
+#+begin_src haskell
+λ: :i tagsField
+tagsField :: String -> Tags -> Context a
+#+end_src
+
+This function only renders a comma-separated set of ~<a>~ anchors, which doesn't
+give all the semantics and styling options I would like. Instead, there's the
+more general ~tagsFieldWith~ which accepts a few additional parameters:
+
+#+begin_src haskell
+λ: :i tagsFieldWith
+tagsFieldWith ::
+  (Identifier -> Compiler [String])
+  -- ^ Get the tags
+  -> (String -> (Maybe FilePath) -> Maybe H.Html)
+  -- ^ Render link for one tag
+  -> ([H.Html] -> H.Html)
+  -- ^ Concatenate tag links
+  -> String
+  -- ^ Destination field
+  -> Tags
+  -- ^ Tags structure
+  -> Context a
+  -- ^ Resulting context
+#+end_src
+
+For the most part I'd like the same behavior as ~tagsField~, so I applied the
+same arguments while providing a separate ~renderLink~ function which simply
+puts the links into ~<li>~ as well:
+
+#+begin_src haskell
+  renderLink _ Nothing = Nothing
+  renderLink tag (Just url) = Just $
+    H.li $ H.a ! A.href (H.toValue ("/" <> url)) $ H.toHtml tag
+#+end_src
+
+The whole rule ended up like the following:
+
+#+begin_src haskell
+  match "posts/*" $ do
+    route $ setExtension "html"
+    compile $ do
+      let
+        renderLink _ Nothing = Nothing
+        renderLink tag (Just url) = Just $
+          H.li $ H.a ! A.href (H.toValue ("/" <> url)) $ H.toHtml tag
+        tagsCtx = tagsFieldWith getTags renderLink mconcat "tags" tags
+      postCompiler
+        >>= loadAndApplyTemplate "templates/post.html" (tagsCtx <> postCtx)
+        >>= saveSnapshot "content"
+        >>= loadAndApplyTemplate "templates/default.html" postCtx
+        >>= relativizeUrls
+#+end_src
+
+Finally, in order to output the list of tags for each post the rendered HTML
+must be injected into the post template. The ~tagsCtx~ places the rendered HTML
+into a field named ~tags~ and so not much more is needed than referencing it in
+the desired place in the template markup:
+
+#+begin_src html
+<article>
+  <h1>$title$</h1>
+  <ul class="tags">$tags$</ul>
+  <section class="header">
+    Posted on $date$
+    $if(author)$
+      by $author$
+    $endif$
+  </section>
+  <section>
+    $body$
+  </section>
+</article>
+#+end_src
+
+And that's pretty much it! Now the posts have tags and it should be possible to
+see e.g. my [[file:/tags/nixos.html][list of Nix and NixOS related posts]].
