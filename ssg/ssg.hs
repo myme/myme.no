@@ -7,10 +7,10 @@ import Data.Function ((&))
 import Data.List (isInfixOf, isPrefixOf)
 import Hakyll hiding (fromList)
 import System.FilePath
-import Text.HTML.TagSoup (Tag (..))
 import Text.Blaze ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+import Text.HTML.TagSoup (Tag (..))
 import qualified Text.Pandoc as Pandoc
 import Text.Pandoc.Builder
 import Text.Pandoc.Options
@@ -50,10 +50,10 @@ postCompiler = do
 rewriteOrgUrl :: String -> String
 rewriteOrgUrl url
   | not ("://" `isInfixOf` url) =
-      split "::" url & \case
-        [] -> url
-        [u] -> orgToHtml u
-        (u : section : _) -> orgToHtml u <> toAnchor section
+    split "::" url & \case
+      [] -> url
+      [u] -> orgToHtml u
+      (u : section : _) -> orgToHtml u <> toAnchor section
   | otherwise = url
   where
     orgToHtml u = maybe u (`addExtension` ".html") (stripExtension ".org" u)
@@ -88,9 +88,9 @@ convertVideoLinks :: [Tag String] -> [Tag String]
 convertVideoLinks (TagOpen "a" attrs : TagText txt : TagClose "a" : rest) =
   case videoUrl of
     Just url ->
-      TagOpen "video" (("src", url) : defVideoAttrs)
-        : TagClose "video"
-        : convertVideoLinks rest
+      TagOpen "video" (("src", url) : defVideoAttrs) :
+      TagClose "video" :
+      convertVideoLinks rest
     _ -> TagOpen "a" attrs : TagText txt : TagClose "a" : convertVideoLinks rest
   where
     defVideoAttrs = [("autoplay", ""), ("controls", ""), ("loop", "")]
@@ -120,11 +120,17 @@ main = hakyllWith config $ do
   match "posts/*" $ do
     route $ setExtension "html"
     compile $ do
-      let
-        renderLink _ Nothing = Nothing
-        renderLink tag (Just url) = Just $
-          H.li $ H.a ! A.href (H.toValue ("/" <> url)) $ H.toHtml tag
-        tagsCtx = tagsFieldWith getTags renderLink mconcat "tags" tags
+      let renderLink _ Nothing = Nothing
+          renderLink tag (Just url) = Just $
+            H.li $
+              H.a
+                ! ( A.href (H.toValue ("/" <> url))
+                      <> A.title ("Navigate posts by tag: " <> H.stringValue tag))
+                $ do
+                  H.span ! A.class_ "fa fa-tag" $ " "
+                  " "
+                  H.toHtml tag
+          tagsCtx = tagsFieldWith getTags renderLink mconcat "tags" tags
       postCompiler
         >>= loadAndApplyTemplate "templates/post.html" (tagsCtx <> postCtx)
         >>= saveSnapshot "content"

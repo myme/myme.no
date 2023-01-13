@@ -203,6 +203,10 @@ p img, p video {
     }
 }
 
+/*
+ * Header, footer and navigation
+ */
+
 header {
     text-align: right;
 }
@@ -267,6 +271,10 @@ footer .social {
     font-size: 1.3em;
 }
 
+/*
+ * Table of contents
+ */
+
 .toc {
     background-color: var(--well-bg);
     border-radius: 5px;
@@ -300,6 +308,10 @@ footer .social {
     padding-left: 0;
 }
 
+/*
+ * Links
+ */
+
 a {
     color: var(--main-link);
     text-decoration: none;
@@ -318,6 +330,10 @@ a:hover {
     color: var(--main-fg-heavy);
     text-decoration: none;
 }
+
+/*
+ * Headings
+ */
 
 h1, h2, h3, h4, h5, h6 {
     text-align: start;
@@ -350,6 +366,10 @@ ul {
     list-style-type: ' — ';
 }
 
+/*
+ * Post tags
+ */
+
 ul.tags {
     list-style: none;
     padding: 0;
@@ -363,6 +383,59 @@ ul.tags li {
 ul.tags li:first-child {
     margin-left: 0;
 }
+
+ul.tags a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+ul.tags a > * {
+    margin-right: 0.6em;
+}
+
+ul.tags span {
+    font-size: 0.6em;
+}
+
+/*
+ * Article layout
+ */
+
+article {
+    text-align: justify;
+    text-justify: auto;
+}
+
+article .header {
+    color: var(--main-fg-dim);
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+pre.sourceCode, pre.example {
+    background-color: var(--well-bg);
+    font-size: 0.9em;
+    overflow: auto;
+    padding: 0.7rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+p {
+    line-height: 1.4em;
+}
+
+p img, p iframe, p video {
+    display: block;
+    margin: 0 auto;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+/*
+ * Code blocks
+ */
 
 code, pre, .edit, .note {
     border-radius: 0.2em;
@@ -383,37 +456,6 @@ code.sourceCode, .example code {
     background-color: inherit;
     color: var(--well-fg);
     padding: 0;
-}
-
-p {
-    line-height: 1.4em;
-}
-
-p img, p iframe, p video {
-    display: block;
-    margin: 0 auto;
-    margin-top: 3rem;
-    margin-bottom: 3rem;
-}
-
-article {
-    text-align: justify;
-    text-justify: auto;
-}
-
-article .header {
-    color: var(--main-fg-dim);
-    font-size: 0.8em;
-    font-style: italic;
-}
-
-pre.sourceCode, pre.example {
-    background-color: var(--well-bg);
-    font-size: 0.9em;
-    overflow: auto;
-    padding: 0.7rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
 }
 
 .sourceCode .at { color: var(--source-attribute-fg); }
