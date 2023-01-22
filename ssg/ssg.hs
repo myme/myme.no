@@ -188,7 +188,7 @@ main = hakyllWith config $ do
           >>= filterM postIsNotPreview
           >>= recentFirst
       let feedCtx = postCtx <> bodyField "description"
-      renderRss feedConfig feedCtx publicPosts
+      renderAtom feedConfig feedCtx publicPosts
 
   match "index.html" $ do
     route idRoute
