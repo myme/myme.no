@@ -359,7 +359,6 @@ h2 {
 h2::before {
     content: "#";
     left: -1.5rem;
-    top: 0.25rem;
 }
 
 h3 {

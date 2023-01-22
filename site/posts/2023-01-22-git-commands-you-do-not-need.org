@@ -35,8 +35,8 @@ might not ever need.
 creating /empty/ commits doesn't sound like a very productive or sensible thing
 to do. Not /adding/ any content might seem like a waste.
 
-Off the top of my mind, I know of two reasons where creating an empty commit can
-make quite a bit of sense:
+Yet, I know off the top of my mind at least two occasions where creating an
+empty commit can make quite a bit of sense:
 
  1. Initializing new repositories.
  2. Triggering continuous deployment pipelines.
@@ -99,8 +99,8 @@ Or for the more adventurous:
 git push <remote> <refspec>
 #+end_example
 
-Now what if I told you it's possible to /push/ a remote reference to your local
-repository, effectively /reversing/ the direction of the push operation?
+Now what if I told you it's possible to push a /remote/ reference to your
+/local/ repository, effectively reversing the direction of the push operation?
 
 #+begin_example
 git push . origin/main:main
@@ -131,13 +131,13 @@ of date. For whatever reason (diffing, cherry-picking, etc) you want to update
 your feature branch[fn:2]. One reason might be to avoid invalidating much of a
 slow-running incremental build.
 
-Instead of e.g. using the ~worktree~ functionality to create and checkout a
+Instead of using e.g. the ~worktree~ functionality to create and checkout a
 whole new working tree, we can use the "push to local" to update whichever
-/passive/ ~head~ that we wish.
+/passive/[fn:3] ~head~ that we wish.
 
-~git~ provides the same branch protection rules as with pushing to remote
+~git~ provides the same branch protection rules as when pushing to remote
 repositories. Which is to say that it denies non-fast-forward pushes by default,
-but allows overrides through ~+<tree>:<ref>~ refspecs, or the ~--force~ and
+but allows overrides through ~+<commit>:<ref>~ refspecs, or the ~--force~ and
 ~--force-with-lease~ command line options.
 
 #+begin_note
@@ -150,6 +150,9 @@ control of what's going to get pushed.
 [fn:2] Diffing and cherry-pick can of course also be done towards remote refs,
 but for the incremental builds case it's /very/ useful to update a branch
 /before/ checking it out.
+
+[fn:3] By "passive" I'm talking about any branch that's currently not checked
+out in the repository or any associated ~worktree~.
 
 * Commit ranking 🥇
 
@@ -511,7 +514,7 @@ Date:   Thu Jan 19 01:13:17 2023 +0100
 #+end_example
 
 We can see that the commit is a merge commit, where one parent is [[https://github.com/myme/dotfiles/commit/a0b32f85fd07eaa09fcb2bc06b695b7a067a43aa][a0b32f85f]] from
-my ~dotfiles~ while the other parent [[https://github.com/doomemacs/doomemacs/commit/e96624926d724aff98e862221422cd7124a99c19][e96624926]] is the current[fn:3] ~HEAD~ from the
+my ~dotfiles~ while the other parent [[https://github.com/doomemacs/doomemacs/commit/e96624926d724aff98e862221422cd7124a99c19][e96624926]] is the current[fn:4] ~HEAD~ from the
 ~doomemacs~ repo.
 
 We have successfully merged the histories of my ~dotfiles~ repository with Doom
@@ -523,7 +526,7 @@ monorepo from separate smaller repositories.
 
 The next section is about one (of several) times I've found this useful myself.
 
-[fn:3] At the time of writing.
+[fn:4] At the time of writing.
 
 ** Dotfiles bankruptcy
 
@@ -554,7 +557,7 @@ Date:   Wed Feb 10 11:59:23 2016 +0100
 There is not one, but /two/ commits in the ~dotfiles~ repository which doesn't
 have any parents.
 
- 1. The /real/ "[[https://github.com/myme/dotfiles/commit/61a3f80babec8c1339391462590dafe7ff30fe7f][Initial import]]" created at the beginning of time[fn:4].
+ 1. The /real/ "[[https://github.com/myme/dotfiles/commit/61a3f80babec8c1339391462590dafe7ff30fe7f][Initial import]]" created at the beginning of time[fn:5].
  2. The much more recent "[[https://github.com/myme/dotfiles/commit/6fa853118711f557a911b98f00d5c4a2eb3ded71][nixos: Initial commit]]".
 
 The second commit was the beginning of my attempt to move my machine
@@ -595,7 +598,7 @@ Unfortunately, I haven't been able to find back to these two sources again. Let
 me know if you know where to find them and I'd gladly link them here.
 #+end_note
 
-[fn:4] Yeah, yeah... Not that long ago, I know. But I did also track
+[fn:5] Yeah, yeah... Not that long ago, I know. But I did also track
 configurations prior to starting my "new dotfiles" journey. However, I guess
 that history wasn't something I cared to take along with me and so the initial
 commit wasn't an an empty commit, but more the traditional "Initial import" of
@@ -625,7 +628,7 @@ Oh, the embarrassment! It's unbearable!
 
 This example +is+ was from [[https://github.com/myme/dotfiles][my dotfiles]] history before I cleaned it up. I
 occasionally setup new machines, and my ~dotfiles~ repo is the first thing I
-pull in after the machine boots. Every host typically need some form of
+pull in after the machine boots. Every host typically needs some form of
 tweaking, and not realizing I haven't setup my ~git~ configurations correctly, I
 start patching and committing configurations for the new host.
 
@@ -693,6 +696,20 @@ fi
 ' --tag-name-filter cat -- --branches --tags
 #+end_example
 
+#+begin_note
+I do not have the output of this command ready at hand. It's a while since I ran
+it, and I do not intending to do it again any time soon. All I can say is it
+worked out nicely for me.
+#+end_note
+
+I don't think there's much reason to invest a whole lot of effort into
+understanding all the ins and outs of ~filter-branch~. There are most likely
+always better options to solve the problems it too can solve, so try your best
+to avoid it.
+
+Following are some other workarounds to avoid committing with a broken ~user~
+configuration or ensuring that faults are at least concealed in command outputs.
+
 ** Git templates and pre-commit hooks
 
 Before all of the other mitigations outlined in the sections below I used to
@@ -759,7 +776,7 @@ configuration sections it's possible to include additional configurations for
 e.g. repositories within specific sub-directories on the filesystem, ensuring
 that there never /is/ a partial ~user~ configuration.
 
-Once I became aware of this configuration trick I took more care in where I
+Once I became aware of this configuration trick I took more care as to where I
 placed repositories on disk. Making sure to have separate directories for
 personal and work related repos. With this repository directory layout, it's
 possible to have a conditional section in ~gitconfig~ which applies additional
@@ -1153,14 +1170,12 @@ In the end, a merge commit in ~git~ tracks a ~tree~[fn:6] -- like any other comm
 and it only /extends/ on the parent commit metadata by including one ~parent~
 field for all commits that serves as inputs to the merge operation. Furthermore,
 it places no constraints onto the changes /made/ to the ~tree~ associated with
-that commit. Which basically gives a committer full "artistic" freedom as to
+that commit. Which basically gives a committer full "artistic freedom" as to
 what should be the result of a merge, ranging from the trivial "sum of all
 differences" or minor conflict resolutions to absolutely wild rewrites that had
 absolutely nothing to do with the differences that went into a merge to begin with.
 
 [fn:6] Remember that ~git~ operates on /snapshots/, not changes (aka patches).
-
-[fn:7] Not really, nobody's expecting that.
 
 * Rounding off
 
