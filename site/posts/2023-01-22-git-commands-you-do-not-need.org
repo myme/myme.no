@@ -623,14 +623,10 @@ Initially I didn't spend enough effort trying to find these two sources, but
 both through help from readers and some more search-fu vigilance I was able to
 find what I was referring to:
 
-1. Persisting with some search-fu I managed to dig out the first piece of lore
-   from [[https://lore.kernel.org/][lore.kernel.org]]:
+1. From [[https://lore.kernel.org/][lore.kernel.org]]: Behold, [[https://lore.kernel.org/all/Pine.LNX.4.58.0506221433540.2353@ppc970.osdl.org/T/][The coolest merge EVER!]]
 
-  Behold, [[https://lore.kernel.org/all/Pine.LNX.4.58.0506221433540.2353@ppc970.osdl.org/T/][The coolest merge EVER!]]
-
-2. As for the breakdown of "weird" commits in the ~Linux~ tree: Thanks to a
-   reader of my blog I was directed towards exactly the post I was after over at
-   [[https://www.destroyallsoftware.com/][Destroy All Software]]:
+2. Thanks to a reader I was directed towards exactly the post I was after that
+   researched "weird" ~Linux~ commits (from [[https://www.destroyallsoftware.com/][Destroy All Software)]]:
 
   [[https://www.destroyallsoftware.com/blog/2017/the-biggest-and-weirdest-commits-in-linux-kernel-git-history]["The Biggest and Weirdest Commits in Linux Kernel Git History"]] goes through
    both octopus merges and orphaned commits in the history ~Linux~.
