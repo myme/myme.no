@@ -625,7 +625,7 @@ find what I was referring to:
 
 1. From [[https://lore.kernel.org/][lore.kernel.org]]: Behold, [[https://lore.kernel.org/all/Pine.LNX.4.58.0506221433540.2353@ppc970.osdl.org/T/][The coolest merge EVER!]]
 
-2. Thanks to a reader I was directed towards exactly the post I was after that
+2. Thanks to [[https://enpo.no/][a reader]] I was directed towards exactly the post I was after that
    researched "weird" ~Linux~ commits (from [[https://www.destroyallsoftware.com/][Destroy All Software)]]:
 
   [[https://www.destroyallsoftware.com/blog/2017/the-biggest-and-weirdest-commits-in-linux-kernel-git-history]["The Biggest and Weirdest Commits in Linux Kernel Git History"]] goes through
