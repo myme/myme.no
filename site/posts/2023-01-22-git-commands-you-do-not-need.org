@@ -617,8 +617,23 @@ And equally interesting I remember reading an analysis which touched on how many
 orphan commits there are in the ~Linux~ main tree. I remember there being four,
 one in particular seemed like a "careless" unintentional mistake.
 
-Unfortunately, I haven't been able to find back to these two sources again. Let
-me know if you know where to find them and I'd gladly link them here.
+Edit 2023-01-23:
+
+Initially I didn't spend enough effort trying to find these two sources, but
+both through help from readers and some more search-fu vigilance I was able to
+find what I was referring to:
+
+1. Persisting with some search-fu I managed to dig out the first piece of lore
+   from [[https://lore.kernel.org/][lore.kernel.org]]:
+
+  Behold, [[https://lore.kernel.org/all/Pine.LNX.4.58.0506221433540.2353@ppc970.osdl.org/T/][The coolest merge EVER!]]
+
+2. As for the breakdown of "weird" commits in the ~Linux~ tree: Thanks to a
+   reader of my blog I was directed towards exactly the post I was after over at
+   [[https://www.destroyallsoftware.com/][Destroy All Software]]:
+
+  [[https://www.destroyallsoftware.com/blog/2017/the-biggest-and-weirdest-commits-in-linux-kernel-git-history]["The Biggest and Weirdest Commits in Linux Kernel Git History"]] goes through
+   both octopus merges and orphaned commits in the history ~Linux~.
 #+end_note
 
 [fn:5] Yeah, yeah... Not that long ago, I know. But I did also track
