@@ -116,13 +116,36 @@ path of the repository (i.e. ~$(pwd)~).
 Why on earth would you ever want to do this? Haven't you heard of git pull?
 #+end_quote
 
-Well, truthfully ~git pull~ (or to some people's preference: ~git fetch && git
-{merge,rebase}~ ) will do the opposite of a typical ~git push~, which is to
-update the remote-tracking branches, including all objects required to complete
-the history of the newfound commits, then update the local ~ref~. But ~merge~
-and ~rebase~ also insists on checking out on the local branch that should be
-updated, as potential conflicts must be resolved on the branch itself. This is
-not always desirable.
+Well, first off ~git pull~ is a combination of /two/ ~git~ operations: ~git
+fetch~ followed by either a ~git merge~ or a ~git rebase~ depending on user
+configuration.
+
+Truthfully, a ~git fetch~ does the opposite of a typical ~git push~, which is to
+update the remote-tracking branches locally, including retrieving all objects
+required to complete the history of the newfound remote commits. Then -- in the
+~git pull~ case -- ~git merge~ or ~git rebase~ are invoked to update the
+currently checked out ~ref~ to whichever commit is pointed to by the
+remote-tracking branch defined as the "upstream" of the current local branch
+(/pheeew/).
+
+The main issue with ~git pull~ in this scenario is the second step, as both ~git
+merge~ and ~git rebase~ require the ~ref~ about to be updated to also be checked
+out. This is because any potential conflicts must be resolved "on the branch".
+
+In fact, in order to properly "push to the local repository" it's /necessary/ to
+invoke a ~git fetch~ first to ensure that the remote tracking branches are
+updated.
+
+#+begin_note
+Remote-tracking branches are ~git~ references (~refs~) typically stored in
+~.git/refs/remotes/<remote-name>/<branch-name>~ which keep track of the branch
+state of a remote repository. For the most part the ~remote-name~ and ~branch~
+combinations are unambiguous allowing references to remote-tracking branches to
+be abbreviated like ~origin/main~. These references are managed by the ~git
+fetch~ command primarily. It's important to be aware that ~git~ does /not/ hit
+the network to check for updates when simply referring to ~refs~ like
+~origin/main~.
+#+end_note
 
 Let's say that you have been working for a long-ish period of time on a feature
 branch, leaving your local copy of the project's ~main~ branch significantly out
@@ -645,9 +668,10 @@ holistic ~nix flakes~ host setup, I hope I'm rid this issue of partial
 
 ** The filter-branch cleanup
 
-Most people familiar with rewriting ~git~ history know about ~git revert~, which
-allows things like rewriting commit messages, re-assigning author information,
-as well as making changes to the source tree.
+Most people familiar with rewriting ~git~ history know about ~git rebase~ and
+~git rebase --interactive~, which allow operations like "moving" (or replaying)
+commits onto new parents, rewriting commit messages, re-assigning author
+information, as well as making changes to the source tree.
 
 Perhaps less familiar to people is the ~git filter-branch~ command, which is
 sort of the /hydrogen bomb/ of history rewriting. I urge you to heed the glaring warning
