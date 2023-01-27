@@ -298,10 +298,23 @@ footer .social {
     }
 }
 
+.toc h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.toc h2::before, .toc h3::before {
+    display: none;  /* Hide section "#" labels */
+}
+
 .toc ul {
     list-style-position: inside;
     list-style-type: decimal;
     padding-left: 1em;
+}
+
+.toc li {
+    margin: 0.1rem;
 }
 
 .toc > ul {
@@ -352,8 +365,8 @@ h1 {
 
 h2 {
     font-size: 1.5em;
-    margin-top: 30px;
-    margin-bottom: 20px;
+    margin-top: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 h2::before {
@@ -363,6 +376,8 @@ h2::before {
 
 h3 {
     font-size: 1.2em;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
 }
 
 h3::before {
@@ -375,10 +390,6 @@ h4::before {
     left: -3rem;
 }
 
-.toc h2::before, .toc h3::before {
-    display: none;
-}
-
 strong {
     font-weight: 500;
 }
@@ -389,6 +400,10 @@ sup {
 
 ul {
     list-style-type: ' — ';
+}
+
+li {
+    margin: 0.2rem;
 }
 
 /*
