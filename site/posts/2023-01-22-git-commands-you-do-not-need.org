@@ -118,23 +118,12 @@ Why on earth would you ever want to do this? Haven't you heard of git pull?
 
 Well, first off ~git pull~ is a combination of /two/ ~git~ operations: ~git
 fetch~ followed by either a ~git merge~ or a ~git rebase~ depending on user
-configuration.
+configuration. In other words, a /fetch/ followed by an /integration/[fn:2].
 
-Truthfully, a ~git fetch~ does the opposite of a typical ~git push~, which is to
-update the remote-tracking branches locally, including retrieving all objects
-required to complete the history of the newfound remote commits. Then -- in the
-~git pull~ case -- ~git merge~ or ~git rebase~ are invoked to update the
-currently checked out ~ref~ to whichever commit is pointed to by the
-remote-tracking branch defined as the "upstream" of the current local branch
-(/pheeew/).
-
-The main issue with ~git pull~ in this scenario is the second step, as both ~git
-merge~ and ~git rebase~ require the ~ref~ about to be updated to also be checked
-out. This is because any potential conflicts must be resolved "on the branch".
-
-In fact, in order to properly "push to the local repository" it's /necessary/ to
-invoke a ~git fetch~ first to ensure that the remote tracking branches are
-updated.
+Since the integration can result in conflicts, git will only allow you to
+integrate into the /current branch/. After all, conflicts must be resolved in
+the worktree, and the worktree sees only the current branch (by definition).
+This is not always desirable.
 
 #+begin_note
 Remote-tracking branches are ~git~ references (~refs~) typically stored in
@@ -151,12 +140,33 @@ Let's say that you have been working for a long-ish period of time on a feature
 branch, leaving your local copy of the project's ~main~ branch significantly out
 of date. For whatever reason (diffing, cherry-picking, etc) you want to update
 ~main~ with the latest upstream changes, but you don't want to navigate /off/
-your feature branch[fn:2]. One reason might be to avoid invalidating much of a
+your feature branch[fn:3]. One reason might be to avoid invalidating much of a
 slow-running incremental build.
 
-Instead of using e.g. the ~worktree~ functionality to create and checkout a
-whole new working tree, we can use the "push to local" to update whichever
-/passive/[fn:3] ~head~ that we wish.
+In this case we specifically do /not/ want the integration phase of a ~git
+merge~ or ~git rebase~, rather we /just/ to update a branch without having to
+check it out first[fn:4]. As it happens, this exactly what ~git push~ does:
+When ~git push~ pushes to a remote repository, there is no opportunity to
+resolve conflicts, instead the update either works (fast-forward, or maybe
+you're using ~--force~) or it is rejected: there is no /integration/ phase.
+
+We just need to turn the direction around: Instead of pushing a local branch
+into the remote repo, we want to push a /remote branch/ into the /local repo/.
+The dot (~.~) target takes care of the /local repo/ part, but we need to cheat a
+little to get the /remote branch/. As already mentioned, ~git fetch~ will
+/fetch/ remote branches into the local repo, and update the corresponding
+remote-tracking branches in your local repo[^remote-tracking-branches]. From
+there, you can now use the remote-tracking branch as the source of your `git
+push`:
+
+#+begin_example
+# update remote-tracking branches (incl. origin/main)
+git fetch
+
+# Update main branch in this repo to point the same place as origin/main
+git push . origin/main:main
+#+end_example
+
 
 ~git~ provides the same branch protection rules as when pushing to remote
 repositories. Which is to say that it denies non-fast-forward pushes by default,
@@ -170,12 +180,16 @@ dataloss. Always create a backup branch with something like ~git branch
 control of what's going to get pushed.
 #+end_note
 
-[fn:2] Diffing and cherry-pick can of course also be done towards remote refs,
+[fn:2] An /integration/ is the process of combining things together either
+through a /merge/ or a /rebase/.
+
+[fn:3] Diffing and cherry-pick can of course also be done towards remote refs,
 but for the incremental builds case it's /very/ useful to update a branch
 /before/ checking it out.
 
-[fn:3] By "passive" I'm talking about any branch that's currently not checked
-out in the repository or any associated ~worktree~.
+[fn:4] An alternative approach is to sidestep the problem by creating /another/
+worktree specifically for updating the ~main~ branch, for example by using the
+[[https://git-scm.com/docs/git-worktree][worktree]] functionality.
 
 * Commit ranking 🥇
 
@@ -537,7 +551,7 @@ Date:   Thu Jan 19 01:13:17 2023 +0100
 #+end_example
 
 We can see that the commit is a merge commit, where one parent is [[https://github.com/myme/dotfiles/commit/a0b32f85fd07eaa09fcb2bc06b695b7a067a43aa][a0b32f85f]] from
-my ~dotfiles~ while the other parent [[https://github.com/doomemacs/doomemacs/commit/e96624926d724aff98e862221422cd7124a99c19][e96624926]] is the current[fn:4] ~HEAD~ from the
+my ~dotfiles~ while the other parent [[https://github.com/doomemacs/doomemacs/commit/e96624926d724aff98e862221422cd7124a99c19][e96624926]] is the current[fn:5] ~HEAD~ from the
 ~doomemacs~ repo.
 
 We have successfully merged the histories of my ~dotfiles~ repository with Doom
@@ -549,7 +563,7 @@ monorepo from separate smaller repositories.
 
 The next section is about one (of several) times I've found this useful myself.
 
-[fn:4] At the time of writing.
+[fn:5] At the time of writing.
 
 ** Dotfiles bankruptcy
 
@@ -580,7 +594,7 @@ Date:   Wed Feb 10 11:59:23 2016 +0100
 There is not one, but /two/ commits in the ~dotfiles~ repository which doesn't
 have any parents.
 
- 1. The /real/ "[[https://github.com/myme/dotfiles/commit/61a3f80babec8c1339391462590dafe7ff30fe7f][Initial import]]" created at the beginning of time[fn:5].
+ 1. The /real/ "[[https://github.com/myme/dotfiles/commit/61a3f80babec8c1339391462590dafe7ff30fe7f][Initial import]]" created at the beginning of time[fn:6].
  2. The much more recent "[[https://github.com/myme/dotfiles/commit/6fa853118711f557a911b98f00d5c4a2eb3ded71][nixos: Initial commit]]".
 
 The second commit was the beginning of my attempt to move my machine
@@ -632,7 +646,7 @@ find what I was referring to:
    both octopus merges and orphaned commits in the history ~Linux~.
 #+end_note
 
-[fn:5] Yeah, yeah... Not that long ago, I know. But I did also track
+[fn:6] Yeah, yeah... Not that long ago, I know. But I did also track
 configurations prior to starting my "new dotfiles" journey. However, I guess
 that history wasn't something I cared to take along with me and so the initial
 commit wasn't an an empty commit, but more the traditional "Initial import" of
@@ -1201,7 +1215,7 @@ de3e016de71484e62e6ac7e6dda08fe7f9d85af4 (from c78c58a2debbab2d88ed0e747a54f4d75
  1 file changed, 1 deletion(-)
 #+end_example
 
-In the end, a merge commit in ~git~ tracks a ~tree~[fn:6] -- like any other commit --
+In the end, a merge commit in ~git~ tracks a ~tree~[fn:7] -- like any other commit --
 and it only /extends/ on the parent commit metadata by including one ~parent~
 field for all commits that serves as inputs to the merge operation. Furthermore,
 it places no constraints onto the changes /made/ to the ~tree~ associated with
@@ -1210,7 +1224,10 @@ what should be the result of a merge, ranging from the trivial "sum of all
 differences" or minor conflict resolutions to absolutely wild rewrites that had
 absolutely nothing to do with the differences that went into a merge to begin with.
 
-[fn:6] Remember that ~git~ operates on /snapshots/, not changes (aka patches).
+[fn:7] Remember that ~git~ operates on /snapshots/, not changes (aka patches).
+
+[fn:8] By "passive" I'm talking about any branch that's currently not checked
+out in the repository or any associated ~worktree~.
 
 * Rounding off
 
