@@ -1,0 +1,63 @@
+---
+title: About me
+---
+
+Hello, how nice of you to stop by!
+
+I'm Martin!
+
+You're most likely here because you share my interest for technology. Perhaps
+you'll find something interesting in [[file:posts.org][my list of blog posts]] or [[file:projects.org][my list of
+open-source projects]].
+
+Besides programming and configuring computers I also enjoy riding road bikes,
+playing music, and various other activities.
+
+There are several ways to reach out to me:
+
+#+begin_export html
+<ul class="unstyled">
+  <li>
+    <a href="https://github.com/myme" title="My github">
+      <span aria-hidden="true" class="fab fa-github"></span>
+      &nbsp;
+      @myme at GitHub
+    </a>
+  </li>
+  <li>
+    <a href="https://www.linkedin.com/in/martin-myrseth-6a498329" title="LinkedIn">
+      <span aria-hidden="true" class="fab fa-linkedin"></span>
+      &nbsp;
+      LinkedIn
+    </a>
+  </li>
+  <li>
+    <a href="https://mastodon.social/@myme" title="@myme@mastodon.social">
+      <span aria-hidden="true" class="fab fa-mastodon"></span>
+      &nbsp;
+      @myme@mastodon.social
+    </a>
+  </li>
+  <li>
+    <a href="https://twitter.com/ubermyme" title="@ubermyme">
+      <span aria-hidden="true" class="fab fa-twitter"></span>
+      &nbsp;
+      @ubermyme on Twitter
+    </a>
+  </li>
+  <li>
+    <a href="https://soundcloud.com/ubermyme" title="My music">
+      <span aria-hidden="true" class="fab fa-soundcloud"></span>
+      &nbsp;
+      Soundcloud
+    </a>
+  </li>
+  <li>
+    <a href="mailto:mm@myme.no" title="Email me">
+      <span aria-hidden="true" class="fas fa-envelope"></span>
+      &nbsp;
+      Email me!
+    </a>
+  </li>
+</ul>
+#+end_export

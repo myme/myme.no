@@ -1,53 +1,53 @@
-#+TITLE: tools
-
-* Public Projects:
+---
+title: Public Projects
+---
 
 Here's a list of more or less useful tools that I've created over the years.
 This is just a selection of stuff I have hosted on ~GitHub~. In no particular
 order:
 
-*** [[https://github.com/myme/dotfiles][dotfiles]]
+* [[https://github.com/myme/dotfiles][dotfiles]]
 
 These are my dotfiles. There are many like them, but these ones are mine. I
 take my dotfiles very seriously, as any professional programmer should.
 
-*** [[https://github.com/myme/myme.no][myme.no]]
+* [[https://github.com/myme/myme.no][myme.no]]
 
 The source code for this very website. A statically generated site using [[https://jaspervdj.be/hakyll/][Hakyll]]
 to generate the static assets and [[https://nixos.org/][Nix]] for building.
 
-*** [[https://github.com/myme/nixon][nixon]] (Haskell)
+* [[https://github.com/myme/nixon][nixon]] (Haskell)
 
 Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
 
-*** [[https://github.com/myme/rtcp][rtcp]] (JavaScript + Haskell)
+* [[https://github.com/myme/rtcp][rtcp]] (JavaScript + Haskell)
 
 Exchange stuff (text) between things (browsers) using ~WebRTC~.
 
-*** [[https://github.com/myme/aoc][Advent of Code]] (Haskell + Rust)
+* [[https://github.com/myme/aoc][Advent of Code]] (Haskell + Rust)
 
 Solutions for various years of [[https://adventofcode.com/][Advent of Code]].
 
-*** [[https://github.com/myme/piddif][Piddif]] (Haskell)
+* [[https://github.com/myme/piddif][Piddif]] (Haskell)
 
 A document renderer supporting different formats, outputting HTML ready to print
 from a browser. Created because I *know* how to style ~HTML~ using ~CSS~, and I
 *don't* know how to style ~LaTeX~. Uses [[https://pandoc.org/][Pandoc]].
 
-*** [[https://github.com/myme/annodate][Annodate]] (Haskell)
+* [[https://github.com/myme/annodate][Annodate]] (Haskell)
 
 A tiny, simple *nix tool to prepend (customizable) timestamps to input streams.
 
-*** [[https://github.com/cisco-ce/jsxapi][JSXAPI]] (JavaScript)
+* [[https://github.com/cisco-ce/jsxapi][JSXAPI]] (JavaScript)
 
 JavaScript language binding library for Cisco's Webex collaboration devices.
 Proprietary software turned open-source. In "widespread" use.
 
-*** [[https://github.com/myme/Snake][Snake]] (C)
+* [[https://github.com/myme/Snake][Snake]] (C)
 
 Stupid ~C~ (with ~ncurses~) implementation of the everhungry Snake game.
 
-*** [[https://github.com/myme/elvis][Elvis]] (JavaScript)
+* [[https://github.com/myme/elvis][Elvis]] (JavaScript)
 
 A library for creating DOM elements with a JavaScript-friendly API. Quite
 similar to, and superseeded by [[https://github.com/hyperhype/hyperscript][Hyperscript]].

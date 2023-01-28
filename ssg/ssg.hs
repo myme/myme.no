@@ -24,8 +24,8 @@ toLower :: Functor f => f Char.Char -> f Char.Char
 toLower = fmap Char.toLower
 
 -- | Compiler for each blog post page
-postCompiler :: Compiler (Item String)
-postCompiler = do
+postCompiler :: (Pandoc -> Compiler Pandoc) -> Compiler (Item String)
+postCompiler transform = do
   ident <- getUnderlying
   toc <- getMetadataField ident "toc"
   let writerOpts = case toc >>= readMaybe of
@@ -36,8 +36,8 @@ postCompiler = do
               writerTOCDepth = depth,
               writerTemplate = Just tocTemplate
             }
-      pandoc = pandocCompilerWith defaultHakyllReaderOptions
-  fmap (withTagList convertVideoLinks . withUrls rewriteOrgUrl . demoteHeaders) <$> pandoc writerOpts
+      pandoc = pandocCompilerWithTransformM defaultHakyllReaderOptions
+  fmap (withTagList convertVideoLinks . withUrls rewriteOrgUrl . demoteHeaders) <$> pandoc writerOpts transform
   where
     tocTemplate =
       either error id $
@@ -131,7 +131,7 @@ main = hakyllWith config $ do
                   " "
                   H.toHtml tag
           tagsCtx = tagsFieldWith getTags renderLink mconcat "tags" tags
-      postCompiler
+      postCompiler pure
         >>= loadAndApplyTemplate "templates/post.html" (tagsCtx <> postCtx)
         >>= saveSnapshot "content"
         >>= loadAndApplyTemplate "templates/default.html" postCtx
@@ -170,15 +170,16 @@ main = hakyllWith config $ do
         >>= loadAndApplyTemplate "templates/default.html" postsCtx
         >>= relativizeUrls
 
-  match "projects.org" $ do
+  match "*.org" $ do
     route $ setExtension "html"
-    let saveProjectTitles p = do
+    let saveHeaders p = do
           projects <- writePandoc <$> makeItem (extractHeaders 10 p)
           void $ saveSnapshot "headers" projects
           pure p
     compile $
-      pandocCompilerWithTransformM def def saveProjectTitles
-        >>= loadAndApplyTemplate "templates/default.html" postCtx
+      postCompiler saveHeaders
+        >>= loadAndApplyTemplate "templates/other.html" defaultContext
+        >>= loadAndApplyTemplate "templates/default.html" defaultContext
 
   create ["feed.xml"] $ do
     route idRoute
