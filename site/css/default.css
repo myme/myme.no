@@ -238,22 +238,18 @@ nav a:hover {
 
 nav ul {
     list-style: none;
-    margin: 10;
 }
 
 nav ul li {
     display: inline;
-}
-
-nav ul li a {
-    margin-left: 12px;
+    margin-left: 0.5rem;
 }
 
 nav button.scheme {
     background: none;
     border: none;
     color: var(--main-fg-dim);
-    margin-left: 1em;
+    margin-left: 0;
     outline: none;
     padding: none;
 }
