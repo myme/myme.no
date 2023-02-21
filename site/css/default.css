@@ -483,7 +483,7 @@ p img, p iframe, p video {
  * Code blocks
  */
 
-code, pre, .edit, .note {
+code, pre, .edit, .note, .notes {
     border-radius: 0.2em;
 }
 
@@ -550,7 +550,7 @@ del {
     padding: 2px 5px;
 }
 
-.edit, .note {
+.edit, .note, .notes {
     clear: both;
     font-style: italic;
     background: none;
@@ -568,6 +568,7 @@ del {
     margin-bottom: 1rem;
 }
 
+.notes > :first-child::before,
 .note > :first-child::before {
     content: "Note:";
     display: block;
