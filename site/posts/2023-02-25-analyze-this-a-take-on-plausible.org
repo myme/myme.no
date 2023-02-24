@@ -1,0 +1,166 @@
+---
+title: "Analyze This: A take on Plausible"
+tags: Analytics, Web
+toc: 1
+---
+
+Last month I published the blog post [[file:2023-01-22-git-commands-you-do-not-need.org][Git Commands You Probably Do Not Need]]. It
+seemed to have caused a bit of a buzz as it [[https://news.ycombinator.com/item?id=34487201][peaked on the orange site]] and other
+aggregators. I received quite a bit of pleasant feedback from it, which I'm
+thankful for.
+
+I write blog posts because I enjoy writing and I don't feel like I have any
+agenda besides the creative outlet it provides. I also have no immediate goal of
+defining myself as a content creator simply because I do not have any
+expectation for this blog to ever generate any significant revenue. I try to
+keep a healthy balance between not feeling pressured into producing content
+while maintaining the necessary personal discipline required to finish off a
+post.
+
+That said, I did feel a rush knowing that stuff I'd written struck a chord with
+the community.
+
+Being in the "15 minutes of fame" limelight there's no doubt there would have
+been a periodic surge of traffic to the site. I wouldn't know the numbers
+though, because I've been reluctant to add any analytics or metrics to the site
+at all. In the end, curiosity got the best of me, and so I went in search of a
+privacy-minded, light-weight solution able to provide me with some basic visitor
+insights.
+
+* Google Analytics & access logs 🪵
+
+Several years ago I did have Google Analytics integrated and running on the site
+for a while. However, with the increased focus on privacy through ~GDPR~, cookie
+consent and what have you I saw no reason to keep tracking users for the
+relatively low volume traffic I was receiving. After all, at that point I was
+running a static website off a [[https://www.linode.com/][Linode]] nanode ~VPS~ with an [[https://nginx.org/en/][nginx]] web server
+serving static files. If I wanted to check for traffic, I had the basic access
+logs from ~nginx~[fn:2].
+
+A little under a year ago I wrote another [[file:2022-04-11-a-dotfile-history.org][another post about my dotfile history]]
+which seemed to attract the [[https://news.ycombinator.com/item?id=31001126][attention of the interwebs]] briefly appearing on the
+orange site front page. At that time my little ~Linode~ server was happily
+serving off the static website and I was able to get some sense of the page
+views based on the ~nginx~ access logs.
+
+[fn:2] Server-side logs are of course suspect to bot traffic as well as
+oblivious to content in client caches. Server-side log analytics as with
+client-side metrics would not, by itself, provide 100% accurate analytics.
+
+* GitHub Pages 📃
+
+Some time later I decided to [[https://github.com/myme/myme.no/commit/abaed8a8422f8948147be61a04aef6cbd1f288d6][simplify my blog deployment]] by hosting it off
+[[https://pages.github.com/][GitHub Pages]]. Although I had no big issues with the ~Linode~ hosting it just
+didn't make much sense to me with regards to the manual management of deployment
+and operations vs. the reliability and performance of Pages. Adding a GitHub
+workflow triggering a ~nix build~ of the static assets then deploying them was
+just too simple to ignore:
+
+[[file:../images/mymeno-github-pages-deploy-action.png]]
+
+The major disadvantage of switching to ~GitHub Pages~ was to forfeit any kind of
+application insights. It didn't bother me at first, because all I wanted was to
+ensure that the blog was up[fn:1]. However, once a post blew up it would be
+interesting to at least have /some/ numbers reflecting the amount of traffic
+going to the site.
+
+[fn:1] For site accessibility checking I've just setup a simple [[https://uptimerobot.com/][UptimeRobot]]
+monitor.
+
+* Plausible Analytics 📈
+
+I must admit that I didn't spend much effort researching the alternatives for
+privacy-minded, cookie-less analytics solutions. Coincidentally, I recently
+found [[https://algustionesa.com/google-analytics-alternatives/][A Brief Comparison of 10+ Best Google Analytics Alternatives]] on [[https://lobste.rs/s/nmotbs/brief_comparison_10_best_google][Lobsters]]
+which does seem to go into a decent selection of analytics alternatives.
+
+Before reading the above summary I had already decided on [[https://plausible.io/][Plausible]]. Primarily
+because of a good first impression and some second-hand experiences from others.
+
+** Hosted vs. self-hosting
+
+~Plausible~ provides a hosted service for what seems like a decent price. What
+sold it to me though was the fact that it's open source and quite simple to
+self-host. I wanted to go down the self-host route because I still have some
+~VPS~ servers for other minor things which should quite easily manage the
+additional overhead of running the ~Plausible~ backend service.
+
+If you're here just for adding some analytics then I would definitely suggest to
+give the hosted solution a go, both for simplicity and for financial support to
+the ~Plausible~ team.
+
+** Setup
+
+The [[https://github.com/plausible/hosting][github.com/plausible/hosting]] repository contains the necessary ~docker
+compose~ setup to spin up the self-hosted setup, as documented in [[https://plausible.io/docs/self-hosting][the
+Self-Hosting section]] of the ~Plausible~ documentation. The steps are
+replicated here for my own sake. I would direct anybody eager to try out
+self-hosting ~Plausible~ for themselves to first and foremost consult the
+official documentation.
+
+Here are the steps:
+
+1. Clone the hosting repo
+
+   #+begin_src bash
+$ curl -L https://github.com/plausible/hosting/archive/master.tar.gz | tar -xz
+$ cd hosting-master
+   #+end_src
+
+2. Add required configuration
+
+   Generate a secret key for the application by setting ~SECRET_KEY_BASE~ in
+   ~plausible-conf.env~.
+
+   #+begin_src bash
+$ openssl rand -base64 64 | tr -d '\n' ; echo
+   #+end_src
+
+   Also, set the ~BASE_URL~ by specifying the base url of the instance,
+   including the URL scheme (e.g. ~https://stats.example.com~).
+
+3. Start the server
+
+   #+begin_src bash
+$ docker-compose up -d
+   #+end_src
+
+At this point the service should be accessible on [[http://localhost:8000]]. It's
+highly advisable to setup a reverse proxy with ~SSL~ in front though.
+
+** Graphs
+
+And bam! Stats are live and stuff seems to work:
+
+[[file:../images/mymeno-plausible-analytics-graph.png]]
+
+My numbers won't impress anybody at this rate, but again, that's not what I'm
+here for.
+
+** Updating Plausible
+
+The self-hosting docs states that the self-hosted version is "somewhat of a
+LTS". This means self-hosting using the ~Docker Hub~ containers won't contain
+the latest and greatest ~Plausible~ features. It also means that updates will be
+less frequent. However, there will be a need to upgrade ~Plausible~ at /some/
+point, which is basically just a matter of pulling new ~Docker~ images and
+restarting the services:
+
+#+begin_src bash
+$ docker-compose down --remove-orphans
+$ docker-compose pull plausible
+$ docker-compose up -d
+#+end_src
+
+* Conclusion
+
+There's not really much to conclude after enabling and running these analytics
+only for a few days. Getting started with self-hosting ~Plausible~ was a breeze
+and I see numbers come in. Hopefully the numbers are fairly accurate. My
+personal browser privacy plugins denies the ~Plausible~ hits from my browser to
+be registered. Which means that many page views will never reach my backend. I
+don't mind. It's motivating just to see my articles having /any/ kind of reach,
+and I hope people will continue to find some of them either insightful or
+interesting.
+
+* Footnotes
