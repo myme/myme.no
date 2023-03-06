@@ -575,7 +575,8 @@ del {
     margin-bottom: 1rem;
 }
 
-.twitter-tweet {
+.twitter-tweet, .mastodon-embed {
+    display: block;
     margin-left: auto;
     margin-right: auto;
 }

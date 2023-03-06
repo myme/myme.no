@@ -1,0 +1,351 @@
+---
+title: The Cost of Distraction
+preview: true
+tags: Automation, Programming, Vim
+toc: 1
+---
+
+* Automation 🤖
+
+#+begin_quote
+I've invested leisure time to save time when I'm working hard, not to save
+keystrokes but to save mental energy for the project at hand.
+
+- John D. Cook
+#+end_quote
+
+In much of the work that I do I try to [[https://www.johndcook.com/blog/2015/12/22/automate-to-save-mental-energy-not-time/][automate to save mental energy]].
+Automation, to "techy" people, often means to apply some sort of repeatable
+application of machinery or code in order both free us from manual labor and
+potentially increase our effective throughput. I'm using a more general
+interpretation of "automation" when I say "I try to automate to save mental
+energy" – an interpretation more in line with what John D. Cook points towards
+in his post quoted and linked to above.
+
+Yes, writing scripts, applying tools and utilities to common everyday
+programming problems are undeniably "automation". However, automation in its
+purest sense isn't reserved for silicate or metallic machinery only. Biology
+automates through instinct and practice.
+
+In practice though what this means to me is that I relatively often invest a
+significant amount of time learning new things, practicing various skills, and
+iterating on my workflows. Not necessarily to save on some imaginary "net sum of
+time spent"[fn:1] – although Randall Munroe of ~XKCD~ has [[https://xkcd.com/1205/][shared]] some [[https://xkcd.com/1319/][thoughts]]
+on the topic of – but to ensure I can maintain a certain level of focus in my
+work when I'm "in the zone".
+
+[fn:1] Although measuring this would've been a very fun experiment had we had
+access to parallel universes.
+
+* Focus 🔍
+
+Why is focus so important? Well, [[file:2023-09-19-programming-is-hard.org][programming is hard]] and I'm sure also most
+non-programmers acknowledge the importance of focus when doing work requiring a
+certain level of immersion.
+
+This little gem from [[https://www.monkeyuser.com/][MonkeyUser.com]] illustrates "focus" for a programmer
+perfectly:
+
+#+ATTR_HTML: :style width: 50% :alt "https://www.monkeyuser.com/2018/focus/" :title Focus
+[[file:../images/monkeyuser-focus.png]]
+
+I've often used the analogy of building a house of cards when explaining to
+non-programmers how we build mental models of the problems we are solving. Like
+a house of cards these mental models take considerable time and effort to
+construct, but topple over and collapse from even the smallest breath of air
+(interruptions).
+
+Our mental models dissolve faster than cotton candy in water when we're
+distracted at an inappropriate time.
+
+#+ATTR_HTML: :style width: 35%
+[[file:../images/raccoon.gif]]
+
+How about focus in /my/ work? Sure!
+
+#+begin_export html
+<iframe src="https://mastodon.social/@myme/110227268083781043/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://mastodon.social/embed.js" async="async"></script>
+#+end_export
+
+The draft of this post is over a year old. I guess I got distracted!
+
+#+begin_notes
+In fact, I was writing this very post when I realized the prelude was worthy of
+a post of its own. That became [[file:2023-09-19-programming-is-hard.org][Programming is hard]]. It gained quite a few views,
+then I guess I forgot all about this one.
+#+end_notes
+
+* Distractions
+
+Distractions; the arch enemy of every coder. Distractions break our focus by
+ripping us out of our flow states. It doesn't help that programming environments
+are littered with potential distractions. They come in many shapes and forms, to
+name a few:
+
+ * ⚡ Physical interruptions from our surroundings (meetings, colleagues, notifications).
+ * 🧠 Internal interruptions through impulsive thoughts (spontaneous ideas, procrastination).
+ * 🤷 Missing preconditions to perform a task (unclear objectives, yak shaving, tech debt).
+ * ➰ Long feedback loops (handovers, difficulty testing, ++).
+ * 🥪 An empty stomach.
+
+Some distractions are obvious, others are more subtle.
+
+When we talk about distractions it's often the "big and obvious" ones that
+people think of. Those are the distractions where you're interrupted by someone
+or something in your surroundings. It may be somebody "just popping over to ask
+a question" or some meeting looming on the horizon about to evacuate you from
+your warm and cozy "flow zone".
+
+Some less obvious forms of distractions are phenomena I've been aware of, but
+not consciously considered distractions until recent years. Maybe they've
+previously felt like a natural part of "work" or I've never stopped to consider
+how they may negatively affect my productivity or cognitive ability. However,
+tiny inconveniences can add up to make solving issues more difficult than it
+needs to.
+
+Much can be done to reduce the distractions within an organization, but
+introducing transformational change can be hard for an individual alone.
+Organizational chaos might even be outside of our control. What we /can/ control
+to some extent is how we interface with the environment around us.
+
+I find many negative effects of distractions – large and small – can be greatly
+reduced through personal organization and mastery of your tools.
+
+* Organization 📓
+
+I'm personally a big fan of [[https://gettingthingsdone.com/][Getting Things Done]] (GTD), [[https://en.wikipedia.org/wiki/Zettelkasten][Zettlekasten]] methods
+(using ~emacs~ with [[https://orgmode.org/][Org Mode]] and [[https://www.orgroam.com/][Org-roam]]), and various other "productivity
+life-hacks".
+
+I strongly believe everyone should invest a bit of time and effort into learning
+a few organizational tools. I don't have strong opinions on which, but I believe
+it's crucial to learn them well enough and integrate them into your daily
+workflow so that they stay out of your way. It doesn't even have to be anything
+digital. A paper notepad is honestly perfectly acceptable too. However, I
+believe tighter integration into e.g. code editors increases the possibility for
+distraction free note-taking and organization.
+
+I feel an organizational tools hits the sweetspot when you hardly notice
+yourself using it. In my case I've achieved such ergonomics using ~emacs~ as
+both my primary code editor /and/ note-taking application. ~Org mode~ lets me
+capture all kinds of fleeting notes and ~Org-roam~ complements it by allowing me
+to quickly refile things into a personal knowledge graph. ~TODO~ lists and
+priorities fit nicely into the same workflow, as does time-tracking.
+
+I must admit I have a lot of issues with ~emacs~, but the way some of these
+"killer app" plugins integrate into a comprehensive productivity tool I have yet
+to find anything matching what I'm after.
+
+There is A LOT of literature on personal organization, so I don't want to spend
+too much time on this topic. Let's move on to another critical tool in the
+battle against distractions: mastery.
+
+* The value of mastery 🧙
+
+I briefly touched on "practice makes perfect" in [[file:2024-01-21-produce-dont-consume.org::*Practice makes perfect][produce, don't consume]] and how
+practice can be incorporated into constructive efforts. Writing this post I've
+also come to realize that another trait of practice and mastery is how
+automating our skill through practice helps us cancel out distractions in order
+to maintain focus.
+
+Mastery of our tools is important as it allows our brains to focus on the task
+at hand. If we are forced to spend a significant amount of our brain power
+learning programming language syntax, editor bindings or APIs then we have less
+mental energy to spend on solving /actual/ problems. Attacking complexity on
+multiple fronts also increases context switch overhead and leads to loss of
+focus.
+
+A dancer who doesn't know the basic moves of a dance style will have great
+trouble connecting motions in the choreography while maintaining rhythm and
+composure. Similarly, a programmer who constantly stumble on basic syntax or
+interpreting compiler errors will have a harder time constructing a mental model
+of the problem she's solving.
+
+But we do not necessary have to become specialists to become effective. In fact,
+trying to become a proper expert in more than a handful of fields is a fools
+errand in modern software development. Ecosystems evolve too quickly, new tools
+and practices come and go. Not to mention the looming paradigm shift of
+artificial intelligence and how it might render significant aspects of
+conventional programming obsolete[fn:2].
+
+What I find useful is to learn enough about a wide variety of topics to build a
+basic intuition to know when specific technologies or methodologies will help
+solve the problems we're faced with. Expertise will gradually come from this
+somewhat organically[fn:3].
+
+Practice and repetition is crucial to become a master in just about anything.
+Just as a musician spends time with her instrument to improve, programmers who
+spend time with their "tech stacks", editors and tools will most likely grow to
+become very skillful at some point. And just as a musician is likely to butcher
+an unfamiliar instrument, a programmer dropped into development environments new
+to them will most definitely cause some initial regression to their
+productivity.
+
+This is normal, and is also the way we learn. Experts weren't born experts. And
+even though talent or determination allow some to progress faster than others
+nobody who achieve mastery within any discipline will admit to not having worked
+hard, or for a long time to acquire the skill they possess. If we wish to follow
+in their footsteps then we must be patient and humble, and be prepared to step
+outside of our comfort zone.
+
+Whether you're a specialist or a generalist I believe software development is
+quite unique in the way many skills are transferable across environments. Some
+skills invested transcend their technologies almost entirely due to their
+pervasiveness or general applicability.
+
+[fn:2] Nah, don't worry. You'll be fine!
+
+[fn:3] Don't get me wrong, I've also studied and geeked out on a bunch of
+things as well.
+
+* Vim bindings ⌨
+
+Muscle memory and habits are both important abilities of the body and mind to
+increase our efficiency and reduce our cognitive load. Making things more
+automatic allows us to complete repeatable tasks faster or do so without
+sacrificing our ability to reason about the problems we're currently solving.
+
+Most seasoned programmers know that we spend significantly more time reading and
+navigation through code than actually changing existing code or writing new
+code. For this reason it's easy to assume that learning effective typing is
+secondary to learning how to structure programs really well. I don't disagree,
+yet I have the impression that many of the really amazing programmers I know are
+also great typists.
+
+I believe there might be a very simple reason for this correlation – besides the
+obvious take that great programmers spend a lot of time in front of their
+computer, thus become great typists. No, I believe by being able to generate
+many programs fast you are also able to attempt many possible solutions faster.
+Difficult problems require thinking, I know. But few things beat the speed of
+finding code problems as actually passing code through a compiler or an
+interpreter and executing it.
+
+I would say it's worth putting effort into improving your typing. And while
+you're at it, why not also try to improve /how/ you type?
+
+Let's take [[https://www.vim.org/][vim]] and modal editing as an example.
+
+In ~vim~ there are keybindings bound to operations which operate on various
+textual structures. I call them structures because there's really not that much
+common in between them. The bindings may operate on "bodies" of text like
+letters, words, sentences or paragraphs. Or they operate on pairs of quotes,
+parentheses and brackets. They can work on locations like the beginning and end
+of a buffer. Or even metadata not represented in the buffer itself, like the
+location of compilation errors from an external tool or spelling errors from a
+spell checker.
+
+Once ~vim~ motions are internalized it's amazing how efficient it feels to
+"delete all word" (~daw~) or "change in paragraph" (~cip~) without breaking a
+sweat. The great strength and power of ~vim~ motion bindings come from how a
+handful of general-purpose operations translate across different types of text,
+from prose to any style of programming and markup languages.
+
+#+begin_notes
+Editors like [[https://github.com/mawww/kakoune][Kakoune]] and [[https://github.com/helix-editor/helix][Helix]] attempt to improve further on this concept. I
+have little experience using them, but I struggle to see how investing
+significant time into them at this point is worth the effort. After all, one of
+the main benefits of ~vim~ and ~vim~ motions is how pervasive they are.
+#+end_notes
+
+There are many ways people can argue that learning ~vim~-style modal editing
+helps their productivity. It can, however, be somewhat tricky to determine what
+exactly people benefit from it. Personally I'm certain the time I invested into
+learning motion bindings and compound operations many years ago has reaped
+dividends way past the initial investment.
+
+But how? By letting me type faster? What has typing and ~vim~ motions to do with
+avoiding distractions?
+
+Everything!
+
+Programming is littered with micro-distractions, remember? Not only do you
+increase your efficiency at typing out actual programs by learning effective
+text navigation and manipulation (as well as text generation through snippets
+and generative A.I.). You also do so while sparing your brain from having to
+think about these trivial "problems" and road-blocks.
+
+It's not uncommon to find myself thinking about my /next/ steps while doing some
+other thing like text navigation or manipulation using ~vim~ keybindings.
+They're so ingrained in muscle memory that I more often that not think about
+/what/ I need to do, not /how/. It just happens.
+
+And let me say that the point of this section is not to boast or rave about
+~vim~ bindings. The point is that by learning your tools really well they
+eventually get out of your way and you're free to tackle the actual problems
+you're faced with.
+
+* Braaains 🧠
+
+I don't mind learning, but I want to choose – within my power – when, how and
+how much to learn. After all, learning is all about rewiring our brains. It's
+mental exercise, and like physical exercise learning can be very exhausting. The
+same goes for problem solving – it's our brains applying our existing knowledge
+in order to achieve something new.
+
+The biggest bottleneck of software development is still the (human) brain. It's
+a precious resource, but it can only do so much and distractions greatly reduce
+its capacity.
+
+Through practice and mastery, by building and honing physical and internal
+tools, we can offload our brains to focus much more of its effort on the
+problems we're solving. By allocating more brainpower into solving problems
+we're also more likely to succeed in solving some of the hard ones, and to more
+gracefully recover from distractions when they occur.
+
+Now, what was I doing again...?
+
+* Cuts ✂ :noexport:
+
+Programming is not hard because
+
+Programming is uninuitive in the sense that code written to solve specific
+issues might end up having no internal resemblance to the problems it's intended
+to solv
+
+This, of course, isn't news to a programmer.
+
+It's quite helpful to write code which closely resembles the problem domain.
+
+Software development sits in a unique blend of disciplines.
+
+As somebody who programs for a living (and sometimes for recreation) I tend to
+think that my primary responsibility is that of being a problem solver[fn:4].
+
+The code that I write is a means to an end.
+
+Our responsibility is to meet real-life requirements by applying our knowledge
+of technology and our ability to evolve technology to construct solutions for
+automating or offloading tasks to computers.
+
+Programming is hard. In fact, nothing in /my/ life comes close to rivaling the
+mental energy I expend on a daily basis thinking about programming-related
+tasks. Being a programmer by trade it's not surprising that I /would/ spend a
+significant part of my time working on computer programs, but what I'm trying to
+say is that this "work" consumes much of my mental ability.
+
+In this sense programming is very much brain-bound. Our brains are a very finite
+resource, and much of the perceived complexity of software development has to do
+directly with managing complexity within this constraint.
+
+Through the years I've invested quite a bit of time learning various kinds of
+tools and incorporating different types of workflows into my daily habits. Quite
+a few of these probably has a questionable ROI[fn:5]. I'm not very concerned
+about this imaginary "net positive" approach to why learning tools and processes
+can be useful.
+
+First of all it's important to determine what /is/ this "net positive" metric?
+Is it seconds, minutes or hours saved on a particular task? Is it improved
+quality of work? Is it ....?
+
+To me, I think one of the most important metrics of measuring whether or not
+time invested into a tool is how it helps me avoid disruptions to my flow – when
+I'm programming "in the zone".
+
+[fn:4] Disregarding the fact that creating software perhaps more often than not
+lead to a whole new set of problems, including fixing bugs, maintenance,
+operations, and everything else that goes with providing software services to
+the masses.
+
+[fn:5] Return on Investment
+
+* Footnotes
