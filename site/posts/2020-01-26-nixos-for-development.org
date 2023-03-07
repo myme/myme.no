@@ -44,7 +44,7 @@ up a reproducible build by relying on e.g. the file system or hardcoded paths.
 
 ~Nix~ as a language is quite minimalistic, yet built on sound functional
 programming concepts. The result is a language which shines when creating
-reusable functions, which again allows it express build recipies (derivations)
+reusable functions, which again allows it to express build recipes (derivations)
 for a wide variety of projects. ~Nix~ does not directly /compete/ with existing
 build tools, but tries to /complement/ and /combine/ them. While the "core" of
 the ~Nix~ ecosystem may be small, the community has accumulated many conventions
