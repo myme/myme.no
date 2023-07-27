@@ -69,6 +69,17 @@ for the ~color~ value of the selected element:
 I have not spent much effort tweaking the palette to be fully WCAG (enhanced)
 compliant, but already I'm quite happy with the results.
 
+#+begin_note
+I was tipped about what seems like a very cool and useful accessibility tool
+over at https://www.experte.com/accessibility/contrast. It automates contrast
+checking and other accessibility concerns by scraping a URL (and sub-pages) and
+reporting all findings for each page. I haven't extensively tested the tool
+myself, but doing a quick test run on my site it did rightfully report the
+elements I know did not 100% comply with contrast thresholds.
+
+2023-07-27
+#+end_note
+
 [fn:3] [[https://www.w3.org/TR/WCAG21/#dfn-large-scale][WCAG definition of large scale text]]
 
 * Operating system support
