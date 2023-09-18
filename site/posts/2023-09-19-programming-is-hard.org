@@ -1,0 +1,74 @@
+---
+title: Programming is hard
+tags: Programming
+---
+
+Software is weird. In its basic form, software is this very abstract thing with
+seemingly little connection to the real world. Yet graphical applications
+running on a hardware device like a modern phone /feel/ very real, even to
+people who have no appreciation of what happens within this "black box". Some
+pieces of software is even able to control hardware to perform real actions in
+the physical world.
+
+As programmers, some of the code that we write is supposed to model real world
+concepts, and as a result the code often reflects this in its structure and
+form. Other pieces of code are purely abstract and solve "metaphysical" problems
+that only exist within the realm of computers. Code solving abstract problems
+might also serve as necessary foundations to build more tangible "real world
+modelling" on top of.
+
+At the end of the day code has no obligation or enforced requirement to resemble
+the problem it's supposed to solve – and sometimes there /isn't/ even a "real"
+problem to compare it to in the first place. Of course, code which is able to
+somehow communicate this correlation tends to be considered more "readable" and
+"maintainable" simply due to familiarity. But the purpose of the systems we
+build is first and foremost "to model", not simply "to be"[fn:1].
+
+#+begin_quote
+Software is a means to an end and as long as the behavior of our model solves
+our problem well enough users tend to be satisfied.
+
+- Me @RightNow
+#+end_quote
+
+Performance considerations aside, computers do not care at all about the
+/structure/ of the programs they're evaluating. A legacy spaghetti mess of a
+codebase might solve a problem just as well as any well-crafted system. The cost
+of poorly constructed solutions only becomes relevant when we factor in the fact
+that humans tend to have to come back and make changes to them.
+
+This highlights one of the more hidden, but considerable challenges of being a
+programmer: Having to translate real world requirements into abstract constructs
+that – when evaluated by a computer – model our problem domain to a satisfactory
+degree. And we have to do this while also considering how we best can model our
+abstractions so both our future selves and our peers are able to make sense of
+them.
+
+Much of the online discourse about the complexity of programming tend to focus
+on complexity associated with programming languages, tools and technology stacks
+that we use. Not so much on how we can more effectively understand requirements
+and translate these into code. Neither how we can ensure that these requirements
+can be communicated and maintained over time as our system evolves. This is not
+to say there /are/ no such efforts. I myself very much enjoyed attending the
+[[https://2023.dddeurope.com/][2023 edition of DDD Europe]] where this exact problem is front-and-center.
+
+Learning a programming language syntax and semantics can be both time-consuming
+and mind-bending[fn:2]. The same goes for tools, services and infrastructure
+that's central to building modern applications and services. And not only that!
+Many of these technologies /change/ at a rapid pace, so even keeping up with
+updates to things we already though we knew can feel overwhelming. But let's not
+also forget or neglect our responsibility to understand the people and the world
+around us – and how crucial this understanding is to ensure quality and purpose
+in the majority of the code that we write.
+
+Yeah, programming is hard! I mean, like, really hard!
+
+[fn:1] This does not mean that there can't be code for the sake of code – be
+that recreation, art or other purposes. But the code that most of us are /paid/
+to write quickly falls into this category.
+
+[fn:2] This doesn't just hold true when learning your /first/ programming
+language. Crossing programming language paradigms can also be quite a big
+challenge. Attempting to learn ~Haskell~ after many years of using more
+conventional languages was not just mind-opening to me, it was also bloody
+difficult to /unlearn/ some of the things I already /knew/.
