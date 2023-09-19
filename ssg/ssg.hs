@@ -181,7 +181,7 @@ main = hakyllWith config $ do
         >>= loadAndApplyTemplate "templates/other.html" defaultContext
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
 
-  create ["feed.xml"] $ do
+  create ["atom-feed.xml", "rss-feed.xml"] $ do
     route idRoute
     compile $ do
       publicPosts <-
@@ -189,7 +189,10 @@ main = hakyllWith config $ do
           >>= filterM postIsNotPreview
           >>= recentFirst
       let feedCtx = postCtx <> bodyField "description"
-      renderAtom feedConfig feedCtx publicPosts
+      isAtom <- ("atom" `isPrefixOf`) . toFilePath <$> getUnderlying
+      if isAtom
+        then renderAtom feedConfig feedCtx publicPosts
+        else renderRss feedConfig feedCtx publicPosts
 
   match "index.html" $ do
     route idRoute
