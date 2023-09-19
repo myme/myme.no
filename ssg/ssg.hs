@@ -192,7 +192,10 @@ main = hakyllWith config $ do
       isAtom <- ("atom" `isPrefixOf`) . toFilePath <$> getUnderlying
       if isAtom
         then renderAtom feedConfig feedCtx publicPosts
-        else renderRss feedConfig feedCtx publicPosts
+        else do
+          -- Override default timestamp formats from Hakyll
+          let fmt = "%Y-%m-%dT%H:%M:%SZ"
+          renderRss feedConfig (feedCtx <> dateField "published" fmt <> dateField "updated" fmt) publicPosts
 
   match "index.html" $ do
     route idRoute
