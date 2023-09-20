@@ -259,11 +259,16 @@ nav button.scheme:hover {
     cursor: pointer;
 }
 
+.coffee {
+    margin-top: 30px;
+    text-align: center;
+}
+
 footer {
     border-top: 1px solid var(--main-bg-dim);
     color: var(--main-fg-dim);
     font-size: 0.8em;
-    margin-top: 30px;
+    margin-top: 15px;
     padding: 12px 0px 12px 0px;
     text-align: right;
 }
