@@ -1,0 +1,232 @@
+---
+title: Produce, Don't Consume
+tags: Programming
+preview: true
+---
+
+#+begin_note
+This post is following the somewhat more philosophical trail as my previous
+post: [[file:2023-09-19-programming-is-hard.org][Programming is hard]]. If you're here for the technical stuff I plan to
+return with more technical content in the next couple of posts.
+#+end_note
+
+* Prelude
+
+I grew up with the internet.
+
+It's mind-boggling how much it has changed since the first time my dad and I
+plugged in our brand new ~i486~ computer into some dial-up modem in the early
+90s. We had no idea what we were doing, and I have very few recollections from
+this first household machine. Ironically, back then I was too physically active,
+too much into sports and outdoor activities. My pre-adolescent ants-in-my-pants
+attention span wouldn't let me learn enough about computers to have them ensnare
+me.
+
+Fast-forward to today: While short-form dopamine-triggering micro-blogs and
+reels on ~X~, ~TikTok~, ~Instagram~ et. al. are eating away our attention span,
+the siren song of hours-long podcasts, streams and in-depth blog posts lure us
+into never-ending rabbit holes of deep knowledge and insight. Short-form is
+addictive. Long-form is addictive. But we need to set our own boundaries because
+we can't ever consume it all.
+
+Back in the early 90s this internet thing was new to basically everybody. You
+had to spend significant effort actively seeking relevant content, given you
+knew where to look. I mean, just getting and staying online was a challenge:
+
+#+begin_quote
+Martin, are you using *the ... internet*!? I need to make a phone-call!
+#+end_quote
+
+A little under a decade later the situation had improved, slightly. Me and my
+high-school friends – at night-time, on our home ~ISDN~ connections – would
+round-robin share the responsibility of downloading the last week's ~Futurama~
+episode (in ~RealMedia~) and burn it out to a ~CD-R(W)~ and bring it to school.
+
+These days content jumps into our face and we seem to have an insatiable
+appetite for it. A thirst that's driving a gold rush of content producers, many
+only in search of fame and fortune. As a consumer it's a wild luxury to have
+instant news, knowledge and entertainment at our fingertips. However,
+self-regulation is vital to not lose ourselves indulging in this luxury.
+
+Perhaps our relatively new-found superpower of having incomprehensible amounts
+of human knowledge, culture and talent directly accessible is overstimulating
+and perverting some age-old survival trait. There was a time where /not/
+learning certain abilities, latest events or social movements within a tribe
+would in the very least reduce our likelihood of mating success. In the utmost
+consequence ignorance would lead to exclusion or an inability to self-sustain
+and ultimately a certain death. Knowing meant surviving. Knowing meant surviving.
+
+From the start of the information age and beyond we are miles past the point
+where not knowing will end in our own personal demise. It's just that our genes
+and brains have not had the time to adapt. Meanwhile, the content produced and
+the technological advances making it accessible show little sign of slowing
+down.
+
+#+begin_src html
+<pause-for-dramatic-effect>
+  ...
+</pause-for-dramatic-effect>
+#+end_src
+
+But enough with me waddling my way through some intuition-based reverse
+engineering of anthropological behavior. Hopefully it's illustrative for where
+I'm coming from and helps back up the underlying motivation for what's to come
+below.
+
+* Produce, Don't Consume
+
+I don't remember exactly when, but somewhere within the last couple of years I
+felt an urge to set myself a strategic long-term goal: *Default to produce
+rather than to consume*.
+
+I meant this in a general sense, basically to focus less on being an active or
+passive /receiver/ of input and focus more on trying to be a /producer/ of
+output (or outcomes). It would imply engaging less with multi-media: Less TV and
+shows. Digesting less social media and to a certain degree blogs. In social
+settings to be engaging and a /driver/ of conversations[fn:1]. Another example
+could be to spend less time in awestruck paralysis watching virtuosic musicians,
+more time "violating" my guitar.
+
+What's wrong with being a consumer, you may ask? Well, in a way, nothing.
+
+And here I need to be perfectly clear: My motivation never stemmed from any
+idealistic standpoint against the state of the modern internet nor the World in
+general. Yes, there is enough content out the to drown everybody tenfold. But I
+don't necessarily have an issue with that. In fact, looking back I don't know
+what made me set myself this goal in the first place. What I /do/ know is that
+it was my intuition trying to tell me something. It was definitely a deep and
+vague sensation. A gut feeling.
+
+# I've later come to realize that what I was hearing was probably my own
+# personality.
+
+[fn:1] But still to respectfully remember to hear people out on their opinions
+and focus on listening. I don't believe driving conversation necessarily mean to
+"speak the most". Rather show your engagement through active listening and have
+that input fuel further discussion and exchange of opinions.
+
+* Content inflation
+
+"But, all this talk of information overload" – you may wonder – "wouldn't urging
+yourself and other people to produce /more/ simply lead to an acceleration of
+content inflation?"
+
+First off, I did say that I don't necessarily have a huge issue with the amount
+of content on the internet.
+
+Secondly, well sure, if we keep sharing /everything/ we do or create then we're
+obviously contributing – perhaps negatively – to the cacophony. As producers we
+should do everybody else a favor and self-censor content created only for our
+own fulfillment, given it's obviously without external appeal.
+
+That said, knowing what and what not to publish can be difficult. A piece of
+good work should fill us with a sense of pride, and few other things are as
+inspirational and likely to spawn new ideas as reciprocal engagement. It's
+important to distinguish between what's sensible self-censorship and what's
+self-deprecation due to a lack of confidence. Sharing and getting feedback is
+how we learn and improve, and as we improve we also gain confidence[fn:3].
+
+Furthermore, /consuming/ content is voluntary. You could argue that it's
+addictive to a degree – and some people might require help to escape it – but in
+the end we need to regulate and protect ourselves from information overload.
+Algorithms "help" us regulate to a large extent, but also trap us in colorless
+echo chambers of monotony. I sincerely hope we continue to evolve the tools that
+help us navigate the information jungle, discovering new pockets of friendly
+people and relevant-to-us content.
+
+[fn:3] Not entirely true. I remember being a reckless "invincible" youth in many
+ways, where I would attribute my confidence to ignorance. As I've evolved deeper
+skill I've often felt myself /losing/ confidence in my own abilities as I've
+become more aware of all the things I /don't/ know. [[https://en.wikipedia.org/wiki/Dunning%E2%80%93Kruger_effect][David Dunning and Justin
+Kruger]] has a word or two to say about this phenomenon.
+
+* Practice makes perfect
+
+As I've further reflected around this strategy[fn:2] I've started forming an
+understanding of what my intuition was trying to tell me: "Produce, Don't
+Consume" really was derived from the famous saying *Practice makes perfect*.
+
+I wasn't imposing on myself to create more content, be more visible or aspire
+for anything in particular. Rather, I was urging myself to try to stay /active/
+and /constructive/. I wanted to make sure I continued to apply my existing
+knowledge while picking up some new. It was the kid in me remembering the joy of
+learning through experimentation and creation. And I was protecting myself from
+/stagnation/.
+
+What I mean by this is by defining yourself as a /producer/ you are forcing
+yourself to actively /do/ stuff™. "Repeatedly doing stuff" is what we commonly
+refer to as practicing. The acts of producing and practicing relate to one
+another, although the two are definitely not synonymous. Depending on what you
+produce, you end up practicing in various ways:
+
+ - Repeatedly producing similar things, you practice and maintain the skills
+   that go into producing that thing.
+ - Producing something you have not produced before practices your innovative
+   and problem-solving ability.
+ - By adopting a producing mindset, you generally practice staying active and
+   constructive.
+
+I can't stress this enough: You learn by doing, and by doing you produce. So in
+reverse, by choosing to produce you effectively practice; be that existing
+skills or learning new ones. In any case, you evolve.
+
+One can evolve ones abilities through consumption too, but I find it serves best
+as the catalyst to inspire and ignite the much more effective skill building
+that comes from practical application.
+
+Nobody learns to swim or drive a car just by reading a book. Likewise, you will
+never achieve programming fluency by reading programming books and blogs alone.
+Good books are essential learning tools, but you are yourself responsible for
+embedding their intuition and knowledge into your own brain through /doing/.
+
+[fn:2] I call this a strategy because I intend to maintain this mentality as one
+of my long-term guiding principles. To me, it makes little sense in the
+short-term. I believe in the good that comes out of the consistency of doing
+over time.
+
+* Outcomes?
+
+So what's the result of this? What did I produce?
+
+Honestly? My public-facing output has not changed much at all. From a tech
+perspective my blogging frequency has stayed equally infrequent. I have not made
+any significant public contributions to open-source. I have not engaged more on
+any social medium. But that's what /you/ see (if you were looking my way).
+
+Professionally I can look back at a couple of years with new job opportunities
+where I've been able to significantly increase the impact of my own efforts
+towards engineering progress. Privately I've enjoyed some simple home- and
+personal-improvement projects, like woodworking and picking up my guitar almost
+every day – if only for a few minutes. I've also been spending considerable
+amounts of time on private and personal coding projects[fn:4].
+
+The "produce, don't consume" strategy has been defining in how I've chosen to
+spend my time and manage my interactions over the last few years.
+
+In my opinion it wasn't that much about /what/ I ended up producing. What I have
+realized, however, is that simply by having a simple strategy I've been able to
+maintain a steady course and make decisions with a new level of confidence.
+
+#+begin_note
+As a final disclaimer: It's hard for me overstate the importance of maintaining
+a /balance/. I still consume significant amounts of information and
+entertainment on a weekly basis. "Produce, don't consume" to me is about
+ensuring that balance. Without staying conscious about it I fear I'd be the
+slowly boiled frog, growing increasingly passive without noticing.
+
+Somewhat defensively (and it might be just me), but with the onset of popular
+micro-blogging services we seem to have lost some of our ability to consider
+nuance. Agreed, with polarizing titles like "Produce, Don't Consume" it might
+seem hypocritical to call for nuance in the first place.
+
+However, these three words define /my/ strategy. It's one of the orienting
+arrows on my compass to keep /me/ on course. I want to steer myself away from
+total consumption complacency, because in the end it doesn't bring me /real/
+joy.
+
+Making stuff and engaging with my environment does.
+#+end_note
+
+[fn:4]  Almost to the point of a mild obsession I've finally been able to spend
+a non-trivial amount of time building a ~Rust~ project. I hope to be writing
+about that experience in not too long.
