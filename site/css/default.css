@@ -453,11 +453,6 @@ ul.tags span {
  * Article layout
  */
 
-article {
-    text-align: justify;
-    text-justify: auto;
-}
-
 article .header {
     color: var(--main-fg-dim);
     font-size: 0.8em;
