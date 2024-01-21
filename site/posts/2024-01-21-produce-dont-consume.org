@@ -54,24 +54,22 @@ and perverting some age-old survival trait. There was a time where /not/
 learning certain abilities, latest events or social movements within a tribe
 would in the very least reduce our likelihood of mating success. In the utmost
 consequence ignorance would lead to exclusion or an inability to self-sustain
-and ultimately a certain death. Knowing meant surviving. Knowing meant surviving.
+and ultimately a certain death. Knowing meant surviving.
 
-From the start of the information age and beyond we are miles past the point
-where not knowing will end in our own personal demise. It's just that our genes
+From the start of the information age and beyond the consequences of /not
+knowing/ much less so imply our own personal demise. It's just that our genes
 and brains have not had the time to adapt. Meanwhile, the content produced and
 the technological advances making it accessible show little sign of slowing
 down.
 
 #+begin_src html
-<pause-for-dramatic-effect>
-  ...
-</pause-for-dramatic-effect>
+<pause-for-dramatic-effect class="spinner manual-breathing" />
 #+end_src
 
-But enough with me waddling my way through some intuition-based reverse
-engineering of anthropological behavior. Hopefully it's illustrative for where
-I'm coming from and helps back up the underlying motivation for what's to come
-below.
+But enough about me waving my proverbial stick and waddling my way through some
+intuition-based reverse engineering of anthropological behavior. Hopefully it's
+illustrative for where I'm coming from and helps back up the underlying
+motivation for what's to come below.
 
 * Produce, Don't Consume
 
@@ -84,21 +82,19 @@ passive /receiver/ of input and focus more on trying to be a /producer/ of
 output (or outcomes). It would imply engaging less with multi-media: Less TV and
 shows. Digesting less social media and to a certain degree blogs. In social
 settings to be engaging and a /driver/ of conversations[fn:1]. Another example
-could be to spend less time in awestruck paralysis watching virtuosic musicians,
-more time "violating" my guitar.
+could be to spend less time in awestruck paralysis watching virtuosic
+guitarists, more time "violating" my guitar. And obvisouly actively programming
+more than consuming programming content.
 
 What's wrong with being a consumer, you may ask? Well, in a way, nothing.
 
 And here I need to be perfectly clear: My motivation never stemmed from any
 idealistic standpoint against the state of the modern internet nor the World in
-general. Yes, there is enough content out the to drown everybody tenfold. But I
-don't necessarily have an issue with that. In fact, looking back I don't know
-what made me set myself this goal in the first place. What I /do/ know is that
-it was my intuition trying to tell me something. It was definitely a deep and
-vague sensation. A gut feeling.
-
-# I've later come to realize that what I was hearing was probably my own
-# personality.
+general, as the prelude might have lead you to believe. Yes, there is enough
+content out the to drown everybody tenfold. But I don't necessarily have an
+issue with that. In fact, looking back I don't know what made me set myself this
+goal in the first place. What I /do/ know is that it was my intuition trying to
+tell me something. It was definitely a deep and vague sensation. A gut feeling.
 
 [fn:1] But still to respectfully remember to hear people out on their opinions
 and focus on listening. I don't believe driving conversation necessarily mean to
@@ -111,8 +107,8 @@ that input fuel further discussion and exchange of opinions.
 yourself and other people to produce /more/ simply lead to an acceleration of
 content inflation?"
 
-First off, I did say that I don't necessarily have a huge issue with the amount
-of content on the internet.
+First off, I did just state that I don't necessarily have a huge issue with the
+amount of content on the internet.
 
 Secondly, well sure, if we keep sharing /everything/ we do or create then we're
 obviously contributing – perhaps negatively – to the cacophony. As producers we
@@ -126,13 +122,16 @@ important to distinguish between what's sensible self-censorship and what's
 self-deprecation due to a lack of confidence. Sharing and getting feedback is
 how we learn and improve, and as we improve we also gain confidence[fn:3].
 
-Furthermore, /consuming/ content is voluntary. You could argue that it's
-addictive to a degree – and some people might require help to escape it – but in
-the end we need to regulate and protect ourselves from information overload.
-Algorithms "help" us regulate to a large extent, but also trap us in colorless
-echo chambers of monotony. I sincerely hope we continue to evolve the tools that
-help us navigate the information jungle, discovering new pockets of friendly
-people and relevant-to-us content.
+Furthermore, /consuming/ content is voluntary. Producers shouldn't feel a
+responsibility catering for the (potential) lack of self-regulation of their
+consumers. I mentioned that consumption is addictive to a degree – and some
+people might require help to escape it – but in the end it's our responsibility
+to regulate and protect ourselves from information overload. Algorithms try to
+"help" us, and do to a large extent, but also trap us in echo chambers of
+monotony in order to drive engagement. I sincerely hope we continue to evolve
+the tools that help us navigate the information jungle, discovering new pockets
+of friendly people and relevant-to-us content, without click bait
+sensationalism.
 
 [fn:3] Not entirely true. I remember being a reckless "invincible" youth in many
 ways, where I would attribute my confidence to ignorance. As I've evolved deeper
@@ -149,35 +148,41 @@ Consume" really was derived from the famous saying *Practice makes perfect*.
 I wasn't imposing on myself to create more content, be more visible or aspire
 for anything in particular. Rather, I was urging myself to try to stay /active/
 and /constructive/. I wanted to make sure I continued to apply my existing
-knowledge while picking up some new. It was the kid in me remembering the joy of
-learning through experimentation and creation. And I was protecting myself from
-/stagnation/.
+knowledge while picking up some new along the way. It was the kid in me
+remembering the joy of learning through experimentation and creation. And I was
+protecting myself from /stagnation/.
 
-What I mean by this is by defining yourself as a /producer/ you are forcing
-yourself to actively /do/ stuff™. "Repeatedly doing stuff" is what we commonly
-refer to as practicing. The acts of producing and practicing relate to one
-another, although the two are definitely not synonymous. Depending on what you
-produce, you end up practicing in various ways:
+By defining myself as a /producer/ I was forcing myself to actively /do/ stuff™.
+"Repeatedly doing stuff" is what we commonly refer to as practicing. The acts of
+producing and practicing relate to one another, although the two are definitely
+not synonymous. Depending on what you produce, you end up practicing in various
+ways:
 
  - Repeatedly producing similar things, you practice and maintain the skills
-   that go into producing that thing.
+   that go into producing _that thing_.
  - Producing something you have not produced before practices your innovative
    and problem-solving ability.
  - By adopting a producing mindset, you generally practice staying active and
    constructive.
 
-I can't stress this enough: You learn by doing, and by doing you produce. So in
-reverse, by choosing to produce you effectively practice; be that existing
-skills or learning new ones. In any case, you evolve.
+Another way to look at it is that production is an offensive strategy – you take
+the initiative and act. Whereas consumption is defensive – you /react/ based on
+external events or stimuli. This directly maps to the concepts of /active/ and
+/passive/ learning.
 
-One can evolve ones abilities through consumption too, but I find it serves best
-as the catalyst to inspire and ignite the much more effective skill building
-that comes from practical application.
+I can't stress this enough: You learn better by doing, and by doing you produce.
+So in reverse, by choosing to produce you effectively practice; be that existing
+skills or learning new ones. Doing both you maintain and evolve.
+
+One can evolve ones abilities through consumption and passive learning too, but
+I find it serves best as the catalyst to inspire and ignite the much more
+effective skill building that comes from practical application. Some skills
+simply can't be learned solely through consumption.
 
 Nobody learns to swim or drive a car just by reading a book. Likewise, you will
 never achieve programming fluency by reading programming books and blogs alone.
 Good books are essential learning tools, but you are yourself responsible for
-embedding their intuition and knowledge into your own brain through /doing/.
+internalizing their intuition and knowledge into your brain through /doing/.
 
 [fn:2] I call this a strategy because I intend to maintain this mentality as one
 of my long-term guiding principles. To me, it makes little sense in the
