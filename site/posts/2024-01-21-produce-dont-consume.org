@@ -1,7 +1,6 @@
 ---
 title: Produce, Don't Consume
 tags: Programming
-preview: true
 ---
 
 #+begin_note
