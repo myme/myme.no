@@ -1,6 +1,8 @@
 {
   description = "Flake for myme.no";
 
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+
   outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
