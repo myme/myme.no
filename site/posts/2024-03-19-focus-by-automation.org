@@ -126,11 +126,11 @@ digital. A paper notepad is honestly perfectly acceptable too. However, I
 believe tighter integration into e.g. code editors increases the possibility for
 distraction free note-taking and organization.
 
-I feel an organizational tools hits the sweetspot when you hardly notice
-yourself using it. In my case I've achieved such ergonomics using ~emacs~ as
-both my primary code editor /and/ note-taking application. ~Org mode~ lets me
-capture all kinds of fleeting notes and ~Org-roam~ complements it by allowing me
-to quickly refile things into a personal knowledge graph. ~TODO~ lists and
+I feel an organizational tool hits the sweetspot when you hardly notice yourself
+using it. In my case I've achieved such ergonomics using ~emacs~ as both my
+primary code editor /and/ note-taking application. ~Org mode~ lets me capture
+all kinds of fleeting notes and ~Org-roam~ complements it by allowing me to
+quickly refile things into a personal knowledge graph. ~TODO~ lists and
 priorities fit nicely into the same workflow, as does time-tracking.
 
 I must admit I have a lot of issues with ~emacs~, but the way some of these
@@ -179,7 +179,7 @@ musician spends time with her instrument to improve, programmers spend time with
 their "tech stacks", editors and tools. It's a matter of starting somewhere.
 Experts weren't born experts. And even though talent or determination allow some
 to progress faster than others nobody who achieve mastery within any discipline
-will admit to not having worked hard, or for a long time to acquire the skill
+will admit to not having worked hard, or for a long time, to acquire the skill
 they possess.
 
 Just as a musician is likely to butcher an unfamiliar instrument, a programmer
