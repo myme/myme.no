@@ -241,7 +241,7 @@ to note the inclusion of ~glibcLocales~ and setting ~LANG="en_US.UTF-8~.
 Unfortunately, despite ~Haskell~'s valiant and idealistic quest for programming
 purity ~Haskell~ programs have yet to escape the hell which is ~locales~.
 
-~Hakyll~ makes use various functions to read source files during static site
+~Hakyll~ makes use of various functions to read source files during static site
 generation, among them ~hGetContents~:
 
 #+begin_quote
