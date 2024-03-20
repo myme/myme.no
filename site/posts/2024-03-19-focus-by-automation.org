@@ -105,7 +105,7 @@ might have accepted simply as a natural part of "work". By not acknowledging
 these minor nuisances as distractions I've never stopped to consider how they
 may negatively affect my productivity or cognitive ability. However, tiny
 inconveniences can add up to make solving issues more difficult than it needs
-to.
+to be.
 
 Much can be done to reduce the distractions within an organization, but
 introducing transformational change can be hard for an individual alone.
@@ -130,15 +130,19 @@ believe tighter integration into e.g. code editors increases the possibility for
 distraction free note-taking and organization.
 
 I feel an organizational tool hits the sweetspot when you hardly notice yourself
-using it. In my case I've achieved such ergonomics using ~emacs~ as both my
-primary code editor /and/ note-taking application. ~Org mode~ lets me capture
-all kinds of fleeting notes and ~Org-roam~ complements it by allowing me to
-quickly refile things into a personal knowledge graph. ~TODO~ lists and
-priorities fit nicely into the same workflow, as does time-tracking.
+using it.
 
+In my case I've achieved such ergonomics using ~emacs~ as both my primary code
+editor /and/ note-taking application. ~Org mode~ lets me capture all kinds of
+fleeting notes and ~Org-roam~ complements it by allowing me to quickly refile
+things into a personal knowledge graph. ~TODO~ lists and priorities fit nicely
+into the same workflow, as does time-tracking.
+
+#+begin_notes
 I must admit I have a lot of issues with ~emacs~, but the way some of these
 "killer app" plugins integrate into a comprehensive productivity tool I have yet
 to find anything matching what I'm after.
+#+end_notes
 
 There is A LOT of literature on personal organization, so I don't want to spend
 too much time on this topic in this post. Let's move on to another critical tool
@@ -182,7 +186,7 @@ musician spends time with her instrument to improve, programmers spend time with
 their "tech stacks", editors and tools. It's a matter of starting somewhere.
 Experts weren't born experts. And even though talent or determination allow some
 to progress faster than others nobody who achieve mastery within any discipline
-will admit to not having worked hard, or for a long time, to acquire the skill
+will admit to not having worked hard – or for a long time – to acquire the skill
 they possess.
 
 Just as a musician is likely to butcher an unfamiliar instrument, a programmer
@@ -190,7 +194,7 @@ dropped into a new development environment will most definitely experience some
 initial regression in their productivity. This is normal, but it is also the way
 we learn. The difficulty is knowing (or choosing) what to learn, and when. In
 the middle of a high-stakes project is probably not the right time to pick up a
-new language or framework.
+new language or framework[fn:4].
 
 Whether you consider yourself a specialist or a generalist I believe software
 development is quite unique in the way many skills are transferable across
@@ -201,6 +205,8 @@ due to their pervasiveness or general applicability.
 
 [fn:3] Don't get me wrong. I find it very important to combine theoretical
 studying with practice and applying knowledge.
+
+[fn:4] Or who knows, maybe it is.
 
 ** Typing speed
 
@@ -224,10 +230,10 @@ Difficult problems require thinking, I know. But few things beat the speed of
 finding code problems as actually passing code through a compiler or an
 interpreter and executing it.
 
-I would say it's worth putting effort into improving your typing. And while
-you're at it, why not also try to improve /how/ you type?
-
-Let's take ~vi/vim~ and modal editing as an example.
+I would say it's worth putting effort into improving your typing. Not with the
+end-goal "writing as fast as possible" in mind of, but rather to /interface/ as
+efficiently as possible with the computer. Why then not also try to improve
+/how/ you type? Let's take ~vi/vim~ and modal editing as an example.
 
 ** Vim bindings
 
@@ -270,7 +276,7 @@ The keyboard is still my main interface to the computer. As long as it continues
 to be it matters to me to wield it well.
 
 Similarly to ~vim~ motions most mainstream ~$SHELL~ prompts default to
-~emacs~-style ~readline~ bindings[fn:4]. To me that was motivation enough to put
+~emacs~-style ~readline~ bindings[fn:5]. To me that was motivation enough to put
 some effort into internalize the most common ~readline~ keyboard bindings on the
 CLI (for ~emacs~ users this is trivial).
 
@@ -296,7 +302,7 @@ they eventually get out of your way and you're free to tackle the actual
 problems you're faced with. It's even better if these skills are applicable in a
 wide variety of applications and environments – try to stick to defaults.
 
-[fn:4] Many shells also support ~vi~ mode bindings, but it's rarely the default.
+[fn:5] Many shells also support ~vi~ mode bindings, but it's rarely the default.
 
 * Braaains 🧠
 
