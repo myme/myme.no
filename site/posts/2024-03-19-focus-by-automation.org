@@ -14,6 +14,9 @@ keystrokes but to save mental energy for the project at hand.
 - John D. Cook
 #+end_quote
 
+#+ATTR_HTML: :style width: 50% :alt "DALL-E: A highly focused conveyor belt robot automating daily chores in the style of Pixar animations studios." :title "DALL-E: A highly focused conveyor belt robot automating daily chores in the style of Pixar animations studios."
+[[file:../images/conveyor-belt-robot.webp]]
+
 In much of the work that I do I try to [[https://www.johndcook.com/blog/2015/12/22/automate-to-save-mental-energy-not-time/][automate to save mental energy]].
 Automation, to "techy" people, often means to apply some sort of repeatable
 application of machinery or code in order both free us from manual labor and
