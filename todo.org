@@ -6,3 +6,15 @@ CLOSED: [2021-10-29 Fri 19:56]
 * TODO Write about myme.no :post:
 
 Mostly about ~Hakyll~.
+
+* Post aggregation
+
+** Git commands
+
+- [[https://lobste.rs/s/58raub/git_commands_you_probably_do_not_need][Lobsters]]
+- [[https://news.ycombinator.com/item?id=34487201][Hacker News]]
+
+** Focus by Automation
+
+- [[https://lobste.rs/s/ddevgb/focus_by_automation][Lobsters]]
+- [[https://news.ycombinator.com/item?id=39766236][Hacker News]]
