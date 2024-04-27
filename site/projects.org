@@ -20,7 +20,9 @@ to generate the static assets and [[https://nixos.org/][Nix]] for building.
 
 Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
 
-* [[https://github.com/myme/rtcp][rtcp]] (JavaScript + Haskell)
+* ~rtcp~ (JavaScript + Haskell)
+
+https://rtcp.cc ([[https://github.com/myme/rtcp][GitHub]])
 
 Exchange stuff (text) between things (browsers) using ~WebRTC~.
 
@@ -28,7 +30,9 @@ Exchange stuff (text) between things (browsers) using ~WebRTC~.
 
 Solutions for various years of [[https://adventofcode.com/][Advent of Code]].
 
-* [[https://github.com/myme/piddif][Piddif]] (Haskell)
+* ~piddif~ (Haskell)
+
+https://piddif.myme.no ([[https://github.com/myme/piddif][GitHub]])
 
 A document renderer supporting different formats, outputting HTML ready to print
 from a browser. Created because I *know* how to style ~HTML~ using ~CSS~, and I
