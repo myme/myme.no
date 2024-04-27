@@ -6,17 +6,23 @@ Here's a list of more or less useful tools that I've created over the years.
 This is just a selection of stuff I have hosted on ~GitHub~. In no particular
 order:
 
-* [[https://github.com/myme/dotfiles][dotfiles]]
+* ~dotfiles~
+
+[[https://github.com/myme/dotfiles][GitHub]]
 
 These are my dotfiles. There are many like them, but these ones are mine. I
 take my dotfiles very seriously, as any professional programmer should.
 
-* [[https://github.com/myme/myme.no][myme.no]]
+* ~myme.no~
+
+https://myme.no [[https://github.com/myme/myme.no][(GitHub]])
 
 The source code for this very website. A statically generated site using [[https://jaspervdj.be/hakyll/][Hakyll]]
 to generate the static assets and [[https://nixos.org/][Nix]] for building.
 
-* [[https://github.com/myme/nixon][nixon]] (Haskell)
+* ~nixon~ (Haskell)
+
+[[https://github.com/myme/nixon][GitHub]]
 
 Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
 
@@ -26,10 +32,6 @@ https://rtcp.cc ([[https://github.com/myme/rtcp][GitHub]])
 
 Exchange stuff (text) between things (browsers) using ~WebRTC~.
 
-* [[https://github.com/myme/aoc][Advent of Code]] (Haskell + Rust)
-
-Solutions for various years of [[https://adventofcode.com/][Advent of Code]].
-
 * ~piddif~ (Haskell)
 
 https://piddif.myme.no ([[https://github.com/myme/piddif][GitHub]])
@@ -38,9 +40,15 @@ A document renderer supporting different formats, outputting HTML ready to print
 from a browser. Created because I *know* how to style ~HTML~ using ~CSS~, and I
 *don't* know how to style ~LaTeX~. Uses [[https://pandoc.org/][Pandoc]].
 
-* [[https://github.com/myme/annodate][Annodate]] (Haskell)
+* ~annodate~ (Haskell)
+
+[[https://github.com/myme/annodate][GitHub]]
 
 A tiny, simple *nix tool to prepend (customizable) timestamps to input streams.
+
+* [[https://github.com/myme/aoc][Advent of Code]] (Haskell + Rust)
+
+Solutions for various years of [[https://adventofcode.com/][Advent of Code]].
 
 * [[https://github.com/cisco-ce/jsxapi][JSXAPI]] (JavaScript)
 
