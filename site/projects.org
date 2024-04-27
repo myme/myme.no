@@ -15,36 +15,40 @@ take my dotfiles very seriously, as any professional programmer should.
 
 * ~myme.no~
 
-https://myme.no [[https://github.com/myme/myme.no][(GitHub]])
+https://myme.no ([[https://github.com/myme/myme.no][GitHub]])
 
 The source code for this very website. A statically generated site using [[https://jaspervdj.be/hakyll/][Hakyll]]
 to generate the static assets and [[https://nixos.org/][Nix]] for building.
 
-* ~nixon~ (Haskell)
+* ~nixon~
 
 [[https://github.com/myme/nixon][GitHub]]
 
 Project environment and command launcher using [[https://github.com/junegunn/fzf][fzf]] or [[https://github.com/davatorium/rofi][rofi]] for fuzzy selection.
+Implemented in [[/tags/haskell.html][Haskell]].
 
-* ~rtcp~ (JavaScript + Haskell)
+* ~rtcp~
 
 https://rtcp.cc ([[https://github.com/myme/rtcp][GitHub]])
 
-Exchange stuff (text) between things (browsers) using ~WebRTC~.
+Exchange stuff (text) between things (browsers) using ~WebRTC~. Implemented in
+JavaScript and [[/tags/haskell.html][Haskell]].
 
-* ~piddif~ (Haskell)
+* ~piddif~
 
 https://piddif.myme.no ([[https://github.com/myme/piddif][GitHub]])
 
 A document renderer supporting different formats, outputting HTML ready to print
 from a browser. Created because I *know* how to style ~HTML~ using ~CSS~, and I
-*don't* know how to style ~LaTeX~. Uses [[https://pandoc.org/][Pandoc]].
+*don't* know how to style ~LaTeX~. Implemented in [[/tags/haskell.html][Haskell]] and uses [[https://pandoc.org/][Pandoc]] for
+document parsing and translation.
 
-* ~annodate~ (Haskell)
+* ~annodate~
 
 [[https://github.com/myme/annodate][GitHub]]
 
 A tiny, simple *nix tool to prepend (customizable) timestamps to input streams.
+Implemented in [[/tags/haskell.html][Haskell]].
 
 * [[https://github.com/myme/aoc][Advent of Code]] (Haskell + Rust)
 
