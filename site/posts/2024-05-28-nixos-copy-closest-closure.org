@@ -1,0 +1,283 @@
+---
+title: "NixOS: Copy Closest Closure"
+preview: true
+tags: NixOS
+toc: 1
+---
+
+At work I've setup a few =Raspberry Pi 400s= as signage devices. The devices
+simply display a web browser in "kiosk" mode, full screen with a signage
+roulette of information pages, live reports and various system statuses.
+
+Setting up the boxes I probably could've gone down the path of using off the
+shelf solutions like [[https://anthias.screenly.io/][Anthias]] (never tried), but where's the fun in that?
+
+Instead, the whole setup is powered by something as simple a ~200 lines =NixOS=
+configuration combined with a bespoke signage web application implemented
+unglamorously using vanilla HTML, CSS and some simple JavaScript.
+
+The Raspberry Pis aren't exactly powerhouses of compute and in my [[file:2022-12-01-nixos-on-raspberrypi.org::toc: 2][post on
+building =NixOS= for the Raspberry Pi 3B]] I explained how I use =binfmt=
+emulated[fn:1] compilation from my more powerful laptop or desktop computers.
+This avoids doing most of the distribution assembly on the Raspberry Pi and it
+also keeps most development dependencies off the target systems. This makes for
+a leaner deployment in general, which is good given =NixOS='s notorious appetite
+for disk space.
+
+All that said, this post isn't about the signage device configuration and the
+application I've made, but a fun little detail in the capabilities of =nix= and
+exchange of its "binary"[fn:2] artifacts.
+
+[fn:1] Not cross-compilation as =binfmt= invokes =qemu= for the =aarch64=
+architecture and runs the entire toolchain on the target architecture.
+
+[fn:2] Quite a large portion of =nix= artifacts are in fact not "binary" data.
+
+* 🕸 Look at the mesh I've made
+
+We don't have much physical infrastructure at work besides the WiFi mesh
+network. There's no corporate network or other VPNs. Pretty much everything is
+cloud hosted. The signage R-Pis are basically /the/ local infrastructure at the
+moment (lol). In any case, in order to access the devices from home I've set
+them up on a [[https://tailscale.com/kb/1136/tailnet][tailnet]].
+
+#+ATTR_HTML: :style width: 50% :alt "A NixOS snowflake mesh of nodes." :title "A NixOS snowflake mesh of nodes."
+[[file:../images/nix-copy-closure-mesh.webp]]
+
+I've used various means of getting =NixOS= configurations onto remote hosts,
+mainly [[https://github.com/serokell/deploy-rs][deploy-rs]]. However, =NixOS= supports remote system profile activation
+without any additional dependencies through ~nixos-rebuild~. I won't go into
+details as there's already an excellent [[https://www.haskellforall.com/2023/01/announcing-nixos-rebuild-new-deployment.html][Haskell for all post]] on the topic. So
+for these devices I simply stick with ~nixos-rebuild~.
+
+One pain point is that copying =nix= closures from my host machine to the
+Raspberry Pis in the office is /slooow/. Dead slow. 💀
+
+Also, as I'm iterating on configurations and upgrades I don't usually want to
+mess with all devices at once, so I typically pick out one I use for
+experimentation. Luckily =nix= will only copy things that have changed and this
+means that most the required derivations make it to my target device
+incrementally until I'm done experimenting. However, when I want to apply this
+final configuration to the other devices I would need to copy them all... again.
+
+The devices themselves, however, are on the same network and so copying between
+them should be a fair amount quicker. What if I could copy what's common between
+the configurations among the devices themselves, saving me time as well as not
+having to worry to remember keeping my laptop on the same tailnet (I use
+several)?
+
+* 🚧 NixOS rebuild
+
+First off we would need to build the complete configurations for the devices we
+wish to deploy. This is trivial with the =flake= configuration where the various
+hosts are defined together. Building a specific one is as trivial as using
+~nixos-rebuild build~:
+
+#+begin_src bash
+nixos-rebuild build --flake .#baard-open-space
+#+end_src
+
+This leaves the system activation package linked under =./result=:
+
+#+begin_src bash
+❯ ls -l result
+lrwxrwxrwx 1 myme users 101 May 28 19:34 result -> /nix/store/h16i6zjrjcv0wrd2dl9n3m0g4xqjcn4a-nixos-system-baard-open-space-23.11.20240525.9d29cd
+#+end_src
+
+#+begin_notes
+Make a note of the =nix= store path or rename the symlink before building the
+other system(s). I'm not sure if ~nixos-rebuild~ supports something like the
+~nix-build~ / ~nix build~ output link name parameter =--out-link=.
+#+end_notes
+
+How do we find shared derivations (and closures) between the various
+configurations?
+
+* 🌳 nix-tree
+
+[[https://github.com/utdemir/nix-tree][nix-tree]] is a great little tools for browsing the dependency graphs of =nix=
+derivations, the derivation's closure. It provides a TUI reminiscent a file
+browser where it allows you to dig down into the dependency graph of derivations
+provided on the command line:
+
+#+ATTR_HTML: :alt "" :title ""
+[[file:../images/nix-tree-nixos-closure.webm]]
+
+=nix-tree= shows the derivation's closure size and sorts the results from
+largest to smallest. This is useful as I would like to avoid copying as much as
+possible from my machine at home that has already been copied to one of the
+Raspberry Pis in the office. Inspecting the activation packages we can see that
+=etc= is the largest, while the =system-path= is the second largest.
+
+I want to avoid as much as possible to copy stuff which is specific to a host,
+and navigating in =nix-tree= it's clear that there are certain host specifics in
+~etc~. This is not surprising as the hostnames differ, etc. However, everything
+within the ~system-path~ is identical and the closure hash is the same.
+
+#+ATTR_HTML: :alt "" :title ""
+[[file:../images/nix-tree-system-path.png]]
+
+Another even simpler (and more precise) way of determining shared derivations is
+using ~nix-store --query~ directly:
+
+#+begin_src bash
+❯ nix-store -q --references ./result* | cut -d'-' -f2- | sort | uniq -c | sort -n
+      1 append-initrd-secrets
+      1 bash-5.2-p15
+      1 bash-interactive-5.2-p15
+      1 coreutils-9.3
+      1 extlinux-conf-builder.sh
+      1 findutils-4.9.0
+      1 firmware
+      1 getent-glibc-2.38-66
+      1 glibc-2.38-66-bin
+      1 glibc-locales-2.38-66
+      1 gnugrep-3.11
+      1 initrd-linux-6.1.91
+      1 kernel-modules
+      1 kmod-31
+      1 lingering-users
+      1 linux-6.1.91
+      1 local-cmds
+      1 mounts.sh
+      1 net-tools-2.10
+      1 nixos-system-baard-oslo-entrance-23.11.20240525.9d29cd2
+      1 nixos-system-baard-oslo-open-space-23.11.20240525.9d29cd2
+      1 setup-etc.pl
+      1 shadow-4.14.2
+      1 shadow-4.14.2-su
+      1 systemd-254.10
+      1 system-path
+      1 update-users-groups.pl
+      1 users-groups.json
+      1 util-linux-2.39.2-bin
+      2 etc
+      3 perl-5.38.2-env
+#+end_src
+
+By passing both system derivations to ~nix-store --query --references~ we're
+getting the union of all referenced derivations. Since we also get the hash in
+the =nix= store paths any derivation name that appears only once is either a
+identical, shared dependency or it's specific to one of the two devices.
+
+#+begin_notes
+Comparing the "potentially shared" list with the dependencies required for our
+"to be updated" system is an exercise left for the reader.
+#+end_notes
+
+I've yet to explore the possibilities of ~nix-store~ / ~nix store~ sub-commands
+like ~diff-closures~ which would most likely be able to provide even more
+precise results with regards to which closures are identical between two
+derivations. Neither have I spent any effort digging into other tools
+specializing in =nix= deployment. For instance, [[https://github.com/zhaofengli/colmena][Colmena]] supports parallel
+deployment, but I'm unsure if it has any features related to copy derivations
+between two or more /remote/ hosts.
+
+* 🍝 Copy/pasta
+
+Once we've determined the derivation(s) we want to copy we can use
+~nix-copy-closure~. It allows us to copy a derivation and its dependency graph
+in its entirety from one Raspberry Pi hosts to another.
+
+Without further ceremony:
+
+#+begin_src bash
+nix-copy-closure --from 10.20.30.40 /nix/store/gxz15i14ig73maiy2zpaj4myhl9gckyi-system-path
+#+end_src
+
+#+begin_notes
+=Nix= uses =ssh= for this so it's convenient to make use of an =ssh-agent= to
+avoid having to type in credentials. =Nix= commands invoking =ssh= also accept
+an =NIX_SSHOPTS= environment variable containing parameters to pass on to the
+=ssh= command.
+#+end_notes
+
+Once the entire =system-units= from the example above have been transferred we
+need to perform the actual activation of the next =NixOS= generation. This can
+be done using a regular ~nixos-rebuild switch~ with a remote target host.
+
+#+begin_src bash
+nixos-rebuild switch --use-remote-sudo --target-host 10.20.30.40 --flake .#baard-open-space
+#+end_src
+
+For a little more ergonomics I use a small =bash= script which also asks to
+restart the display manager of the signage device (to apply window manager
+configuration changes, etc):
+
+#+begin_src  bash
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+# Ensure there's a hostname argument
+if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") <hostname>"
+    exit 1
+fi
+
+# Fetch all possible hostnames into an array
+hosts=()
+while IFS= read -r line; do
+    hosts+=("$line")
+done < <(nix flake show --json 2>/dev/null | jq -r '.nixosConfigurations | keys[]')
+
+# Ensure the hostname is valid
+if [[ ! " ${hosts[*]} " =~ " $1 " ]]; then
+    echo "Invalid hostname: $1"
+    echo ""
+    echo "Use one of:"
+    printf '  %s\n' "${hosts[@]}"
+    exit 1
+fi
+
+# Build and deploy the system
+nixos-rebuild switch --use-remote-sudo --target-host "$1" --flake ".#$1"
+
+# Restart the display server if the user wants to
+read -p "Restart the display manager? (y/N) " -n 1 -r
+
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    ssh "$1" sudo systemctl restart display-manager.service
+fi
+#+end_src
+
+Which is invoked via the configuration =flake= as an app:
+
+#+begin_src nix
+{
+  # ...
+
+  outputs = {
+    # ...
+
+    apps = let
+      deploy = pkgs.stdenv.mkDerivation {
+        name = "baard-deploy";
+        src = ./deploy.sh;
+        dontUnpack = true;
+        installPhase = ''
+          mkdir -p $out/bin
+          install $src $out/bin/deploy
+        '';
+      };
+    in {
+      deploy = {
+        type = "app";
+        program = "${deploy}/bin/deploy";
+      };
+    };
+  };
+}
+#+end_src
+
+#+begin_src bash
+nix run .#deploy baard-open-space
+#+end_src
+
+After running the remote-to-remote closure sync the deployment only copies a
+fraction of the required system dependency derivations.
+
+How cool is that?
+
+* Footnotes
