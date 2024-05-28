@@ -15,7 +15,7 @@ Instead, the whole setup is powered by a simple ~200 lines =NixOS= configuration
 combined with a bespoke signage web application implemented using vanilla HTML,
 CSS, and some simple JavaScript.
 
-The Raspberry Pis aren't exactly computational powerhouses and in my [[file:2022-12-01-nixos-on-raspberrypi.org::toc: 2][post on
+The Raspberry Pis aren't exactly computational powerhouses and in my [[file:2022-12-01-nixos-on-raspberrypi.org][post on
 building =NixOS= for the Raspberry Pi 3B]] I explained how I use emulated[fn:1]
 compilation via =binfmt_misc= from my more powerful laptop or desktop computers.
 This avoids doing most of the distribution assembly work on the Raspberry Pi
