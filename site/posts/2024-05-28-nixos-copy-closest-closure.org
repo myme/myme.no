@@ -40,7 +40,7 @@ cloud-hosted. The signage R-Pis are basically /the/ local infrastructure at the
 moment (lol). In any case, to access the devices from home, I've set them up on
 a [[https://tailscale.com/kb/1136/tailnet][tailnet]].
 
-#+ATTR_HTML: :style width: 50% :alt "A NixOS snowflake mesh of nodes." :title "A NixOS snowflake mesh of nodes."
+#+ATTR_HTML: :style width: 50% :alt "A NixOS snowflake mesh of nodes. (DALL-E)" :title "A NixOS snowflake mesh of nodes. (DALL-E)"
 [[file:../images/nix-copy-closure-mesh.webp]]
 
 I've used various means of getting =NixOS= configurations onto remote hosts,
