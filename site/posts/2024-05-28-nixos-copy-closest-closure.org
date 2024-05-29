@@ -146,8 +146,8 @@ using ~nix-store --query~ directly:
       1 local-cmds
       1 mounts.sh
       1 net-tools-2.10
-      1 nixos-system-baard-oslo-entrance-23.11.20240525.9d29cd2
-      1 nixos-system-baard-oslo-open-space-23.11.20240525.9d29cd2
+      1 nixos-system-baard-entrance-23.11.20240525.9d29cd2
+      1 nixos-system-baard-open-space-23.11.20240525.9d29cd2
       1 setup-etc.pl
       1 shadow-4.14.2
       1 shadow-4.14.2-su
