@@ -77,20 +77,20 @@ But isn't that, uhm, like pressing /two/ keys to get an escape?
 
 Well, yes, indeed it is.
 
-But the big difference is, although your pressing two keys at once, your hand
+But the big difference is, although you're pressing two keys at once, your hand
 position is almost not affected by reaching for the two keys with each of your
 pinkies. This felt so strange to me when I started incorporating it, but now I
 much prefer keeping my hands still at the cost of pressing two keys at once.
 
-If you find yourself exclusively in =vim= another =<esc>= alternative is the
+If you find yourself exclusively in =vim=, another =<esc>= alternative is the
 classical =^c= or =Ctrl+c=. It's not an option for me who switch frequently
-between =vim= and =emacs=, as =C-c= (yet another notation for =^c=)[fn:4] is a very
-common prefix for many sequential "key chords".
+between =vim= and =emacs=, as =C-c= (yet another notation for =^c=)[fn:4] is a
+very common prefix for many sequential "key chords".
 
-In =evil-mode= it /does/ work to use the traditional "quit" keyboard binding of
-=C-g= to escape back into =<NORMAL>= mode. But — I bet you guessed it — it does
-not translate well back into =vim=, a muscle memory issue I still struggle with
-on a frequent basis.
+In =evil-mode= it /does/ work to use the traditional =emacs= "quit" binding of
+=C-g= to escape back into =<NORMAL>= mode. But — and I bet you guessed it — it
+does not translate well back into =vim=. Which is a muscle memory issue I still
+struggle with on a frequent basis.
 
 [fn:4] I'm doing my best to avoid any kind of consistency here!
 
@@ -115,6 +115,14 @@ useful — when typing on a typical terminal emulator[fn:5]:
  - =^_= :: Redo
 
 Who am I kidding, I'm not going to list them all.
+
+Like I said, some of these are mostly a curiosity and not all that useful in
+everyday, programming life. Others are surprisingly handy, and you should
+consider to get them into your typing habits.
+
+I would suggest to have a look in the =READLINE= section of =man 1 bash=.
+Similarly to =vim= bindings, you find =readline= bindings in quite a number of
+places too, so mastering both is a useful skill to possess — even in 2025.
 
 [fn:5] /Some/ of these should already be familiar to regular users of the
 terminal, like =^w= to delete the previous word (I've closed one too many
