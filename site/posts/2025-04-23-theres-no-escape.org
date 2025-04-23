@@ -2,7 +2,6 @@
 title: "There's No Escape!"
 tags: Programming, Emacs, Vim
 toc: nil
-preview: true
 ---
 
 If you're not already at the point where all your little AI agents are churning
@@ -83,10 +82,22 @@ position is almost not affected by reaching for the two keys with each of your
 pinkies. This felt so strange to me when I started incorporating it, but now I
 much prefer keeping my hands still at the cost of pressing two keys at once.
 
-* 🍒 There are dozens of us
+If you find yourself exclusively in =vim= another =<esc>= alternative is the
+classical =^c= or =Ctrl+c=. It's not an option for me who switch frequently
+between =vim= and =emacs=, as =C-c= (yet another notation for =^c=)[fn:4] is a very
+common prefix for many sequential "key chords".
+
+In =evil-mode= it /does/ work to use the traditional "quit" keyboard binding of
+=C-g= to escape back into =<NORMAL>= mode. But — I bet you guessed it — it does
+not translate well back into =vim=, a muscle memory issue I still struggle with
+on a frequent basis.
+
+[fn:4] I'm doing my best to avoid any kind of consistency here!
+
+* 🍒 Terminal escapes? There are dozens of us!
 
 There are a bunch of these =Ctrl+<key>= sequences — sitting at various levels of
-useful — when typing on a typical terminal emulator[fn:4]:
+useful — when typing on a typical terminal emulator[fn:5]:
 
  - =^[=  :: Escape
  - =^i= :: Tab (Rarely used it)
@@ -105,7 +116,7 @@ useful — when typing on a typical terminal emulator[fn:4]:
 
 Who am I kidding, I'm not going to list them all.
 
-[fn:4] /Some/ of these should already be familiar to regular users of the
+[fn:5] /Some/ of these should already be familiar to regular users of the
 terminal, like =^w= to delete the previous word (I've closed one too many
 browser tabs due to this habit.)
 
