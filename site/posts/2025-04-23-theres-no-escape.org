@@ -1,0 +1,112 @@
+---
+title: "There's No Escape!"
+tags: Programming, Emacs, Vim
+toc: nil
+preview: true
+---
+
+If you're not already at the point where all your little AI agents are churning
+out code for you — well, I guess it's true if you're extensively prompting via
+text too — chances are you're spending a significant time bashing on your
+keyboards still?
+
+Thought so!
+
+#+begin_notes
+This is a short post on the /very niche/ topic of how I exit back to =<NORMAL>=
+mode in the misc =vim= emulations I use — which includes [[https://neovim.io/][(neo)]][[https://www.vim.org/][vim]] itself.
+
+If you're here just for the tricks, [[#control-yourself][jump straight to it]].
+#+end_notes
+
+
+* ⌨ Key background information
+
+Personally I'm not in the "fancy keyboard camp"[fn:1]. I'm not sporting some
+split-keyboard variant, configured with some less-than-usual key layout (my
+layout "family" is [[https://en.wikipedia.org/wiki/QWERTY][QWERTY]]). I do require easy access to some weird "A"s and "O"s
+with circles and lines through them to fully articulate my native tongue[fn:2] —
+Norwegian — in writing.
+
+The standard =no= layout is horrible for coding, due to how all the special
+characters are laid out and require modifiers, so I mostly try to find and apply
+the =us alt-intl-unicode= variant where available (which is most Linuxes, but
+not stock on Windows, afaik[fn:3]).
+
+What I can say is that I don't go /very/ overboard with my keyboard setup. I'm
+reluctant to build habits on top of very unconventional setups, for a couple of
+reasons:
+
+1. I've been fortunate enough to never experience anything resembling [[https://en.wikipedia.org/wiki/Repetitive_strain_injury][RSI]].
+2. Until I have to worry about point number =1=, I think it's nice to stick
+   close to how most computers are setup by default.
+
+That said, I do find ergonomics and efficiency on the keyboard to be [[file:2024-03-19-focus-by-automation.org::*Typing speed][very
+important]]. Which is why I also /do/ opt for having "regular" tenkeyless or mini
+mechanical keyboards for my desktop setups, because it's just more comfortable.
+It is /also/ why I use =vim= emulation in [[://tags/emacs.org][any]] [[://tags/vim.html][editor]] I use as well as [[https://addons.mozilla.org/en-US/firefox/addon/vimium-ff/][my
+browser]].
+
+[fn:1] Although I could definitely see myself in it.
+
+[fn:2] Ææ, Øø, and Åå, to be precise.
+
+[fn:3] There are [[https://github.com/thomasfaingnaert/win-us-intl-altgr][various]] [[https://github.com/Derriick/win-us-altgr-intl][projects]] providing this on e.g. GitHub. I can't
+remember exactly what I've tried to use before, but I've later opted for just
+switching layouts with hotkeys on Windows as opposed to installing third-party
+extensions to get the layout I want.
+
+* 🕹 Control yourself
+
+If you've used =vim= emulation modes — or =vim= itself, obviously — for any
+extended amount of time, you know there's a whole lot of =<esc>= action going
+on. The =Escape= key is used to switch from most modes back to =<NORMAL>= mode
+(used for general text navigation through =vim= motions.) On most keyboards one
+might say this is a bit of a stretch. It gets your fingers off the home row and
+generally hampers your flow.
+
+I know there are many out there that for instance remap the =CapsLock= key to
+=Escape=, or even to =Control= (I mean, WHO'S USING CAPSLOCK, RIGHT!?) I don't
+fancy that too much, as I mentioned I don't want my setup to be too custom.
+
+Instead, I've built my escape around what I think is a fairly unknown feature of
+terminal emulators: Hitting =^[= fires off an =<esc>= (that is =Control+[=).
+
+#+begin_quote
+But isn't that, uhm, like pressing /two/ keys to get an escape?
+#+end_quote
+
+Well, yes, indeed it is.
+
+But the big difference is, although your pressing two keys at once, your hand
+position is almost not affected by reaching for the two keys with each of your
+pinkies. This felt so strange to me when I started incorporating it, but now I
+much prefer keeping my hands still at the cost of pressing two keys at once.
+
+* 🍒 There are dozens of us
+
+There are a bunch of these =Ctrl+<key>= sequences — sitting at various levels of
+useful — when typing on a typical terminal emulator[fn:4]:
+
+ - =^[=  :: Escape
+ - =^i= :: Tab (Rarely used it)
+ - =^m= :: Carriage return (nah, not for me)
+ - =^j= :: New line (well, it's somewhat of an =emacs= thing)
+ - =^c= :: Interrupt current command (I bet you know this)
+ - =^d= :: End of file (this one too!)
+ - =^w= :: Delete previous word (careful doing so in your browser)
+ - =^l= :: Clear screen
+ - =^h= :: Backspace
+ - =^k= :: Kill/delete to the end of line (super useful)
+ - =^a= :: Move cursor to the start of line
+ - =^e= :: Move cursor to the end of line
+ - =^/= :: Undo
+ - =^_= :: Redo
+
+Who am I kidding, I'm not going to list them all.
+
+[fn:4] /Some/ of these should already be familiar to regular users of the
+terminal, like =^w= to delete the previous word (I've closed one too many
+browser tabs due to this habit.)
+
+* Footnotes
