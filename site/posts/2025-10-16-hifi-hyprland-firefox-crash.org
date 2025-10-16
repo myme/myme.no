@@ -1,0 +1,131 @@
+---
+title: "How I fixed it: Firefox crash on Hyprland"
+tags: Firefox, Nix, Linux
+toc: nil
+---
+
+** Background
+
+As a developer, when something crashes on my computer I'm inclined to fix it.
+Obviously that comes with the trade of writing your own software, but we are
+also empowered with the knowledge and skill to find ways to contribute to fixing
+issues in programs and apps we didn't write ourselves.
+
+In the world of open source we even have the superpower of /modifying/ programs
+someone else wrote, then build and run it without ever involving the upstream
+maintainers. This is obviously great, but also cursed, in a way. /Knowing/ you
+are able to fix something can be frustrating when you feel you don't have the
+time or energy to do so.
+
+I will admit as I'm getting older my threshold for debugging issues in other
+people's software is getting higher. Lazy, I know. But when I experience weird
+crashes in off the shelf applications I quickly turn to search engines to see if
+someone else has experienced similar issues.
+
+#+begin_export html
+<p>
+  <img
+    src="https://imgs.xkcd.com/comics/wisdom_of_the_ancients.png"
+    alt="Never have I felt so close to another soul and yet so helplessly alone as when I google an error and there's one result: A thread by someone with the same problem, and no answer, last posted to in 2003."
+    title="XKCD wisdom of the acients"
+    style="width: 50%"
+  />
+</p>
+#+end_export
+
+Before LLMs we relied on people to continously publish their issues and
+solutions online for this to work. Now this has obviously changed quite
+significantly. LLMs provide great help /just for you in your particular
+situation/ the rest of the world won't see a trace of this interaction (besides
+the model providers, of course.)
+
+So I thought to get back into writing I'd take some of the issues I experience
+and try to document how I fixed them (or abandoned trying.)
+
+** The crash
+
+I choose to use [[https://www.firefox.com][Firefox]] as my main browser and have been happy with it for the
+last decade or so. One prerequisite for me to use a piece of software however,
+is that it works™.
+
+For the last few weeks I've noticed that both =Firefox= and =Thunderbird= has
+been crashing when I leave work with my laptop. It happens the second I unplug
+the USB-C cable connecting two external displays and a keyboard and presents the
+following error:
+
+#+begin_example
+Crash Annotation GraphicsCriticalError: |[0][GFX1-]: (hyprland) Wayland protocol error: wp_color_manager_v1#46: error -1: Invalid output (2)
+(t=3.49975) [GFX1-]: (hyprland) Wayland protocol error: wp_color_manager_v1#46: error -1: Invalid output (2)
+#+end_example
+
+I'm not going to admit to how long I kept up with just restarting =Firefox= (and
+had to unlock my password manager browser extension with a stupidly long
+password.) But eventually I couldn't take it any longer.
+
+First I seriously considered switching to =Chromium= just because of my
+laziness. But it didn't even take an hour before I realized I didn't really
+enjoy that experience.
+
+Time to scour the internet for solutions!
+
+** The bug report
+
+Turns out there's already [[https://bugzilla.mozilla.org/show_bug.cgi?id=1984696][an upstream issue]] reported on =Bugzilla=, Firefox's
+issue tracker.
+
+The report states that =Firefox= crashes on =Wayland= upon losing a display.
+Sound like we got it!
+
+Looking closer at the issue /could/ be a generic =Wayland= and =Firefox= issue,
+but the only reports that I've found mention =Hyperland= (my window manager.) To
+resolve this issue let's see if there are any issues or fixes for =Hyperland= in
+particular.
+
+And there is!
+
+https://github.com/hyprwm/Hyprland/pull/11916
+
+** The fix
+
+When there are bugs in software that you use and you don't build everything
+yourself from source, you're by default at the mercy of package maintainers to
+get fixes into upstream packages.
+
+The same applies for the default experience on =NixOS=. However, since packages
+(or derivations) on =NixOS= basically are defined through their build recipe
+it's trivial (once you know how) to patch software yourself.
+
+The fix for [[https://github.com/hyprwm/Hyprland/pull/11916][Hyprland#11916]] is already merged and applied in `main` upstream, but
+there hasn't been a release containing it yet. Regardless, we can quite easily
+replace the source of the =hyprland= package in a =NixOS= configuration by
+specifying an overlay pulling down a source tree containing the fix.
+
+From my personal NixOS configuration in [[https://github.com/myme/dotfiles/blob/2dddb72fbcc08ea282d9c98be01b0c3b4c97bc0d/overlay.nix#L29:L40][myme/dotfiles]]:
+
+#+begin_src nix
+# overlay.nix
+{
+  hyprland = nixpkgs.legacyPackages.${prev.system}.hyprland.overrideAttrs ({
+    version = "0.51.1-patched";
+    src = prev.fetchFromGitHub {
+      owner = "hyprwm";
+      repo = "hyprland";
+      fetchSubmodules = true;
+      rev = "ab11af9664a80df70fe3398810b79c4298312a33";
+      hash = "sha256-dSAPRyKzxM+JodX5xBCmpVrVYWjYpNPPiSySaI4W+rQ=";
+    };
+  });
+}
+#+end_src
+
+[[https://hydra.nixos.org/][Hydra]] builds packages in the maintained =NixOS= release channels, but once we
+create an overlay we generally won't find existing builds. What =nix= does when
+applying the configuration is that it doesn't find a cached derivation and
+proceeds to build it on the spot.
+
+After a =nixos-rebuild switch --flake .#= I now have a laptop setup where
+=Firefox= no longer crashes when I unplug USB-C cables connected to external
+displays. Great success!
+
+Once the fix to makes it into the next =NixOS= stable release I can remove the
+overlay and use the stock package.
