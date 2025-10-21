@@ -36,8 +36,8 @@ someone else has experienced similar issues.
 Before LLMs we relied on people to continously publish their issues and
 solutions online for this to work. Now this has obviously changed quite
 significantly. LLMs provide great help /just for you in your particular
-situation/ the rest of the world won't see a trace of this interaction (besides
-the model providers, of course.)
+situation/, but the rest of the world won't see a trace of this interaction
+(besides the model providers, of course.)
 
 So I thought to get back into writing I'd take some of the issues I experience
 and try to document how I fixed them (or abandoned trying.)
@@ -95,7 +95,7 @@ The same applies for the default experience on =NixOS=. However, since packages
 (or derivations) on =NixOS= basically are defined through their build recipe
 it's trivial (once you know how) to patch software yourself.
 
-The fix for [[https://github.com/hyprwm/Hyprland/pull/11916][Hyprland#11916]] is already merged and applied in `main` upstream, but
+The fix for [[https://github.com/hyprwm/Hyprland/pull/11916][Hyprland#11916]] is already merged and applied in =main= upstream, but
 there hasn't been a release containing it yet. Regardless, we can quite easily
 replace the source of the =hyprland= package in a =NixOS= configuration by
 specifying an overlay pulling down a source tree containing the fix.
