@@ -1,0 +1,102 @@
+---
+title: "How I fixed it: Sunshine issues on NixOS"
+tags: Nix, Linux
+toc: nil
+---
+
+** Background
+
+I've got a couple of computers in the home. One machine in particular is a
+semi-powerful gaming machine. The weird thing about this machine is that it's
+stowed away in a storage room, not a very suitable place to sit and actually use
+it.
+
+To be honest, I'm not really much of a gamer, and so I mostly use its
+capabilities for work and other heavier tasks. But it's always nice to be able
+to use graphical applications in a performant way. And I /do/ in fact use it for
+running [[https://www.zwift.com/][Zwift]] with my virtual trainer.
+
+#+begin_notes
+This machine—as all my other machines—runs =NixOS=. But one goal I had for this
+machine was to experiment with =GPU= passthrough to let me run a Windows VM for
+gaming (and Zwift). An interesting project and I've managed to get it working
+quite nicely. A topic for another post.
+#+end_notes
+
+Before switching to [[https://hypr.land/][Hyprland]] running on =Wayland= I used various =SPICE= and
+=RDP= setups that worked well enough running on an X server. However, with my
+limited patience I didn't manage to find any suitable solutions working well on
+=Wayland=. And when I found people mentioning solutions [[https://app.lizardbyte.dev/Sunshine/?lng=en][Sunshine]] with [[https://moonlight-stream.org/][Moonlight]]
+always seemed to be high up on the list of options.
+
+I managed to get Sunshine running on NixOS with minimal effort due to the
+[[https://github.com/NixOS/nixpkgs/blob/nixos-25.11/nixos/modules/services/networking/sunshine.nix][Sunshine NixOS module]]. Then on both my NixOS laptop and other Windows desktop
+computer I've installed Moonlight.
+
+** The issue
+
+However, after upgrading to =NixOS= 25.11 I noticed that Moonlight no longer
+managed to capture input (there were several other issues, but more on that
+later).
+
+Inspecting the =sunshine.service= logs I noticed the following warnings:
+
+#+begin_example
+Warning: Unable to create virtual mouse: Permission denied
+Warning: Unable to create virtual keyboard: Permission denied
+#+end_example
+
+With a smoking gun I managed to google my way to realize that Sunshine uses
+=udev= to emulate HID[fn:1] devices for input capture through the =/dev/uinput=
+device.
+
+An sure enough, when I checked the permissions on =/dev/uinput= I saw that it
+was only read-writable by =root=:
+
+#+begin_src bash
+❯ ls -l /dev/uinput
+crw------- 1 root root 10, 223 Dec 11 22:36 /dev/uinput
+#+end_src
+
+Although it might seem tempting to lean up and just =chmod 666 /dev/uinput=, you
+don't want to give *everyone* access to =/dev/uinput=, as that would be a security
+risk. But Sunshine needs access to it, and the NixOS module spins up Sunshine
+instances through a =systemd= user service running as your unprivileged user.
+
+Not sure what has changed to cause this to break now, I don't know. But there
+must be a simple way to work around it, right?
+
+[fn:1] Human Interface Device 
+
+** The fix
+
+As covered on [[https://docs.lizardbyte.dev/projects/sunshine/latest/md_docs_2troubleshooting.html#input-not-working][the Sunshine troubleshooting page]] users need to be a member of the
+=input= group when running Sunshine unprivileged. However, this doesn't really
+help if =/dev/uinput= is only read-writable by =root=.
+
+Luckily NixOS makes it easy to add custom =udev= rules through it's
+configuration system. Adding the following udev rule to my NixOS configuration:
+
+#+begin_src nix
+services.udev.extraRules = ''
+  KERNEL=="uinput", MODE="0660", GROUP="input", SYMLINK+="uinput"
+'';
+#+end_src
+
+This creates =/dev/uinput= with the right permissions.
+
+#+begin_src bash
+❯ ls -l /dev/uinput
+crw-rw---- 1 root input 10, 223 Dec 11 22:36 /dev/uinput
+#+end_src
+
+Then I had to add myself to the =input= group:
+
+#+begin_src nix
+users.users.myme.extraGroups = [ "input" ];
+#+end_src
+
+And with that, Moonlight is able to pass captured input to Sunshine and I'm able
+to control my stowed away gaming machine once again.
+
+** Footnotes
