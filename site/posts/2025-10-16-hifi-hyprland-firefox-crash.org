@@ -127,5 +127,5 @@ After a =nixos-rebuild switch --flake .#= I now have a laptop setup where
 =Firefox= no longer crashes when I unplug USB-C cables connected to external
 displays. Great success!
 
-Once the fix to makes it into the next =NixOS= stable release I can remove the
+Once the fix makes it into the next =NixOS= stable release I can remove the
 overlay and use the stock package.
